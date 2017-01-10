@@ -40,8 +40,9 @@ public class Scout extends RobotBase {
                     } else {
                         rc.fireSingleShot(rc.getLocation().directionTo(enemyArchonLoc).rotateRightDegrees((float) (1 *  Math.random())));
                     }
+                } else {
+                    tryMove(rc, rc.getLocation().directionTo(enemyArchonLoc));
                 }
-                tryMove(rc, rc.getLocation().directionTo(enemyArchonLoc));
             } else {
                 // Move randomly
                 tryMove(rc, randomDirection());

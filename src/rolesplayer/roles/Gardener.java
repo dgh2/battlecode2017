@@ -50,19 +50,17 @@ public class Gardener extends RobotBase {
                 tryMove(rc, rc.getLocation().directionTo(enemyRobots[0].getLocation()).rotateRightDegrees(90 + 30));
             }
         } else if (ourTrees.length > 0) {
-            boolean watering = false;
             for (TreeInfo ourTree : ourTrees) {
                 if (ourTree.getHealth() < .6 * ourTree.getMaxHealth() && rc.canWater(ourTree.getLocation())) {
                     tryMove(rc, rc.getLocation().directionTo(ourTree.getLocation()));
                     rc.water(ourTree.getLocation());
-                    watering = true;
                     break;
                 }
             }
-            if (!watering) {
-                // Move randomly
-                tryMove(rc, randomDirection());
-            }
+        }
+        if (!rc.hasMoved()) {
+            // Move randomly
+            tryMove(rc, randomDirection());
         }
     }
 }

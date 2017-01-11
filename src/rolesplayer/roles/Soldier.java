@@ -1,14 +1,19 @@
 package rolesplayer.roles;
 
-import battlecode.common.*;
+import battlecode.common.GameActionException;
+import battlecode.common.MapLocation;
+import battlecode.common.RobotController;
+import battlecode.common.RobotInfo;
+import battlecode.common.RobotType;
+import battlecode.common.Team;
 import rolesplayer.util.RobotBase;
 
 import static rolesplayer.util.Util.randomDirection;
 import static rolesplayer.util.Util.tryMove;
 
 public class Soldier extends RobotBase {
-    public Soldier(RobotController rc) {
-        super(rc);
+    public Soldier(RobotController robotController) {
+        super(robotController);
     }
 
     @Override
@@ -19,42 +24,42 @@ public class Soldier extends RobotBase {
     @Override
     public void run() throws GameActionException {
         // Listen for enemy Archon's location
-        int xPos = rc.readBroadcast(0);
-        int yPos = rc.readBroadcast(1);
+        int xPos = robotController.readBroadcast(0);
+        int yPos = robotController.readBroadcast(1);
         MapLocation enemyArchonLoc = new MapLocation(xPos, yPos);
 
-        Team enemy = rc.getTeam().opponent();
+        Team enemy = robotController.getTeam().opponent();
 
         // See if there are any nearby enemy robots
-        RobotInfo[] robots = rc.senseNearbyRobots(-1, enemy);
+        RobotInfo[] robots = robotController.senseNearbyRobots(-1, enemy);
 
         // If there are some...
         if (robots.length > 0) {
             // And we have enough bullets, and haven't attacked yet this turn...
-            if (rc.canFireSingleShot()) {
+            if (robotController.canFireSingleShot()) {
                 // ...Then fire a bullet in the direction of the enemy.
-                rc.fireSingleShot(rc.getLocation().directionTo(robots[0].location));
+                robotController.fireSingleShot(robotController.getLocation().directionTo(robots[0].location));
             }
-            tryMove(rc, rc.getLocation().directionTo(robots[0].getLocation()));
+            tryMove(robotController, robotController.getLocation().directionTo(robots[0].getLocation()));
             if(Math.random() < .5) {
-                tryMove(rc, rc.getLocation().directionTo(robots[0].getLocation()).rotateLeftDegrees(30));
+                tryMove(robotController, robotController.getLocation().directionTo(robots[0].getLocation()).rotateLeftDegrees(30));
             } else {
-                tryMove(rc, rc.getLocation().directionTo(robots[0].getLocation()).rotateRightDegrees(30));
+                tryMove(robotController, robotController.getLocation().directionTo(robots[0].getLocation()).rotateRightDegrees(30));
             }
         } else {
             if (enemyArchonLoc.x != 0 || enemyArchonLoc.y != 0) {
-                if (rc.canFireSingleShot()) {
+                if (robotController.canFireSingleShot()) {
                     if (Math.random() > .5) {
-                        rc.fireSingleShot(rc.getLocation().directionTo(enemyArchonLoc).rotateLeftDegrees((float) (2 * Math.random())));
+                        robotController.fireSingleShot(robotController.getLocation().directionTo(enemyArchonLoc).rotateLeftDegrees((float) (2 * Math.random())));
                     } else {
-                        rc.fireSingleShot(rc.getLocation().directionTo(enemyArchonLoc).rotateRightDegrees((float) (2 *  Math.random())));
+                        robotController.fireSingleShot(robotController.getLocation().directionTo(enemyArchonLoc).rotateRightDegrees((float) (2 * Math.random())));
                     }
                 } else {
-                    tryMove(rc, rc.getLocation().directionTo(enemyArchonLoc));
+                    tryMove(robotController, robotController.getLocation().directionTo(enemyArchonLoc));
                 }
             } else {
                 // Move randomly
-                tryMove(rc, randomDirection());
+                tryMove(robotController, randomDirection());
             }
         }
     }

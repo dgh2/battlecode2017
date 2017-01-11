@@ -11,41 +11,13 @@ import rolesplayer.roles.Soldier;
 import rolesplayer.roles.Tank;
 
 public abstract class RobotBase {
-    protected RobotController rc;
+    protected RobotController robotController;
 
-    protected RobotBase(RobotController rc) {
-        if (!getBaseType().equals(rc.getType())) {
-            throw new IllegalArgumentException("A robot of type " + rc.getType() + " cannot be created with a " + getBaseType() + " base!");
+    protected RobotBase(RobotController robotController) {
+        if (!getBaseType().equals(robotController.getType())) {
+            throw new IllegalArgumentException("A robot of type " + robotController.getType() + " cannot be created with a " + getBaseType() + " base!");
         }
-        this.rc = rc;
-    }
-
-    public static class RobotFactory {
-        private RobotController rc;
-        public RobotFactory(RobotController rc) {
-            this.rc = rc;
-        }
-        public RobotBase build() {
-            if(rc == null || rc.getType() == null) {
-                throw new IllegalArgumentException("Unable to build robot from invalid RobotController!");
-            }
-            switch (rc.getType()) {
-                case ARCHON:
-                    return new Archon(rc);
-                case GARDENER:
-                    return new Gardener(rc);
-                case SOLDIER:
-                    return new Soldier(rc);
-                case TANK:
-                    return new Tank(rc);
-                case SCOUT:
-                    return new Scout(rc);
-                case LUMBERJACK:
-                    return new Lumberjack(rc);
-                default:
-                    throw new IllegalArgumentException("Unable to build robot of an unrecognized type: " + rc.getType().name());
-            }
-        }
+        this.robotController = robotController;
     }
 
     public abstract RobotType getBaseType();
@@ -56,22 +28,52 @@ public abstract class RobotBase {
 
     public void beforeRun() throws GameActionException {
         System.out.print("I'm a bot, ");
-        Util.detectArchons(rc);
+        Util.detectArchons(robotController);
     }
 
     public abstract void run() throws GameActionException;
 
     public void afterRun() throws GameActionException {
-        Util.detectArchons(rc);
+        Util.detectArchons(robotController);
         System.out.println("We're done here!");
     }
 
     public void dying() throws GameActionException {
-        Util.detectArchons(rc);
+        Util.detectArchons(robotController);
         System.out.println("Oh, what a world!");
     }
 
     public boolean getWillToLive() {
         return true;
+    }
+
+    public static class RobotFactory {
+        private RobotController robotController;
+
+        public RobotFactory(RobotController robotController) {
+            this.robotController = robotController;
+        }
+
+        public RobotBase build() {
+            if (robotController == null || robotController.getType() == null) {
+                throw new IllegalArgumentException("Unable to build robot from invalid RobotController!");
+            }
+            switch (robotController.getType()) {
+                case ARCHON:
+                    return new Archon(robotController);
+                case GARDENER:
+                    return new Gardener(robotController);
+                case SOLDIER:
+                    return new Soldier(robotController);
+                case TANK:
+                    return new Tank(robotController);
+                case SCOUT:
+                    return new Scout(robotController);
+                case LUMBERJACK:
+                    return new Lumberjack(robotController);
+                default:
+                    throw new IllegalArgumentException("Unable to build robot of an unrecognized type: " + robotController.getType().name());
+            }
+        }
     }
 }

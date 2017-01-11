@@ -1,5 +1,8 @@
 package rolesplayer;
-import battlecode.common.*;
+
+import battlecode.common.Clock;
+import battlecode.common.GameActionException;
+import battlecode.common.RobotController;
 import rolesplayer.util.RobotBase;
 import rolesplayer.util.RobotBase.RobotFactory;
 
@@ -11,8 +14,8 @@ public strictfp class RobotPlayer {
      * If this method returns, the robot dies!
     **/
     @SuppressWarnings("unused")
-    public static void run(RobotController rc) throws GameActionException {
-        RobotPlayer.self = new RobotFactory(rc).build();
+    public static void run(RobotController robotController) throws GameActionException {
+        RobotPlayer.self = new RobotFactory(robotController).build();
         try {
             self.runOnce();
         } catch (Exception e) {

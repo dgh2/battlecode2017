@@ -19,11 +19,6 @@ public class Lumberjack extends RobotBase {
     }
 
     @Override
-    public RobotType getBaseType() {
-        return RobotType.LUMBERJACK;
-    }
-
-    @Override
     public void runOnce() {
         System.out.print("I wanted to be... A " + getBaseType().name() + "!");
     }
@@ -53,6 +48,7 @@ public class Lumberjack extends RobotBase {
         // See if there are any enemy and friendly robots or trees within striking range (distance 1 from lumberjack's radius)
         float strikingRange = RobotType.LUMBERJACK.bodyRadius + GameConstants.LUMBERJACK_STRIKE_RADIUS;
         RobotInfo[] enemyRobots = robotController.senseNearbyRobots(strikingRange, robotController.getTeam().opponent());
+//        RobotInfo[] closeEnemyRobots = robotController.senseNearbyRobots(strikingRange, robotController.getTeam().opponent());
         RobotInfo[] friendlyRobots = robotController.senseNearbyRobots(strikingRange, robotController.getTeam());
         TreeInfo[] enemyTrees = robotController.senseNearbyTrees(strikingRange, robotController.getTeam().opponent());
         TreeInfo[] ourTrees = robotController.senseNearbyTrees(strikingRange, robotController.getTeam());
@@ -61,10 +57,18 @@ public class Lumberjack extends RobotBase {
         if ((enemyRobots.length > 0 || enemyTrees.length > 0 || neutralTrees.length > 0) && !robotController.hasAttacked()) {
             if(friendlyRobots.length != 0) {
                 // Too close to friendly units
-                tryMove(robotController, robotController.getLocation().directionTo(friendlyRobots[0].getLocation()).opposite());
+                if (rightHanded) {
+                    tryMove(robotController, robotController.getLocation().directionTo(enemyRobots[0].getLocation()).opposite().rotateRightDegrees(45));
+                } else {
+                    tryMove(robotController, robotController.getLocation().directionTo(enemyRobots[0].getLocation()).opposite().rotateLeftDegrees(45));
+                }
             } else if(ourTrees.length != 0) {
                 // Too close to our trees
-                tryMove(robotController, robotController.getLocation().directionTo(ourTrees[0].getLocation()).opposite());
+                if (rightHanded) {
+                    tryMove(robotController, robotController.getLocation().directionTo(ourTrees[0].getLocation()).opposite().rotateRightDegrees(5));
+                } else {
+                    tryMove(robotController, robotController.getLocation().directionTo(ourTrees[0].getLocation()).opposite().rotateLeftDegrees(5));
+                }
             } else {
                 // Use strike() to hit all nearby robots!
                 robotController.strike();
@@ -80,17 +84,24 @@ public class Lumberjack extends RobotBase {
                 tryMove(robotController, robotController.getLocation().directionTo(enemyTrees[0].getLocation()));
             } else if(enemyRobots.length > 0) {
                 // If there is an enemy robot, move towards it
-                tryMove(robotController, robotController.getLocation().directionTo(enemyRobots[0].getLocation()));
-                //if(Math.random() < .5) {
-                //    tryMove(robotController, robotController.getLocation().directionTo(enemyRobots[0].getLocation()).rotateLeftDegrees(45));
-                //} else {
-                //    tryMove(robotController, robotController.getLocation().directionTo(enemyRobots[0].getLocation()).rotateRightDegrees(45));
-                //}
+                if (rightHanded) {
+                    tryMove(robotController, robotController.getLocation().directionTo(enemyRobots[0].getLocation()).rotateRightDegrees(45));
+                } else {
+                    tryMove(robotController, robotController.getLocation().directionTo(enemyRobots[0].getLocation()).rotateLeftDegrees(45));
+                }
             } else if (enemyArchonLoc.x != 0 || enemyArchonLoc.y != 0) {
-                tryMove(robotController, robotController.getLocation().directionTo(enemyArchonLoc));
+                if (rightHanded) {
+                    tryMove(robotController, robotController.getLocation().directionTo(enemyArchonLoc).rotateRightDegrees(5));
+                } else {
+                    tryMove(robotController, robotController.getLocation().directionTo(enemyArchonLoc).rotateLeftDegrees(5));
+                }
             } else if (neutralTrees.length > 0) {
                 // If there is a neutral tree, move towards it
-                tryMove(robotController, robotController.getLocation().directionTo(neutralTrees[0].getLocation()));
+                if (rightHanded) {
+                    tryMove(robotController, robotController.getLocation().directionTo(neutralTrees[0].getLocation()).rotateRightDegrees(5));
+                } else {
+                    tryMove(robotController, robotController.getLocation().directionTo(neutralTrees[0].getLocation()).rotateLeftDegrees(5));
+                }
             } else {
                 // Move randomly
                 tryMove(robotController, randomDirection());

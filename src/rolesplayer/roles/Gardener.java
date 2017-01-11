@@ -17,11 +17,6 @@ public class Gardener extends RobotBase {
     }
 
     @Override
-    public RobotType getBaseType() {
-        return RobotType.GARDENER;
-    }
-
-    @Override
     public void run() throws GameActionException {
         // Listen for home Archon's location
 //        int xPos = robotController.readBroadcast(0);
@@ -49,10 +44,10 @@ public class Gardener extends RobotBase {
 
         if (enemyRobots.length > 0) {
             // If there is an enemy robot, move away from it
-            if (Math.random() < .5) {
-                tryMove(robotController, robotController.getLocation().directionTo(enemyRobots[0].getLocation()).rotateLeftDegrees(90 + 30));
+            if (rightHanded) {
+                tryMove(robotController, robotController.getLocation().directionTo(enemyRobots[0].getLocation()).opposite().rotateRightDegrees(30));
             } else {
-                tryMove(robotController, robotController.getLocation().directionTo(enemyRobots[0].getLocation()).rotateRightDegrees(90 + 30));
+                tryMove(robotController, robotController.getLocation().directionTo(enemyRobots[0].getLocation()).opposite().rotateLeftDegrees(30));
             }
         } else if (ourTrees.length > 0) {
             for (TreeInfo ourTree : ourTrees) {

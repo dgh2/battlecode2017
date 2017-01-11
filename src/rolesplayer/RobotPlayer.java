@@ -4,18 +4,18 @@ import battlecode.common.Clock;
 import battlecode.common.GameActionException;
 import battlecode.common.RobotController;
 import rolesplayer.util.RobotBase;
-import rolesplayer.util.RobotBase.RobotFactory;
 
+@SuppressWarnings("unused")
 public strictfp class RobotPlayer {
     private static RobotBase self;
 
     /**
      * run() is the method that is called when a robot is instantiated in the Battlecode world.
      * If this method returns, the robot dies!
-    **/
+     **/
     @SuppressWarnings("unused")
     public static void run(RobotController robotController) throws GameActionException {
-        RobotPlayer.self = new RobotFactory(robotController).build();
+        RobotPlayer.self = RobotBase.createForController(robotController);
         try {
             self.runOnce();
         } catch (Exception e) {
@@ -46,9 +46,9 @@ public strictfp class RobotPlayer {
         } catch (Exception e) {
             logRobotException("dying", e);
         }
-	}
+    }
 
-	private static void logRobotException(String method, Exception e) {
+    private static void logRobotException(String method, Exception e) {
         System.out.print("An exception was caught from " + self.getBaseType().name() + "." + method + "(): " + e.getMessage());
     }
 }

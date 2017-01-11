@@ -26,7 +26,10 @@ public class Util {
      * @throws GameActionException thrown when an illegal action is attempted
      */
     public static boolean tryMove(RobotController robotController, Direction dir) throws GameActionException {
-        return tryMove(robotController, dir, 20, 3);
+//        if (tryMove(robotController, dir, 20, 3)) {
+//            return true;
+//        }
+        return tryMove(robotController, dir, 20, 5);
     }
 
     /**
@@ -103,12 +106,18 @@ public class Util {
     }
 
     static void detectArchons(RobotController robotController) throws GameActionException {
+        if (robotController.readBroadcast(2) != 0 && robotController.readBroadcast(2) + 15 < robotController.getRoundNum()) {
+            robotController.broadcast(0, 0);
+            robotController.broadcast(1, 0);
+            robotController.broadcast(2, 0);
+        }
         RobotInfo[] enemyRobots = robotController.senseNearbyRobots(-1, robotController.getTeam().opponent());
         for (RobotInfo enemyRobot : enemyRobots) {
             if (RobotType.ARCHON.equals(enemyRobot.getType())) {
                 MapLocation enemyArchonLocation = enemyRobot.getLocation();
                 robotController.broadcast(0, (int) enemyArchonLocation.x);
                 robotController.broadcast(1, (int) enemyArchonLocation.y);
+                robotController.broadcast(2, robotController.getRoundNum());
             }
         }
     }

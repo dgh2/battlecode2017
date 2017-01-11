@@ -5,7 +5,6 @@ import battlecode.common.GameActionException;
 import battlecode.common.MapLocation;
 import battlecode.common.RobotController;
 import battlecode.common.RobotInfo;
-import battlecode.common.RobotType;
 import rolesplayer.util.RobotBase;
 
 import static rolesplayer.util.Util.randomDirection;
@@ -14,11 +13,6 @@ import static rolesplayer.util.Util.tryMove;
 public class Archon extends RobotBase {
     public Archon(RobotController robotController) {
         super(robotController);
-    }
-
-    @Override
-    public RobotType getBaseType() {
-        return RobotType.ARCHON;
     }
 
     @Override
@@ -39,10 +33,10 @@ public class Archon extends RobotBase {
         RobotInfo[] enemyRobots = robotController.senseNearbyRobots(-1, robotController.getTeam().opponent());
         if (enemyRobots.length > 0) {
             // If there is an enemy robot, move away from it
-            if (Math.random() < .5) {
-                tryMove(robotController, robotController.getLocation().directionTo(enemyRobots[0].getLocation()).rotateLeftDegrees(90 + 30));
+            if (rightHanded) {
+                tryMove(robotController, robotController.getLocation().directionTo(enemyRobots[0].getLocation()).opposite().rotateRightDegrees(30));
             } else {
-                tryMove(robotController, robotController.getLocation().directionTo(enemyRobots[0].getLocation()).rotateRightDegrees(90 + 30));
+                tryMove(robotController, robotController.getLocation().directionTo(enemyRobots[0].getLocation()).opposite().rotateLeftDegrees(30));
             }
         } else {
             if (enemyArchonLoc.x != 0 || enemyArchonLoc.y != 0) {

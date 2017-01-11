@@ -46,7 +46,8 @@ public class Gardener extends RobotBase {
             // If there is an enemy robot, move away from it
             if (rightHanded) {
                 tryMove(robotController, robotController.getLocation().directionTo(enemyRobots[0].getLocation()).opposite().rotateRightDegrees(30));
-            } else {
+            }
+            if (!robotController.hasMoved()) {
                 tryMove(robotController, robotController.getLocation().directionTo(enemyRobots[0].getLocation()).opposite().rotateLeftDegrees(30));
             }
         } else if (ourTrees.length > 0) {

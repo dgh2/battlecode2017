@@ -43,16 +43,16 @@ public class Tank extends RobotBase {
             tryMove(robotController, robotController.getLocation().directionTo(enemyLocation));
         } else {
             if (enemyArchonLoc.x != 0 || enemyArchonLoc.y != 0) {
+                tryMove(robotController, robotController.getLocation().directionTo(enemyArchonLoc));
                 if (robotController.canFireSingleShot()) {
                     if (rightHanded) {
                         robotController.fireSingleShot(robotController.getLocation().directionTo(enemyArchonLoc).rotateRightDegrees((float) (.5 * Math.random())));
                     } else {
                         robotController.fireSingleShot(robotController.getLocation().directionTo(enemyArchonLoc).rotateLeftDegrees((float) (.5 * Math.random())));
                     }
-                } else {
-                    tryMove(robotController, robotController.getLocation().directionTo(enemyArchonLoc));
                 }
-            } else {
+            }
+            if (!robotController.hasMoved()) {
                 // Move randomly
                 tryMove(robotController, randomDirection());
             }

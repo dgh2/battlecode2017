@@ -20,22 +20,22 @@ public class Lumberjack extends RobotBase {
 
     @Override
     public void runOnce() {
-        System.out.print("I wanted to be... A " + getBaseType().name() + "!");
+        System.out.println("I wanted to be... A " + getBaseType().name() + "!");
     }
 
     @Override
     public void beforeRun() {
-        System.out.print("I am a " + getBaseType().name() + " and I'm okay");
+        System.out.println("I am a " + getBaseType().name() + " and I'm okay");
     }
 
     @Override
     public void afterRun() {
-        System.out.print("I sleep all night and I work all day");
+        System.out.println("I sleep all night and I work all day");
     }
 
     @Override
     public void dying() {
-        System.out.print("I never wanted to do this in the first place!");
+        System.out.println("I never wanted to do this in the first place!");
     }
 
     @Override
@@ -47,62 +47,70 @@ public class Lumberjack extends RobotBase {
 
         // See if there are any enemy and friendly robots or trees within striking range (distance 1 from lumberjack's radius)
         float strikingRange = RobotType.LUMBERJACK.bodyRadius + GameConstants.LUMBERJACK_STRIKE_RADIUS;
-        RobotInfo[] enemyRobots = robotController.senseNearbyRobots(strikingRange, robotController.getTeam().opponent());
-//        RobotInfo[] closeEnemyRobots = robotController.senseNearbyRobots(strikingRange, robotController.getTeam().opponent());
-        RobotInfo[] friendlyRobots = robotController.senseNearbyRobots(strikingRange, robotController.getTeam());
-        TreeInfo[] enemyTrees = robotController.senseNearbyTrees(strikingRange, robotController.getTeam().opponent());
-        TreeInfo[] ourTrees = robotController.senseNearbyTrees(strikingRange, robotController.getTeam());
-        TreeInfo[] neutralTrees = robotController.senseNearbyTrees(strikingRange, Team.NEUTRAL);
+        RobotInfo[] nearbyEnemyRobots = robotController.senseNearbyRobots(strikingRange, robotController.getTeam().opponent());
+        RobotInfo[] nearbyFriendlyRobots = robotController.senseNearbyRobots(strikingRange, robotController.getTeam());
+        TreeInfo[] nearbyEnemyTrees = robotController.senseNearbyTrees(strikingRange, robotController.getTeam().opponent());
+        TreeInfo[] nearbyFriendlyTrees = robotController.senseNearbyTrees(strikingRange, robotController.getTeam());
+        TreeInfo[] nearbyNeutralTrees = robotController.senseNearbyTrees(strikingRange, Team.NEUTRAL);
 
-        if ((enemyRobots.length > 0 || enemyTrees.length > 0 || neutralTrees.length > 0) && !robotController.hasAttacked()) {
-            if(friendlyRobots.length != 0) {
+        if ((nearbyEnemyRobots.length > 0 || nearbyEnemyTrees.length > 0 || nearbyNeutralTrees.length > 0) && !robotController.hasAttacked()) {
+            if(nearbyFriendlyRobots.length != 0) {
                 // Too close to friendly units
                 if (rightHanded) {
-                    tryMove(robotController, robotController.getLocation().directionTo(enemyRobots[0].getLocation()).opposite().rotateRightDegrees(45));
-                } else {
-                    tryMove(robotController, robotController.getLocation().directionTo(enemyRobots[0].getLocation()).opposite().rotateLeftDegrees(45));
+                    tryMove(robotController, robotController.getLocation().directionTo(nearbyFriendlyRobots[0].getLocation()).opposite().rotateRightDegrees(45));
                 }
-            } else if(ourTrees.length != 0) {
+                if (!robotController.hasMoved()) {
+                    tryMove(robotController, robotController.getLocation().directionTo(nearbyFriendlyRobots[0].getLocation()).opposite().rotateLeftDegrees(45));
+                }
+                nearbyFriendlyRobots = robotController.senseNearbyRobots(strikingRange, robotController.getTeam());
+            } else if(nearbyFriendlyTrees.length != 0) {
                 // Too close to our trees
                 if (rightHanded) {
-                    tryMove(robotController, robotController.getLocation().directionTo(ourTrees[0].getLocation()).opposite().rotateRightDegrees(5));
-                } else {
-                    tryMove(robotController, robotController.getLocation().directionTo(ourTrees[0].getLocation()).opposite().rotateLeftDegrees(5));
+                    tryMove(robotController, robotController.getLocation().directionTo(nearbyFriendlyTrees[0].getLocation()).opposite().rotateRightDegrees(5));
                 }
-            } else {
+                if (!robotController.hasMoved()) {
+                    tryMove(robotController, robotController.getLocation().directionTo(nearbyFriendlyTrees[0].getLocation()).opposite().rotateLeftDegrees(5));
+                }
+                nearbyFriendlyTrees = robotController.senseNearbyTrees(strikingRange, robotController.getTeam());
+            }
+            if(nearbyFriendlyRobots.length == 0 && nearbyFriendlyTrees.length == 0) {
                 // Use strike() to hit all nearby robots!
                 robotController.strike();
             }
         } else {
             // No close robots, so search for robots within sight radius
-            enemyRobots = robotController.senseNearbyRobots(-1, robotController.getTeam().opponent());
-            enemyTrees = robotController.senseNearbyTrees(-1, robotController.getTeam().opponent());
-            neutralTrees = robotController.senseNearbyTrees(-1, Team.NEUTRAL);
+            RobotInfo[] enemyRobots = robotController.senseNearbyRobots(-1, robotController.getTeam().opponent());
+            TreeInfo[] enemyTrees = robotController.senseNearbyTrees(-1, robotController.getTeam().opponent());
+            TreeInfo[] neutralTrees = robotController.senseNearbyTrees(-1, Team.NEUTRAL);
 
-            if(enemyTrees.length > 0) {
-                // If there is an enemy tree, move towards it
-                tryMove(robotController, robotController.getLocation().directionTo(enemyTrees[0].getLocation()));
-            } else if(enemyRobots.length > 0) {
+            if(enemyRobots.length > 0) {
                 // If there is an enemy robot, move towards it
                 if (rightHanded) {
                     tryMove(robotController, robotController.getLocation().directionTo(enemyRobots[0].getLocation()).rotateRightDegrees(45));
-                } else {
+                }
+                if (!robotController.hasMoved()) {
                     tryMove(robotController, robotController.getLocation().directionTo(enemyRobots[0].getLocation()).rotateLeftDegrees(45));
                 }
+            } else if(enemyTrees.length > 0) {
+                // If there is an enemy tree, move towards it
+                tryMove(robotController, robotController.getLocation().directionTo(enemyTrees[0].getLocation()));
             } else if (enemyArchonLoc.x != 0 || enemyArchonLoc.y != 0) {
                 if (rightHanded) {
                     tryMove(robotController, robotController.getLocation().directionTo(enemyArchonLoc).rotateRightDegrees(5));
-                } else {
+                }
+                if (!robotController.hasMoved()) {
                     tryMove(robotController, robotController.getLocation().directionTo(enemyArchonLoc).rotateLeftDegrees(5));
                 }
             } else if (neutralTrees.length > 0) {
                 // If there is a neutral tree, move towards it
                 if (rightHanded) {
                     tryMove(robotController, robotController.getLocation().directionTo(neutralTrees[0].getLocation()).rotateRightDegrees(5));
-                } else {
+                }
+                if (!robotController.hasMoved()) {
                     tryMove(robotController, robotController.getLocation().directionTo(neutralTrees[0].getLocation()).rotateLeftDegrees(5));
                 }
-            } else {
+            }
+            if (!robotController.hasMoved()) {
                 // Move randomly
                 tryMove(robotController, randomDirection());
             }

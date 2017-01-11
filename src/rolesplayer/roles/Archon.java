@@ -35,16 +35,18 @@ public class Archon extends RobotBase {
             // If there is an enemy robot, move away from it
             if (rightHanded) {
                 tryMove(robotController, robotController.getLocation().directionTo(enemyRobots[0].getLocation()).opposite().rotateRightDegrees(30));
-            } else {
+            }
+            if (!robotController.hasMoved()) {
                 tryMove(robotController, robotController.getLocation().directionTo(enemyRobots[0].getLocation()).opposite().rotateLeftDegrees(30));
             }
         } else {
             if (enemyArchonLoc.x != 0 || enemyArchonLoc.y != 0) {
                 tryMove(robotController, robotController.getLocation().directionTo(enemyArchonLoc).opposite());
-            } else {
-                // Move randomly
-                tryMove(robotController, randomDirection());
             }
+        }
+        if (!robotController.hasMoved()) {
+            // Move randomly
+            tryMove(robotController, randomDirection());
         }
 
         // Broadcast Archon's location for other robots on the team to know

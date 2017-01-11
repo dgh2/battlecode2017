@@ -32,36 +32,43 @@ public class Soldier extends RobotBase {
 
         // If there are some...
         if (enemyRobots.length > 0) {
+            if (closeEnemyRobots.length > 0) {
+                if (rightHanded) {
+                    tryMove(robotController, robotController.getLocation().directionTo(closeEnemyRobots[0].getLocation()).opposite().rotateRightDegrees(30).opposite());
+                }
+                if (!robotController.hasMoved()) {
+                    tryMove(robotController, robotController.getLocation().directionTo(closeEnemyRobots[0].getLocation()).opposite().rotateLeftDegrees(30).opposite());
+                }
+            } else {
+                if (rightHanded) {
+                    tryMove(robotController, robotController.getLocation().directionTo(enemyRobots[0].getLocation()).rotateRightDegrees(90));
+                }
+                if (!robotController.hasMoved()) {
+                    tryMove(robotController, robotController.getLocation().directionTo(enemyRobots[0].getLocation()).rotateLeftDegrees(90));
+                }
+            }
             // And we have enough bullets, and haven't attacked yet this turn...
             if (robotController.canFireSingleShot()) {
                 // ...Then fire a bullet in the direction of the enemy.
                 robotController.fireSingleShot(robotController.getLocation().directionTo(enemyRobots[0].location));
             }
-            if (closeEnemyRobots.length > 0) {
-                if (rightHanded) {
-                    tryMove(robotController, robotController.getLocation().directionTo(closeEnemyRobots[0].getLocation()).opposite().rotateRightDegrees(30).opposite());
-                } else {
-                    tryMove(robotController, robotController.getLocation().directionTo(closeEnemyRobots[0].getLocation()).opposite().rotateLeftDegrees(30).opposite());
-                }
-            } else {
-                if (rightHanded) {
-                    tryMove(robotController, robotController.getLocation().directionTo(enemyRobots[0].getLocation()).rotateRightDegrees(30));
-                } else {
-                    tryMove(robotController, robotController.getLocation().directionTo(enemyRobots[0].getLocation()).rotateLeftDegrees(30));
-                }
-            }
         } else {
             if (enemyArchonLoc.x != 0 || enemyArchonLoc.y != 0) {
+                if (rightHanded) {
+                    tryMove(robotController, robotController.getLocation().directionTo(enemyArchonLoc).rotateRightDegrees(90));
+                }
+                if (!robotController.hasMoved()) {
+                    tryMove(robotController, robotController.getLocation().directionTo(enemyArchonLoc).rotateLeftDegrees(90));
+                }
                 if (robotController.canFireSingleShot()) {
                     if (rightHanded) {
                         robotController.fireSingleShot(robotController.getLocation().directionTo(enemyArchonLoc).rotateRightDegrees((float) (1.5 * Math.random())));
                     } else {
                         robotController.fireSingleShot(robotController.getLocation().directionTo(enemyArchonLoc).rotateLeftDegrees((float) (1.5 * Math.random())));
                     }
-                } else {
-                    tryMove(robotController, robotController.getLocation().directionTo(enemyArchonLoc));
                 }
-            } else {
+            }
+            if (!robotController.hasMoved()) {
                 // Move randomly
                 tryMove(robotController, randomDirection());
             }

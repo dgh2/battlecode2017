@@ -52,7 +52,7 @@ public abstract class RobotBase {
     }
 
     public void beforeRun() throws GameActionException {
-        System.out.print("I'm a bot, ");
+        System.out.println("I'm a bot!");
         Util.detectArchons(robotController);
     }
 

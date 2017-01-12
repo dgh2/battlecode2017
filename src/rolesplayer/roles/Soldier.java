@@ -56,26 +56,27 @@ public class Soldier extends RobotBase {
                 // ...Then fire a bullet in the direction of the enemy.
                 robotController.fireSingleShot(robotController.getLocation().directionTo(enemyRobots[0].location));
             }
-        } else {
-            if (enemyArchonLoc.x != 0 || enemyArchonLoc.y != 0) {
+        } else if (enemyArchonLoc.x != 0 || enemyArchonLoc.y != 0) {
+            if (rightHanded) {
+                tryMove(robotController, robotController.getLocation().directionTo(enemyArchonLoc).rotateRightDegrees(90));
+            }
+            if (!robotController.hasMoved()) {
+                tryMove(robotController, robotController.getLocation().directionTo(enemyArchonLoc).rotateLeftDegrees(90));
+            }
+            if (!robotController.hasMoved()) {
+                // Move randomly
+                tryMove(robotController, randomDirection());
+            }
+            if (robotController.canFireSingleShot()) {
                 if (rightHanded) {
-                    tryMove(robotController, robotController.getLocation().directionTo(enemyArchonLoc).rotateRightDegrees(90));
-                }
-                if (!robotController.hasMoved()) {
-                    tryMove(robotController, robotController.getLocation().directionTo(enemyArchonLoc).rotateLeftDegrees(90));
-                }
-                if (!robotController.hasMoved()) {
-                    // Move randomly
-                    tryMove(robotController, randomDirection());
-                }
-                if (robotController.canFireSingleShot()) {
-                    if (rightHanded) {
-                        robotController.fireSingleShot(robotController.getLocation().directionTo(enemyArchonLoc).rotateRightDegrees((float) (1.5 * Math.random())));
-                    } else {
-                        robotController.fireSingleShot(robotController.getLocation().directionTo(enemyArchonLoc).rotateLeftDegrees((float) (1.5 * Math.random())));
-                    }
+                    robotController.fireSingleShot(robotController.getLocation().directionTo(enemyArchonLoc).rotateRightDegrees((float) (1.5 * Math.random())));
+                } else {
+                    robotController.fireSingleShot(robotController.getLocation().directionTo(enemyArchonLoc).rotateLeftDegrees((float) (1.5 * Math.random())));
                 }
             }
+        } else if (!robotController.hasMoved()) {
+            // Move randomly
+            tryMove(robotController, randomDirection());
         }
     }
 }

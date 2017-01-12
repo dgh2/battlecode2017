@@ -72,11 +72,9 @@ public class Scout extends RobotBase {
                     robotController.fireSingleShot(robotController.getLocation().directionTo(enemyArchonLoc).rotateLeftDegrees((float) (1 * Math.random())));
                 }
             }
-        } else {
-            if (!robotController.hasMoved()) {
-                // Move randomly
-                tryMove(robotController, randomDirection());
-            }
+        } else if (!robotController.hasMoved()) {
+            // Move randomly
+            tryMove(robotController, randomDirection());
         }
     }
 }

@@ -52,7 +52,7 @@ public class Gardener extends RobotBase {
             }
         } else if (ourTrees.length > 0) {
             for (TreeInfo ourTree : ourTrees) {
-                if (ourTree.getHealth() < .6 * ourTree.getMaxHealth() && robotController.canWater(ourTree.getLocation())) {
+                if (ourTree.getHealth() < .8 * ourTree.getMaxHealth() && robotController.canWater(ourTree.getLocation())) {
                     tryMove(robotController, robotController.getLocation().directionTo(ourTree.getLocation()));
                     robotController.water(ourTree.getLocation());
                     break;

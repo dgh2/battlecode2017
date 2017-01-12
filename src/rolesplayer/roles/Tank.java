@@ -41,21 +41,25 @@ public class Tank extends RobotBase {
                 robotController.fireSingleShot(robotController.getLocation().directionTo(enemyLocation));
             }
             tryMove(robotController, robotController.getLocation().directionTo(enemyLocation));
-        } else {
-            if (enemyArchonLoc.x != 0 || enemyArchonLoc.y != 0) {
-                tryMove(robotController, robotController.getLocation().directionTo(enemyArchonLoc));
-                if (robotController.canFireSingleShot()) {
-                    if (rightHanded) {
-                        robotController.fireSingleShot(robotController.getLocation().directionTo(enemyArchonLoc).rotateRightDegrees((float) (.5 * Math.random())));
-                    } else {
-                        robotController.fireSingleShot(robotController.getLocation().directionTo(enemyArchonLoc).rotateLeftDegrees((float) (.5 * Math.random())));
-                    }
-                }
-            }
             if (!robotController.hasMoved()) {
                 // Move randomly
                 tryMove(robotController, randomDirection());
             }
+        }
+        if (enemyArchonLoc.x != 0 || enemyArchonLoc.y != 0) {
+            if (!robotController.hasMoved()) {
+                tryMove(robotController, robotController.getLocation().directionTo(enemyArchonLoc));
+            }
+            if (robotController.canFireSingleShot()) {
+                if (rightHanded) {
+                    robotController.fireSingleShot(robotController.getLocation().directionTo(enemyArchonLoc).rotateRightDegrees((float) (.5 * Math.random())));
+                } else {
+                    robotController.fireSingleShot(robotController.getLocation().directionTo(enemyArchonLoc).rotateLeftDegrees((float) (.5 * Math.random())));
+                }
+            }
+        } else if (!robotController.hasMoved()) {
+            // Move randomly
+            tryMove(robotController, randomDirection());
         }
     }
 }

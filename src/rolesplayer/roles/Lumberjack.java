@@ -106,7 +106,9 @@ public class Lumberjack extends RobotBase {
                 tryMove(robotController, robotController.getLocation().directionTo(neutralTrees[0].getLocation()).rotateLeftDegrees(45));
             }
         }
-        if (nearbyFriendlyRobots.length == 0 && nearbyFriendlyTrees.length == 0 && robotController.canStrike()) {
+        if (nearbyFriendlyRobots.length == 0 && nearbyFriendlyTrees.length == 0 && robotController.canStrike() &&
+                (enemyRobots.length > 0 || enemyTrees.length > 0 || neutralTrees.length > 0)) {
+            //todo: figure out why this can still hit friendly units if we don't sense them. Probably them moving into range on this turn; they should stop that
             robotController.strike();
         }
         if (!robotController.hasMoved()) {

@@ -1,5 +1,6 @@
 package rolesplayer.util;
 
+import battlecode.common.BulletInfo;
 import battlecode.common.GameActionException;
 import battlecode.common.RobotController;
 import battlecode.common.RobotType;
@@ -60,6 +61,7 @@ public abstract class RobotBase {
 
     public void afterRun() throws GameActionException {
         Util.detectArchons(robotController);
+        markIncoming();
         System.out.println("We're done here!");
     }
 
@@ -70,5 +72,17 @@ public abstract class RobotBase {
 
     public boolean getWillToLive() {
         return true;
+    }
+
+    private boolean markIncoming() throws GameActionException {
+        BulletInfo[] bullets = robotController.senseNearbyBullets(-1);
+        for (BulletInfo bullet : bullets) {
+            robotController.setIndicatorLine(bullet.getLocation().add(bullet.getDir(), 5 * bullet.getSpeed()), bullet.getLocation().add(bullet.getDir(), 10 * bullet.getSpeed()), 255, 255, 0);
+            robotController.setIndicatorLine(bullet.getLocation().add(bullet.getDir(), 4 * bullet.getSpeed()), bullet.getLocation().add(bullet.getDir(), 5 * bullet.getSpeed()), 255, 115, 0);
+            robotController.setIndicatorLine(bullet.getLocation().add(bullet.getDir(), 2 * bullet.getSpeed()), bullet.getLocation().add(bullet.getDir(), 4 * bullet.getSpeed()), 255, 70, 0);
+            robotController.setIndicatorLine(bullet.getLocation(), bullet.getLocation().add(bullet.getDir(), 2 * bullet.getSpeed()), 255, 0, 0);
+            robotController.setIndicatorDot(bullet.getLocation(), 0, 0, 0);
+        }
+        return bullets.length > 0;
     }
 }

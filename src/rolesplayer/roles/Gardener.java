@@ -33,7 +33,7 @@ public class Gardener extends RobotBase {
     
 	public Gardener(RobotController robotController) {
         super(robotController);
-        formation = new Formation(this.robotController,new Direction( (float) (Math.random() * 2 * Math.PI)) ,Formation.Form.HALFCIRCLE);
+        formation = new Formation(this.robotController,getRandCardinalDir(),Formation.Form.C);
         maintainer = new Maintainer(this.robotController);
     }
     
@@ -63,22 +63,57 @@ public class Gardener extends RobotBase {
         }
         
          try {
-	        // Randomly attempt to build a Soldier or lumberjack in this direction
-	        if (robotController.canBuildRobot(RobotType.SCOUT, dir) && (robotController.getRoundNum() <= 4 || Math.random() < .015) && robotController.isBuildReady()) {
-					robotController.buildRobot(RobotType.SCOUT, dir);
-	        } else if (robotController.canBuildRobot(RobotType.SOLDIER, dir) && Math.random() < .01) {
-	            robotController.buildRobot(RobotType.SOLDIER, dir);
-	        } else if (robotController.canBuildRobot(RobotType.LUMBERJACK, dir) && Math.random() < .01 && robotController.isBuildReady()) {
-	            robotController.buildRobot(RobotType.LUMBERJACK, dir);
-	        } else if (robotController.canBuildRobot(RobotType.TANK, dir) && Math.random() < .01 && robotController.isBuildReady()) {
-	            robotController.buildRobot(RobotType.TANK, dir);
-	        }
-	        return true;
+        	 
+        	 if(this.robotController.getTeamBullets() > (RobotType.TANK.bulletCost + 100 + 50) && this.robotController.isBuildReady()){
+        		 System.out.println("I have enough money to build a tank");
+        		 
+        		 if(this.robotController.canBuildRobot(RobotType.TANK, dir)){
+        			 System.out.println("I am trying to build a tank");
+        			 this.robotController.buildRobot(RobotType.TANK, dir);
+        			 return true;
+        		 } else {
+        			 System.out.println(" for some reason I still can't build a tank.");
+        			 System.out.println("direction:" + dir);
+        			 formation.print();
+        			 
+        		 }
+        		 
+        	 }
+        	 
+//	        // Randomly attempt to build a Soldier or lumberjack in this direction
+//	        if (robotController.canBuildRobot(RobotType.SCOUT, dir) && (robotController.getRoundNum() <= 4 || Math.random() < .015) && robotController.isBuildReady()) {
+//					robotController.buildRobot(RobotType.SCOUT, dir);
+//	        } else if (robotController.canBuildRobot(RobotType.SOLDIER, dir) && Math.random() < .01) {
+//	            robotController.buildRobot(RobotType.SOLDIER, dir);
+//	        } else if (robotController.canBuildRobot(RobotType.LUMBERJACK, dir) && Math.random() < .01 && robotController.isBuildReady()) {
+//	            robotController.buildRobot(RobotType.LUMBERJACK, dir);
+//	        } else if (robotController.canBuildRobot(RobotType.TANK, dir) && Math.random() < .01 && robotController.isBuildReady()) {
+//	            robotController.buildRobot(RobotType.TANK, dir);
+//	        }
+//	        return true;
         } catch (GameActionException e) {
 				//something happened, actually, we can't build the robot.
 				e.printStackTrace();
 				return false;
 		}
+         return false;
+    }
+    
+    Direction getRandCardinalDir(){
+    	int dir = rand.nextInt(4);
+    	switch(dir){
+    	case 0:
+    		return Direction.getNorth();
+    		
+    	case 1:
+    		return Direction.getEast();
+    	case 2:
+    		return Direction.getWest();
+    	case 3:
+    		return Direction.getSouth();
+		default:
+			return Direction.getNorth();
+    	}
     }
 
     /**

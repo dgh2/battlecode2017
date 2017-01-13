@@ -11,7 +11,7 @@ public class Formation {
 	RobotController rc;
 	Random rand = new Random();
 	
-	public enum Form {CIRCLE , HALFCIRCLE , TRIANGLE}
+	public enum Form {CIRCLE , HALFCIRCLE , TRIANGLE , C}
 	protected Direction[] complimentaryAngles;
 	protected Direction[] formation;
 	protected boolean[] planted;
@@ -30,6 +30,9 @@ public class Formation {
 			
 		case TRIANGLE:
 			setTriangleFormation();
+			break;
+		case C:
+			setCFormation();
 			break;
 		}
 	}
@@ -89,6 +92,12 @@ public class Formation {
 		
 	}
 	
+	public void print(){
+		for ( Direction dir : formation){
+			System.out.println("Formation direction:" + dir);
+		}
+	}
+	
 	private void setCircleFormation(){
 		
 		formation = new Direction[6];
@@ -140,4 +149,20 @@ public class Formation {
 
 	}
 
+	private void setCFormation(){
+		
+		formation = new Direction[4];
+		planted = new boolean[]{false,false,false,false};
+		complimentaryAngles = new Direction[]{plantDirection.opposite()};
+		
+		Direction start = new Direction(plantDirection.radians).rotateRightDegrees(90);
+		
+		for(int i = 0 ; i < 4 ; i++){
+			formation[i] = start;
+			start = start.rotateLeftDegrees(60);//number of degrees between trees
+			
+		}
+		
+	}
+	
 }

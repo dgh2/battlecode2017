@@ -48,11 +48,10 @@ public abstract class RobotBase {
     }
 
     public void runOnce() throws GameActionException {
-        System.out.println("I am!");
+      
     }
 
     public void beforeRun() throws GameActionException {
-        System.out.println("I'm a bot!");
         Util.detectArchons(robotController);
     }
 
@@ -60,12 +59,10 @@ public abstract class RobotBase {
 
     public void afterRun() throws GameActionException {
         Util.detectArchons(robotController);
-        System.out.println("We're done here!");
     }
 
     public void dying() throws GameActionException {
         Util.detectArchons(robotController);
-        System.out.println("Oh, what a world!");
     }
 
     public boolean getWillToLive() {

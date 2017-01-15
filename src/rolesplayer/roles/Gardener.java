@@ -1,21 +1,24 @@
 package rolesplayer.roles;
 
+import static rolesplayer.util.Util.randomDirection;
+import static rolesplayer.util.Util.tryMove;
+
+import java.util.Random;
+
 import battlecode.common.Direction;
 import battlecode.common.GameActionException;
 import battlecode.common.RobotController;
 import battlecode.common.RobotInfo;
 import battlecode.common.RobotType;
 import battlecode.common.TreeInfo;
+import comm.TestTroop;
 import gardener.Formation;
 import gardener.Maintainer;
 import rolesplayer.util.RobotBase;
 
-import static rolesplayer.util.Util.randomDirection;
-import static rolesplayer.util.Util.tryMove;
-
-import java.util.Random;
-
 public class Gardener extends RobotBase {
+	
+	TestTroop troop;
 	
 	//planting fields
 	float currentPlantingDirection = 0.0f; //the direction the gardener is trying to plant
@@ -35,6 +38,7 @@ public class Gardener extends RobotBase {
         super(robotController);
         formation = new Formation(this.robotController,getRandCardinalDir(),Formation.Form.C);
         maintainer = new Maintainer(this.robotController);
+        troop = new TestTroop(this.robotController);
     }
     
     
@@ -44,6 +48,7 @@ public class Gardener extends RobotBase {
     	formation.plant();
     	maintainer.maintain();
     	createRandomRobot();
+    	troop.run();
     }
     
    

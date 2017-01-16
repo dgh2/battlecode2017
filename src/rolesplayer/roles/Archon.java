@@ -8,7 +8,6 @@ import battlecode.common.RobotInfo;
 import rolesplayer.util.RobotBase;
 
 import static rolesplayer.util.Util.randomDirection;
-import static rolesplayer.util.Util.tryMove;
 
 public class Archon extends RobotBase {
     public Archon(RobotController robotController) {

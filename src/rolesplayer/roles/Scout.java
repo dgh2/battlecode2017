@@ -1,6 +1,5 @@
 package rolesplayer.roles;
 
-import battlecode.common.Direction;
 import battlecode.common.GameActionException;
 import battlecode.common.GameConstants;
 import battlecode.common.MapLocation;
@@ -11,11 +10,8 @@ import battlecode.common.Team;
 import rolesplayer.util.RobotBase;
 
 import static rolesplayer.util.Util.randomDirection;
-import static rolesplayer.util.Util.tryMove;
 
 public class Scout extends RobotBase {
-    private Direction lastDirection;
-
     public Scout(RobotController robotController) {
         super(robotController);
     }

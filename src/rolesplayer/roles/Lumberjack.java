@@ -11,7 +11,6 @@ import battlecode.common.TreeInfo;
 import rolesplayer.util.RobotBase;
 
 import static rolesplayer.util.Util.randomDirection;
-import static rolesplayer.util.Util.tryMove;
 
 public class Lumberjack extends RobotBase {
     public Lumberjack(RobotController robotController) {

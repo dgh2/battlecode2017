@@ -9,7 +9,6 @@ import battlecode.common.TreeInfo;
 import rolesplayer.util.RobotBase;
 
 import static rolesplayer.util.Util.randomDirection;
-import static rolesplayer.util.Util.tryMove;
 
 public class Gardener extends RobotBase {
     public Gardener(RobotController robotController) {

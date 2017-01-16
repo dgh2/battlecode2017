@@ -10,7 +10,6 @@ import battlecode.common.Team;
 import rolesplayer.util.RobotBase;
 
 import static rolesplayer.util.Util.randomDirection;
-import static rolesplayer.util.Util.tryMove;
 
 public class Soldier extends RobotBase {
     public Soldier(RobotController robotController) {

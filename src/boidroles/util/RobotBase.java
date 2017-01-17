@@ -144,6 +144,10 @@ public abstract class RobotBase {
     public void afterRun() throws GameActionException {
         detectArchons();
         markIncoming();
+        if (robotController.getTeamVictoryPoints() + (robotController.getTeamBullets() / 10) >= 1000) {
+            //if current victory points plus all our bullets turned into victory points is at least 1k, sell all bullets
+            robotController.donate(robotController.getTeamBullets());
+        }
         System.out.println("We're done here!");
     }
 

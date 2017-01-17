@@ -4,32 +4,31 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
-import java.util.Stack;
 
-import battlecode.common.MapLocation;
 import battlecode.common.RobotController;
 
-public class Commander {
+/**
+ * The commander 
+ * @author user
+ *
+ */
+public abstract class Commander {
 	
-	Communicator comms;
+	private Communicator comms;
 	
-	RobotController rc;
+	private enum CommanderState { SECUREGROUP , GETINVITES , INVITING} 
+	private CommanderState state = CommanderState.SECUREGROUP;
 	
-	private static final int maxCommandSize = 32;
+	private List<Integer> acceptedIDs = new ArrayList<Integer>();
+	private Deque<Integer> invitedBots = new ArrayDeque<Integer>();
+	private int maxStrikes = 5;
+	private int strikes = 0;
 	
-	enum CommanderState { SECUREGROUP , GETINVITES , INVITING} 
-	CommanderState state = CommanderState.SECUREGROUP;
-	
-	List<Integer> acceptedIDs = new ArrayList<Integer>();
-	Deque<Integer> invitedBots = new ArrayDeque<Integer>();
-	int invitedRobotID = 0;
-	int maxStrikes = 5;
-	int strikes = 0;
-	
-	int lastTurnACommandWasSent = 0;
-	
-	Commander(RobotController rc){
-		this.rc = rc;
+	/**
+	 * constructor
+	 * @param rc
+	 */
+	protected Commander(RobotController rc){
 		comms = new Communicator(rc);
 		
 	}
@@ -38,7 +37,7 @@ public class Commander {
 	 * a very important function. It must be run every turn if you want the commander to be able to 
 	 * secure it's group and send invites and recieve confirmations from other robots
 	 */
-	public void run(){
+	final public void run(){
 		switch(state){
 		case SECUREGROUP:
 			boolean groupFound = secureGroup();
@@ -69,17 +68,26 @@ public class Commander {
 			break;
 		}
 		
-		
-		
+		if(comms.fetchReport()){
+			processReport ( comms.getLastReportID() , comms.getLastReportData() );
+		}
+
 	}
 
-
+	/**
+	 * This function NEEDS to be overriden to process reports recieved by troops.
+	 * @param BotID
+	 * 		The bot that sent the report
+	 * @param reportData
+	 * 		The data contained in the report.
+	 */
+	protected abstract void processReport(int BotID , int[] reportData);
 	
 	/**
-	 * 
+	 * Send an invitation to a bot to join the commander's group
 	 * @param id
 	 */
-	public void sendInvite(int id){
+	final public void sendInvite(int id){
 		invitedBots.addLast(new Integer(id));
 	}
 	
@@ -88,7 +96,7 @@ public class Commander {
 	 * @param command
 	 * @param data
 	 */
-	public void sendGroupCommand(int command , int[] data){
+	final public void sendGroupCommand(int command , int[] data){
 		comms.sendCommand(data,command, true , 0);
 	}
 	
@@ -98,7 +106,7 @@ public class Commander {
 	 * @param data
 	 * @param targetID
 	 */
-	public void sendIndividualCommand(int command , int[] data, int targetID){
+	final public void sendIndividualCommand(int command , int[] data, int targetID){
 		comms.sendCommand(data,command, false , targetID);
 	}
 	
@@ -107,10 +115,9 @@ public class Commander {
 	 * @return
 	 * 		All the bots under the command of this Commander
 	 */
-	public Integer[] getBotsInGroup(){
+	final public Integer[] getBotsInGroup(){
 		return (Integer[]) acceptedIDs.toArray();
 	}
-	
 	
 	/**
 	 * get a group for the commander
@@ -118,10 +125,9 @@ public class Commander {
 	 * 	true - reservation gotten
 	 *  false - reservation hasn't been secured
 	 */
-	private boolean secureGroup(){
+	final private boolean secureGroup(){
 		return comms.getGroupReservation();
 	}
-	
 	
 	/**
 	 * acquires a robot for the group that this commander commands
@@ -131,11 +137,10 @@ public class Commander {
 	 * 		true - invite successfully sent.
 	 * 		false - invite not sent.
 	 */
-	private boolean acquireRobot(int id){
+	final private boolean acquireRobot(int id){
 		//only allow one robot to be invited at a time
 		boolean successfulInvite = comms.sendGroupInvite(id);
 		if(successfulInvite){
-			invitedRobotID = id;
 			state = CommanderState.INVITING;
 		}
 		return successfulInvite;

@@ -3,17 +3,19 @@ package comm;
 import battlecode.common.RobotController;
 import battlecode.common.RobotInfo;
 
-public class TestCommander {
-	Commander commander;
+public class TestCommander extends Commander{
 	int lastInvited;
-
+	RobotController rc;
+	
+	
 	public TestCommander(RobotController rc){
-		commander = new Commander(rc);
+		super(rc);
+		this.rc = rc;
 	}
 	
-	public void run(){
+	public void runTestCommander(){
 		setInvitesToEveryoneWeSee();
-		commander.run();
+		run();
 		sendBogusCommands();
 		sendBogusGroupCommands();
 		sendBogusWrongIDCommands();
@@ -23,15 +25,16 @@ public class TestCommander {
 	
 	public void setInvitesToEveryoneWeSee(){
 		if(!robotInvited){
-			RobotInfo[] robotsNearby = commander.rc.senseNearbyRobots( 5 , commander.rc.getTeam());
+			RobotInfo[] robotsNearby = rc.senseNearbyRobots ( 5 , rc.getTeam());
 			if(robotsNearby.length>0){
 				System.out.println("Sending invitation");
-				commander.sendInvite(robotsNearby[0].getID());
+				sendInvite(robotsNearby[0].getID());
 				lastInvited = robotsNearby[0].getID();
 				robotInvited = true;
 			}
 		}
 	}
+
 	
 	int commandIndex = 1;
 	public void sendBogusCommands(){
@@ -54,6 +57,16 @@ public class TestCommander {
 		if(groupCommandIndex>=10010 && wrongCommandIndex<3005){
 			commander.sendIndividualCommand(commandIndex, new int[]{}, 6541);
 			groupCommandIndex++;
+		}
+	}
+
+	
+	
+	@Override
+	protected void processReport(int BotID, int[] reportData){
+		System.out.println(" Received report from bot "+BotID);
+		for(int i = 0 ; i < reportData.length ; i++){
+			System.out.println("Report Data:"+reportData[i]);
 		}
 	}
 

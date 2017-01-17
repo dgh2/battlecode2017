@@ -109,7 +109,6 @@ public class Gardener extends RobotBase {
     	switch(dir){
     	case 0:
     		return Direction.getNorth();
-    		
     	case 1:
     		return Direction.getEast();
     	case 2:

@@ -2,17 +2,17 @@ package comm;
 
 import battlecode.common.RobotController;
 
-public class Troop {
+public abstract class Troop {
 	
-	enum TroopState {FINDGROUP , OBEY}
+	private enum TroopState {FINDGROUP , OBEY}
 	
-	TroopState state = TroopState.FINDGROUP;
+	private TroopState state = TroopState.FINDGROUP;
 	
-	RobotController rc;
+	protected RobotController rc;
 	
-	Communicator comms;
+	private Communicator comms;
 	
-	Troop (RobotController rc){
+	protected Troop (RobotController rc){
 		this.rc=rc;
 		comms = new Communicator(rc);
 	}
@@ -20,7 +20,7 @@ public class Troop {
 	/**
 	 *find a commander and react to incoming commands. This should be run every cycle that you want this troop to react.
 	 */
-	public void run(){
+	final public void run(){
 		switch(state){
 		
 		case FINDGROUP:
@@ -34,8 +34,7 @@ public class Troop {
 			break;
 		case OBEY:
 			System.out.println("Interpretting commands");
-			interpretCommand();
-			interpretData();
+			interpretCommand(comms.getCommand(),comms.getCommandData());
 			break;
 		}
 	}
@@ -43,18 +42,15 @@ public class Troop {
 	/**
 	 * This function is what controls the troop based on what command is recieved.
 	 */
-	protected void interpretCommand(){
-		int command = comms.getCommand();
-		if(command!=0){
-			System.out.println("Command Received: " + command);
-		}
-	}
+	protected abstract void interpretCommand(int command , int[] commandData);
 	
-	protected void interpretData(){
-		int[] command = comms.getCommandData();
-		if(command.length!=0){
-			String com = new String();
-			System.out.println("Command Data recieved: " + command);
-		}
+	/**
+	 * sends a report to the commander
+	 * @param data
+	 * @return
+	 */
+	final public boolean sendReport(int[] data){
+		comms.sendReport(data);
+		return false;
 	}
 }

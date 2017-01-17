@@ -48,7 +48,9 @@ class Communicator {
 	
 	//global  
 	static final int groupReservation = 0; //Used to resolve which commanders get which groups
+	
 	static final int joinRequestID = 1; // Bot Invitation Field : ID of bot being invited
+	
 	static final int joinRequestGroup = 2;	 // Bot Invitation Field : ID of the group inviting the bot
 
 	
@@ -56,22 +58,32 @@ class Communicator {
 	//group level
 	
 	static final int commandScope ; // Whether the command is targeting the group or an individual robot 0 - group, anything else is the ID of the bot being targeted
+	
 	static final int commandType ; // The type of command being sent
+	
 	static final int dataOffset; // The index that the data accompanying a command starts
+	
 	static final int dataSize = 8; // The max number of data slots that can accompany a command
+	
 	static final int commandConfirmation; // This slot is reserved for a target robot to put that the designated command was recieved
 	
+	
 	static final int reportingID ; //The ID of the bot making the report back to the commander
+	
 	static final int reportDataOffset; //The start of where the data of the report goes
+	
 	static final int reportDataSize = 8 ; //The max number of blocks that the data can occupy
 	
 	static final int groupConfirmation; // This slot is reserved for bots to let the commander know that they've accepted the requrest for group transfer
 
 	//misc constants
 	static final int maxGroupIndex;
+	
 	static final int maxNumberOfGroups; // The maximum number of groups that could possibly exist.
+	
 	private static int packageSize = 32; // The number of channels that belongs to this group		
 
+	//Initialize variables, depending on package size
 	static{
 		commandScope = 0;
 		
@@ -93,15 +105,19 @@ class Communicator {
 	}
 	
 	
-	int groupNumber = 0; // The group that this communicator will be 
+	private int groupNumber = 0; // The group that this communicator will be 
 	
-	int offset = 0; // The channel offset that belongs to this group
+	private int offset = 0; // The channel offset that belongs to this group
 	
 	private int lastInviteIDSent; // The ID of the robot that was sent the last group invite 
 	
-	RobotController rc;
+	private RobotController rc;
 	
-	Communicator(RobotController rc){
+	private int lastReportID = 0; // The ID of the last Bot to send a report
+	
+	private int[] report = new int[reportDataSize]; // The report data
+	
+	protected Communicator(RobotController rc){
 		this.rc = rc;
 	}
 	
@@ -120,7 +136,7 @@ class Communicator {
 	 * 			true  - command successfully sent
 	 * 			false - something went horribly wrong
 	 */
-	boolean sendCommand(int[] data,int command,boolean includeGroup,int targetID){
+	 boolean sendCommand(int[] data,int command,boolean includeGroup,int targetID){
 		//System.out.println("Sending command scope");
 		//write who is targeted, group or individual
 		if(includeGroup){
@@ -143,13 +159,74 @@ class Communicator {
 		return true;
 	}
 	
+	
+	/**
+	 * send a report from a troop to a commander.
+	 * @param data
+	 * 			data to be sent in the report.
+	 * @return
+	 * 			true - the report was successfully sent.
+	 * 			false- something went wrong and the report wasn't sent.
+	 */
+	boolean sendReport(int[] data){
+		//You can only send a report if the reporting slot is empy
+		if(readFromChannel(reportingID)!=0){
+			if(!writeToChannel(reportingID , rc.getID())) return false;
+			for(int i = 0 ; i<reportDataSize ; i++){
+				if(!writeToChannel( (reportDataOffset + i),data[i] )) return false;
+			}
+			return true;
+		}else {
+			return false;
+		}
+	}
+	
+	/**
+	 * Checks if there's a report and returns the ID
+	 * of the Bot that submitted it. 
+	 * @return
+	 * 		true - a report was submitted.
+	 * 		false - a report wasn't submitted.
+	 */
+	boolean fetchReport(){
+		lastReportID = readFromChannel(reportingID);
+		writeToChannel(reportingID,0);
+		
+		for(int i = 0 ; i<reportDataSize ; i++){
+			report[i] = readFromChannel(reportDataOffset+i);
+		}
+		
+		return (lastReportID != 0);
+	}
+	
+	/**
+	 * Get the ID of the Bot that sent the last report.
+	 * 
+	 * @return
+	 * 		ID of the last bot to send a report
+	 */
+	int getLastReportID(){
+		return lastReportID;
+	}
+	
+	/**
+	 * Get the report data of the last given report 
+	 * @return 
+	 * 		data of the last report submitted
+	 */
+	int[] getLastReportData(){
+		return report;
+	}
+	
+
+	
 	/**
 	 * Get the command from the target channel.
 	 * @return
 	 * 	0 - no command given
 	 *  not 0 - the integer command number
 	 */
-	public int getCommand(){
+	int getCommand(){
 		
 		if(this.groupNumber == 0){
 			return 0;
@@ -180,7 +257,7 @@ class Communicator {
 	 * 		The data stored in this command. returns empty array if there is no data or the command does not apply to this 
 	 * bot.
 	 */
-	public int[] getCommandData(){
+	int[] getCommandData(){
 		if(this.groupNumber == 0){
 			return new int[]{};
 		}
@@ -220,7 +297,7 @@ class Communicator {
 	 * Gets the group number that this communicator is assigned to. 0 means no group.
 	 * @return
 	 */
-	int getGroup(){
+	protected int getGroup(){
 		return groupNumber;
 	}
 

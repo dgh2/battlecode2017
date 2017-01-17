@@ -3,3 +3,10 @@
 /examplefuncsplayer-vs-rolesplayer-on-Barrier,shrine.bc17
 /examplefuncsplayer-vs-rolesplayer-on-Barrier.bc17
 /examplefuncsplayer-vs-rolesplayer-on-SparseForest.bc17
+/examplefuncsplayer-vs-examplefuncsplayer-on-Barrier,Enclosure,SparseForest.bc17
+/examplefuncsplayer-vs-examplefuncsplayer-on-Enclosure.bc17
+/examplefuncsplayer-vs-rolesplayer-on-Barrier,DenseForest,Enclosure,Hurdle,LineOfFire,MagicWood,SparseForest,shrine.bc17
+/examplefuncsplayer-vs-rolesplayer-on-Barrier,Enclosure,SparseForest.bc17
+/rolesplayer-vs-rolesplayer-on-Barrier,DenseForest,Enclosure,SparseForest.bc17
+/rolesplayer-vs-rolesplayer-on-Barrier,Enclosure.bc17
+/rolesplayer-vs-rolesplayer-on-Enclosure.bc17

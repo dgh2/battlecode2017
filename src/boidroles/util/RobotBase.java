@@ -20,8 +20,6 @@ import boidroles.roles.Tank;
 
 import java.util.Arrays;
 
-import static boidroles.util.Util.concatArrays;
-
 public abstract class RobotBase {
     protected RobotController robotController;
 
@@ -65,7 +63,7 @@ public abstract class RobotBase {
         return tryMove(dir, robotController.getType().strideRadius);
     }
 
-    boolean tryMove(Direction dir, float distance) throws GameActionException {
+    protected boolean tryMove(Direction dir, float distance) throws GameActionException {
         return tryMove(dir, distance, 20, 5);
     }
 
@@ -113,33 +111,23 @@ public abstract class RobotBase {
     }
 
     public void runOnce() throws GameActionException {
-        System.out.println("I am!");
+        //System.out.println("I am!");
     }
 
     public void beforeRun() throws GameActionException {
-        System.out.println("I'm a bot!");
+        //System.out.println("I'm a bot!");
         detectArchons();
 
-        //todo: remove from beforeRun and have each role implement it's own influence and movement methods
-        for (RobotInfo infoTest : robotController.senseNearbyRobots()) {
-            if (infoTest == null) {
-                System.out.println("I'm sensing null things on round " + robotController.getRoundNum());
-            }
-        }
-        BodyInfo[] nearby = concatArrays(robotController.senseNearbyRobots(), robotController.senseNearbyBullets(), robotController.senseNearbyTrees());
-
-        Vector movement = new Vector();
 //                Vector requiredmovement = new Vector();
-        for (BodyInfo thing : nearby) {
-            movement.add(calculateInfluence(thing));
-        }
 //                Vector movement = maintainSeparation(nearby);
 //                movement.add(maintainAlignment(nearby));
 //                movement.add(maintainCohesion(nearby));
-        tryMove(movement.getDirection(), movement.getDistance());
+        //tryMove(movement.getDirection(), movement.getDistance());
     }
 
     public abstract void run() throws GameActionException;
+
+    protected abstract Vector calculateInfluence() throws GameActionException;
 
     public void afterRun() throws GameActionException {
         detectArchons();
@@ -148,7 +136,7 @@ public abstract class RobotBase {
             //if current victory points plus all our bullets turned into victory points is at least 1k, sell all bullets
             robotController.donate(robotController.getTeamBullets());
         }
-        System.out.println("We're done here!");
+        //System.out.println("We're done here!");
     }
 
     public void dying() throws GameActionException {
@@ -214,7 +202,7 @@ public abstract class RobotBase {
         return (perpendicularDist <= robotController.getType().bodyRadius);
     }
 
-    private void detectArchons() throws GameActionException {
+    protected void detectArchons() throws GameActionException {
         if (robotController.readBroadcast(2) != 0 && robotController.readBroadcast(2) + 15 < robotController.getRoundNum()) {
             robotController.broadcast(0, 0);
             robotController.broadcast(1, 0);
@@ -231,15 +219,15 @@ public abstract class RobotBase {
         }
     }
 
-    private MapLocation projectBulletLocation(BulletInfo bulletInfo) {
+    public MapLocation projectBulletLocation(BulletInfo bulletInfo) {
         return projectBulletLocation(bulletInfo, 1);
     }
 
     private MapLocation projectBulletLocation(BulletInfo bulletInfo, int rounds) {
-        return bulletInfo.getLocation().add(bulletInfo.getDir(), bulletInfo.getSpeed());
+        return bulletInfo.getLocation().add(bulletInfo.getDir(), rounds * bulletInfo.getSpeed());
     }
 
-    private float distanceToIntersection(MapLocation a, MapLocation b, BodyInfo target) {
+    protected float distanceToIntersection(MapLocation a, MapLocation b, BodyInfo target) {
         float triangleArea = Math.abs((b.x - a.x) * (target.getLocation().y - a.y) - (target.getLocation().x - a.x) * (b.y - a.y));
         float triangleHeight = triangleArea / a.distanceTo(b);
         if (triangleHeight < target.getRadius()
@@ -257,16 +245,18 @@ public abstract class RobotBase {
 
     private boolean hasLineOfSight(MapLocation target, boolean returnValueIfTargetNotInRange) {
         boolean targetDetected = false;
-        BodyInfo[] things = concatArrays(robotController.senseNearbyTrees(), robotController.senseNearbyRobots());
-        for (BodyInfo thing : things) {
-            if (thing.getLocation().equals(target)) {
-                targetDetected = true;
-                continue;
-            } else if (robotController.getLocation().equals(target)) {
-                continue;
-            }
-            if (distanceToIntersection(robotController.getLocation(), target, thing) >= 0) {
-                return false;
+        BodyInfo[][] possibleObstructions = {robotController.senseNearbyTrees(), robotController.senseNearbyRobots()};
+        for (BodyInfo[] sensedThings : possibleObstructions) {
+            for (BodyInfo thing : sensedThings) {
+                if (thing.getLocation().equals(target)) {
+                    targetDetected = true;
+                    continue;
+                } else if (robotController.getLocation().equals(target)) {
+                    continue;
+                }
+                if (distanceToIntersection(robotController.getLocation(), target, thing) >= 0) {
+                    return false;
+                }
             }
         }
         return targetDetected || returnValueIfTargetNotInRange;
@@ -301,7 +291,7 @@ public abstract class RobotBase {
 
     // this returns a direction and distance that the unit desires to travel based on the objects it can sense
     // todo: also use things it can remember and information from broadcast
-    private Vector calculateInfluence(BodyInfo bodyInfo) throws GameActionException {
+    private Vector calculateInfluenceExample(BodyInfo bodyInfo) throws GameActionException {
         //todo: have separate influence calculation methods for each class
         Vector v = new Vector();
         if (bodyInfo.isRobot()) {

@@ -115,4 +115,26 @@ public class Lumberjack extends RobotBase {
             tryMove(robotController, randomDirection());
         }
     }
+
+    private boolean tryChop(TreeInfo[] trees) throws GameActionException {
+        for (TreeInfo tree : trees) {
+            if (tryChop(tree)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean tryChop(TreeInfo tree) throws GameActionException {
+        if (robotController.canChop(tree.getLocation())) {
+            if (tree.getHealth() <= GameConstants.LUMBERJACK_CHOP_DAMAGE) {
+                System.out.println("Timber!");
+            } else {
+                System.out.println("Chop!");
+            }
+            robotController.chop(tree.getLocation());
+            return true;
+        }
+        return false;
+    }
 }

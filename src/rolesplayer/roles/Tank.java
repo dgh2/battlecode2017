@@ -34,11 +34,7 @@ public class Tank extends RobotBase {
         if (enemyRobots.length > 0) {
             MapLocation enemyLocation = (closestEnemyRobots.length > 0 ? closestEnemyRobots[0].location :
                     (closeEnemyRobots.length > 0 ? closeEnemyRobots[0].location : enemyRobots[0].location)); // cuz I felt like it
-            // And we have enough bullets, and haven't attacked yet this turn...
-            if (robotController.canFireSingleShot()) {
-                // ...Then fire a bullet in the direction of the enemy.
-                robotController.fireSingleShot(robotController.getLocation().directionTo(enemyLocation));
-            }
+            attackClosestEnemy();
             tryMove(robotController, robotController.getLocation().directionTo(enemyLocation));
             if (!robotController.hasMoved()) {
                 // Move randomly
@@ -49,7 +45,7 @@ public class Tank extends RobotBase {
             if (!robotController.hasMoved()) {
                 tryMove(robotController, robotController.getLocation().directionTo(enemyArchonLoc));
             }
-            if (robotController.canFireSingleShot()) {
+            if (robotController.canFireSingleShot() && hasLineOfSight(enemyArchonLoc)) {
                 if (rightHanded) {
                     robotController.fireSingleShot(robotController.getLocation().directionTo(enemyArchonLoc).rotateRightDegrees((float) (.5 * Math.random())));
                 } else {

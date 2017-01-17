@@ -1,5 +1,6 @@
 package rolesplayer.util;
 
+import battlecode.common.BodyInfo;
 import battlecode.common.BulletInfo;
 import battlecode.common.Direction;
 import battlecode.common.GameActionException;
@@ -7,12 +8,17 @@ import battlecode.common.MapLocation;
 import battlecode.common.RobotController;
 import battlecode.common.RobotInfo;
 import battlecode.common.RobotType;
+import battlecode.common.Team;
 import rolesplayer.roles.Archon;
 import rolesplayer.roles.Gardener;
 import rolesplayer.roles.Lumberjack;
 import rolesplayer.roles.Scout;
 import rolesplayer.roles.Soldier;
 import rolesplayer.roles.Tank;
+
+import java.util.Arrays;
+
+import static rolesplayer.util.Util.concatArrays;
 
 public abstract class RobotBase {
     protected RobotController robotController;
@@ -119,6 +125,14 @@ public abstract class RobotBase {
     public void afterRun() throws GameActionException {
         detectArchons();
         markIncoming();
+        if (robotController.getTeamVictoryPoints() + (robotController.getTeamBullets() / 10) >= 1000) {
+            //if current victory points plus all our bullets turned into victory points is at least 1k, sell all bullets
+            robotController.donate(robotController.getTeamBullets());
+        }
+//        if(robotController.getTeamBullets() * 0.1 >= 4 ) {
+//            //if we have so many bullets that it's costing us to keep them around, sell all but 500.
+//            robotController.donate(robotController.getTeamBullets() - 500);
+//        }
         System.out.println("We're done here!");
     }
 
@@ -195,6 +209,56 @@ public abstract class RobotBase {
                 robotController.broadcast(1, (int) enemyArchonLocation.y);
                 robotController.broadcast(2, robotController.getRoundNum());
             }
+        }
+    }
+
+    protected boolean attackClosestEnemy() throws GameActionException {
+        Team enemyTeam = robotController.getTeam().opponent();
+
+        RobotInfo[] enemies = robotController.senseNearbyRobots(-1, enemyTeam);
+        Arrays.sort(enemies, (o1, o2) -> Float.compare(o1.getLocation().distanceTo(robotController.getLocation()), o2.getLocation().distanceTo(robotController.getLocation())));
+
+        if (enemies.length > 0) {
+            for (RobotInfo enemy : enemies) {
+                if (robotController.canFireSingleShot() && hasLineOfSight(enemy.location)) {
+                    robotController.fireSingleShot(robotController.getLocation().directionTo(enemy.location));
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    protected boolean hasLineOfSight(MapLocation target) {
+        return hasLineOfSight(target, false);
+    }
+
+    private boolean hasLineOfSight(MapLocation target, boolean returnValueIfTargetNotInRange) {
+        boolean targetDetected = false;
+        BodyInfo[] things = concatArrays(robotController.senseNearbyTrees(), robotController.senseNearbyRobots());
+        for (BodyInfo thing : things) {
+            if (thing.getLocation().equals(target)) {
+                targetDetected = true;
+                continue;
+            } else if (robotController.getLocation().equals(target)) {
+                continue;
+            }
+            if (distanceToIntersection(robotController.getLocation(), target, thing) >= 0) {
+                return false;
+            }
+        }
+        return targetDetected || returnValueIfTargetNotInRange;
+    }
+
+    private float distanceToIntersection(MapLocation a, MapLocation b, BodyInfo target) {
+        float triangleArea = Math.abs((b.x - a.x) * (target.getLocation().y - a.y) - (target.getLocation().x - a.x) * (b.y - a.y));
+        float triangleHeight = triangleArea / a.distanceTo(b);
+        if (triangleHeight < target.getRadius()
+                && a.distanceTo(target.getLocation()) < a.distanceTo(b)
+                && b.distanceTo(target.getLocation()) < b.distanceTo(a)) {
+            return triangleHeight - target.getRadius();
+        } else {
+            return -1;
         }
     }
 }

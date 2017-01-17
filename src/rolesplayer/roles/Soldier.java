@@ -50,11 +50,7 @@ public class Soldier extends RobotBase {
                 // Move randomly
                 tryMove(robotController, randomDirection());
             }
-            // And we have enough bullets, and haven't attacked yet this turn...
-            if (robotController.canFireSingleShot()) {
-                // ...Then fire a bullet in the direction of the enemy.
-                robotController.fireSingleShot(robotController.getLocation().directionTo(enemyRobots[0].location));
-            }
+            attackClosestEnemy();
         } else if (enemyArchonLoc.x != 0 || enemyArchonLoc.y != 0) {
             if (rightHanded) {
                 tryMove(robotController, robotController.getLocation().directionTo(enemyArchonLoc).rotateRightDegrees(90));
@@ -66,7 +62,7 @@ public class Soldier extends RobotBase {
                 // Move randomly
                 tryMove(robotController, randomDirection());
             }
-            if (robotController.canFireSingleShot()) {
+            if (robotController.canFireSingleShot() && hasLineOfSight(enemyArchonLoc)) {
                 if (rightHanded) {
                     robotController.fireSingleShot(robotController.getLocation().directionTo(enemyArchonLoc).rotateRightDegrees((float) (1.5 * Math.random())));
                 } else {

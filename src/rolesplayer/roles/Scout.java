@@ -47,9 +47,7 @@ public class Scout extends RobotBase {
                 // Move randomly
                 tryMove(robotController, randomDirection());
             }
-            if (robotController.canFireSingleShot()) {
-                robotController.fireSingleShot(robotController.getLocation().directionTo(enemyRobots[0].location));
-            }
+            attackClosestEnemy();
         } else if (enemyArchonLoc.x != 0 && enemyArchonLoc.y != 0) {
             if (rightHanded) {
                 tryMove(robotController, robotController.getLocation().directionTo(enemyArchonLoc).rotateLeftDegrees(90));
@@ -61,7 +59,7 @@ public class Scout extends RobotBase {
                 // Move randomly
                 tryMove(robotController, randomDirection());
             }
-            if (robotController.canFireSingleShot()) {
+            if (robotController.canFireSingleShot() && hasLineOfSight(enemyArchonLoc)) {
                 if (rightHanded) {
                     robotController.fireSingleShot(robotController.getLocation().directionTo(enemyArchonLoc).rotateRightDegrees((float) (1 * Math.random())));
                 } else {

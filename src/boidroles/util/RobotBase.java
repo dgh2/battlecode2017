@@ -274,11 +274,9 @@ public abstract class RobotBase {
 
     protected boolean attackClosestEnemy() throws GameActionException {
         Team enemyTeam = robotController.getTeam().opponent();
-
         RobotInfo[] enemies = robotController.senseNearbyRobots(-1, enemyTeam);
-        Arrays.sort(enemies, (o1, o2) -> Float.compare(o1.getLocation().distanceTo(robotController.getLocation()), o2.getLocation().distanceTo(robotController.getLocation())));
-
         if (enemies.length > 0) {
+            Arrays.sort(enemies, (o1, o2) -> Float.compare(o1.getLocation().distanceTo(robotController.getLocation()), o2.getLocation().distanceTo(robotController.getLocation())));
             for (RobotInfo enemy : enemies) {
                 if (robotController.canFireSingleShot() && hasLineOfSight(enemy.location)) {
                     robotController.fireSingleShot(robotController.getLocation().directionTo(enemy.location));

@@ -11,8 +11,9 @@ public class Scout extends RobotBase {
 
     @Override
     public void run() throws GameActionException {
-        if (!attackClosestEnemy()) {
-            attackArchons();
-        }
+        attackClosestEnemy();
+//        if (!attackClosestEnemy()) {
+//            attackArchons();
+//        }
     }
 }

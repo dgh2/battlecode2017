@@ -40,8 +40,8 @@ public strictfp class RobotPlayer {
             } catch (Exception e) {
                 self.logRobotException("afterRun", e);
             }
-            if (robotController.getRoundNum() > rememberedRound) {
-                Clock.yield(); // continue from here next turn... if we haven't went over the limit and done so automatically
+            if (robotController.getRoundNum() == rememberedRound) {
+                Clock.yield(); // continue from here next turn...
             }
         } while (self.getWillToLive()); // loop or die
 

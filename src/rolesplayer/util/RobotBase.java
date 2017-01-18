@@ -9,6 +9,7 @@ import battlecode.common.RobotController;
 import battlecode.common.RobotInfo;
 import battlecode.common.RobotType;
 import battlecode.common.Team;
+import battlecode.common.TreeInfo;
 import rolesplayer.roles.Archon;
 import rolesplayer.roles.Gardener;
 import rolesplayer.roles.Lumberjack;
@@ -123,6 +124,7 @@ public abstract class RobotBase {
     public abstract void run() throws GameActionException;
 
     public void afterRun() throws GameActionException {
+        shakeTrees();
         detectArchons();
         markIncoming();
         if (robotController.getTeamVictoryPoints() + (robotController.getTeamBullets() / 10) >= 1000) {
@@ -208,6 +210,18 @@ public abstract class RobotBase {
                 robotController.broadcast(0, (int) enemyArchonLocation.x);
                 robotController.broadcast(1, (int) enemyArchonLocation.y);
                 robotController.broadcast(2, robotController.getRoundNum());
+            }
+        }
+    }
+
+    private void shakeTrees() throws GameActionException {
+        if (robotController.canShake()) {
+            TreeInfo[] trees = robotController.senseNearbyTrees(2.0f * robotController.getType().bodyRadius, Team.NEUTRAL);
+            for (TreeInfo tree : trees) {
+                if (tree.getContainedBullets() > 0) {
+                    robotController.shake(tree.getID());
+                    break;
+                }
             }
         }
     }

@@ -8,6 +8,7 @@ import boidroles.util.RobotBase;
 @SuppressWarnings("unused")
 public strictfp class RobotPlayer {
     private static RobotBase self;
+    private static int rememberedRound;
 
     /**
      * run() is the method that is called when a robot is instantiated in the Battlecode world.
@@ -23,6 +24,7 @@ public strictfp class RobotPlayer {
         }
 
         do {
+            rememberedRound = robotController.getRoundNum();
             try {
                 self.beforeRun();
             } catch (Exception e) {
@@ -38,7 +40,9 @@ public strictfp class RobotPlayer {
             } catch (Exception e) {
                 self.logRobotException("afterRun", e);
             }
-            Clock.yield(); // continue from here next turn
+            if (robotController.getRoundNum() > rememberedRound) {
+                Clock.yield(); // continue from here next turn... if we haven't went over the limit and done so automatically
+            }
         } while (self.getWillToLive()); // loop or die
 
         try {

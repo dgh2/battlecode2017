@@ -17,8 +17,6 @@ import boidroles.roles.Scout;
 import boidroles.roles.Soldier;
 import boidroles.roles.Tank;
 
-import static boidroles.util.Util.concatArrays;
-
 public abstract class RobotBase {
     protected RobotController robotController;
 
@@ -432,5 +430,12 @@ public abstract class RobotBase {
 
     protected float getInverseScaling(MapLocation location) {
         return 1 - getScaling(location);
+    }
+
+    protected void outputInfluenceDebugging(BodyInfo target, Vector movement, boolean total) {
+        System.out.println((total ? "Total Influence" : "Influence") + " from ("
+                + target.getLocation().x + "," + target.getLocation().y
+                + ") on (" + robotController.getLocation().x + "," + robotController.getLocation().y + "): ("
+                + movement.dx + "," + movement.dy + ")");
     }
 }

@@ -19,19 +19,11 @@ public class Gardener extends RobotBase {
 	
 	TestTroop troop;
 	
-	//planting fields
-	float currentPlantingDirection = 0.0f; //the direction the gardener is trying to plant
-	float angleBetweenTrees = (float) (28f * Math.PI / 180f); // The number of degrees between trees
-	float turnRate = (float)(7 * Math.PI / 180); // the number of degrees the gardener turns to try to plant the next plant(radians).
-	int maxPlants = 7; // the maximum number of plants around the gardener.
-	//watering fields
-	int numberOfMaintainedTrees = 0; // This is the number of ally trees around the gardener that is being maintained by this gardener
-    int currentTreeWatered = 0;// within the index of trees being maintained, this is the one that our gardener is currently maintaining.
-    TreeInfo[] surroundingTrees; //the ally trees surrounding the gardener
-	
     Formation formation;
     Maintainer maintainer;
     Random rand = new Random();
+    
+    int buildOrder = 0;
     
 	public Gardener(RobotController robotController) {
         super(robotController);
@@ -44,9 +36,47 @@ public class Gardener extends RobotBase {
 
     @Override
     public void run() throws GameActionException {
-    	formation.plant();
-    	maintainer.maintain();
-    	createRandomRobot();
+    	System.out.println("In build number : "+buildOrder);
+    	switch(buildOrder){
+    	case 0:
+    		beAntiSocial();
+    		buildOrder++;
+    		break;
+    	case 1:
+    		beAntiSocial();
+    		buildOrder++;
+    		break;
+    	case 2:
+    		beAntiSocial();
+    		buildOrder++;
+    		break;
+    	case 3:
+    		beAntiSocial();
+    		buildOrder++;
+    		break;
+    	case 4:
+    		beAntiSocial();
+    		buildOrder++;
+    		break;
+    	case 5:
+    		beAntiSocial();
+    		buildOrder++;
+    		break;
+    	case 6:
+    		beAntiSocial();
+    		formation =new Formation(this.robotController,lastDirection,Formation.Form.C);
+    		buildOrder++;
+    		break;
+    	case 7:
+    		if(formation.plant()) buildOrder++;
+
+    		
+    	default:
+    		maintainer.maintain();
+    		deterministicBuild();
+    			
+    	}
+    	
     	troop.run();
     }
     
@@ -146,6 +176,85 @@ public class Gardener extends RobotBase {
 		}
     }
     
+    Direction lastDirection;
     
+    /**
+     * run away from enemy robots
+     * @return
+     * true - success
+     * false - failure
+     */
+    boolean beAntiSocial(){
+    	try {
+	        RobotInfo[] enemyRobots = robotController.senseNearbyRobots(-1, robotController.getTeam());
+	    	
+	        if (enemyRobots.length > 0) {
+	            // If there is an enemy robot, move away from it
+	            if (rightHanded) {
+	            	lastDirection = robotController.getLocation().directionTo(enemyRobots[0].getLocation()).opposite().rotateRightDegrees(30);
+	                tryMove(robotController, lastDirection);
+	            }
+	            if (!robotController.hasMoved()) {
+	            	lastDirection= robotController.getLocation().directionTo(enemyRobots[0].getLocation()).opposite().rotateLeftDegrees(30);
+	                tryMove(robotController,lastDirection);
+	            }
+	        } 
+	        return true;
+        } catch (GameActionException e) {
+				//something happened. You can't get away.
+				e.printStackTrace();
+				return false;
+		}
+    }
     
+    int buildType = 0;
+    
+    RobotType[] robotBuildOrder = new RobotType[]
+    		{RobotType.SCOUT,
+    				RobotType.SOLDIER,
+    				RobotType.LUMBERJACK,
+    				RobotType.LUMBERJACK,
+    				RobotType.SOLDIER,
+    				RobotType.SOLDIER,
+    				RobotType.TANK,
+    				RobotType.SOLDIER,
+    				RobotType.TANK
+    		}; 
+    
+    RobotType getDeterministicType(){
+    	return robotBuildOrder[buildType++%robotBuildOrder.length];
+    }
+    
+    void deterministicBuild() {
+        Direction dir = randomDirection();
+        
+        Direction[] complimentaryAngles = formation.getComplimentaryAngles();
+        
+        if(complimentaryAngles.length>0){
+        	dir = complimentaryAngles[rand.nextInt(complimentaryAngles.length)];
+        }
+        
+         try {
+        	 
+        	 RobotType buildType= getDeterministicType();
+        	 
+        	 if(this.robotController.getTeamBullets() > (buildType.bulletCost + 100 + 50) && this.robotController.isBuildReady()){
+        		 System.out.println("I have enough money to build a tank");
+        		 
+        		 if(this.robotController.canBuildRobot(buildType, dir)){
+        			 System.out.println("I am trying to build a tank");
+        			 this.robotController.buildRobot(buildType, dir);
+        		 } else {
+        			 System.out.println(" for some reason I still can't build a tank.");
+        			 System.out.println("direction:" + dir);
+        			 formation.print();
+        			 
+        		 }
+        		 
+        	 }
+
+        } catch (GameActionException e) {
+				e.printStackTrace();
+		}
+    }
 }

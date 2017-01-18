@@ -2,6 +2,7 @@ package rolesplayer.roles;
 
 import battlecode.common.Direction;
 import battlecode.common.GameActionException;
+import battlecode.common.MapLocation;
 import battlecode.common.RobotController;
 import battlecode.common.RobotType;
 import comm.TestCommander;
@@ -11,6 +12,8 @@ public class Archon extends RobotBase {
    
 	TestCommander commander;
 	
+	int buildOrder = 0;
+	
 	public Archon(RobotController robotController) {
         super(robotController);
         commander = new TestCommander(this.robotController);
@@ -18,8 +21,30 @@ public class Archon extends RobotBase {
 
     @Override
     public void run() throws GameActionException {
+    	System.out.println("In build number : "+buildOrder);
     	
-    	commander.run();
+    	//build some gardeners, send them kinda to the middle of the map ,and build more when it's uneconomical to buy anything else
+    	switch(buildOrder){
+    	case 0:
+    		if (buildGardener()) buildOrder++;
+    		break;
+    	case 1:
+    		if (buildGardener()) buildOrder++;
+    		break;
+    	case 2:
+    		if (buildGardener()) buildOrder++;
+    		break;
+    	case 3:
+    		if(robotController.getTeamBullets() > RobotType.TANK.bulletCost) buildOrder++;
+    		break;
+    		
+    	default:
+    		leanGardener();
+    		break;
+    	
+    	
+    	}
+    	
     	
     	if(this.robotController.getTeamBullets() > RobotType.GARDENER.bulletCost ){
     		if(this.robotController.canHireGardener(Direction.getNorth())){
@@ -27,42 +52,50 @@ public class Archon extends RobotBase {
     		}
     	}
     	
-        // Listen for enemy Archon's location
-//        int xPos = robotController.readBroadcast(0);
-//        int yPos = robotController.readBroadcast(1);
-//        MapLocation enemyArchonLoc = new MapLocation(xPos, yPos);
-//
-//        // Generate a random direction
-//        Direction dir = randomDirection();
-//
-//        // Randomly attempt to build a Gardener in this direction
-//        if (robotController.canHireGardener(dir) && Math.random() < .02) {
-//            robotController.hireGardener(dir);
-//        }
-//
-//        RobotInfo[] enemyRobots = robotController.senseNearbyRobots(-1, robotController.getTeam().opponent());
-//        if (enemyRobots.length > 0) {
-//            // If there is an enemy robot, move away from it
-//            if (rightHanded) {
-//                tryMove(robotController, robotController.getLocation().directionTo(enemyRobots[0].getLocation()).opposite().rotateRightDegrees(30));
-//            }
-//            if (!robotController.hasMoved()) {
-//                tryMove(robotController, robotController.getLocation().directionTo(enemyRobots[0].getLocation()).opposite().rotateLeftDegrees(30));
-//            }
-//        } else {
-//            if (enemyArchonLoc.x != 0 || enemyArchonLoc.y != 0) {
-//                tryMove(robotController, robotController.getLocation().directionTo(enemyArchonLoc).opposite());
-//            }
-//        }
-//        if (!robotController.hasMoved()) {
-//            // Move randomly
-//            tryMove(robotController, randomDirection());
-//        }
-
-        // Broadcast Archon's location for other robots on the team to know
-//        MapLocation myLocation = robotController.getLocation();
-//        robotController.broadcast(0,(int)myLocation.x);
-//        robotController.broadcast(1,(int)myLocation.y);
     }
     
+    
+    boolean buildGardener(){
+    	if(this.robotController.getTeamBullets() > RobotType.GARDENER.bulletCost ){
+    		Direction buildDirection =getGardenerDirection();
+    		if(this.robotController.canHireGardener(buildDirection)){
+    			try {
+					this.robotController.hireGardener(buildDirection);
+					return true;
+				} catch (GameActionException e) {
+					return false;
+				}
+    		} else {
+    			return false;
+    		}
+    	} else {
+    		return false;
+    	}
+    }
+    
+    boolean leanGardener(){
+    	if(this.robotController.getTeamBullets()>300) {
+    		try {
+				this.robotController.donate(50);
+			} catch (GameActionException e) {
+				//not much you can do, eh?
+			}
+    		return buildGardener();
+    	}
+    	return false;
+    }
+    
+
+    Direction getGardenerDirection(){
+
+    	int tries = 30;
+    	Direction buildDir = new Direction((float) (Math.random()*360)); 
+    	
+    	while( ! (this.robotController.canHireGardener(buildDir)) && tries>0){
+    		buildDir = new Direction((float) (Math.random()*360)); 
+    		tries--;
+    	}
+    	
+    	return buildDir;
+    }
 }

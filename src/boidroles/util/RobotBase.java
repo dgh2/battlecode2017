@@ -4,7 +4,6 @@ import battlecode.common.BodyInfo;
 import battlecode.common.BulletInfo;
 import battlecode.common.Direction;
 import battlecode.common.GameActionException;
-import battlecode.common.GameConstants;
 import battlecode.common.MapLocation;
 import battlecode.common.RobotController;
 import battlecode.common.RobotInfo;
@@ -130,6 +129,7 @@ public abstract class RobotBase {
     protected abstract Vector calculateInfluence() throws GameActionException;
 
     public void afterRun() throws GameActionException {
+        shakeTrees();
         detectArchons();
         markIncoming();
         if (robotController.getTeamVictoryPoints() + (robotController.getTeamBullets() / 10) >= 1000) {
@@ -219,11 +219,23 @@ public abstract class RobotBase {
         }
     }
 
-    public MapLocation projectBulletLocation(BulletInfo bulletInfo) {
+    private void shakeTrees() throws GameActionException {
+        if (robotController.canShake()) {
+            TreeInfo[] trees = robotController.senseNearbyTrees(2.0f * robotController.getType().bodyRadius, Team.NEUTRAL);
+            for (TreeInfo tree : trees) {
+                if (tree.getContainedBullets() > 0) {
+                    robotController.shake(tree.getID());
+                    break;
+                }
+            }
+        }
+    }
+
+    protected MapLocation projectBulletLocation(BulletInfo bulletInfo) {
         return projectBulletLocation(bulletInfo, 1);
     }
 
-    private MapLocation projectBulletLocation(BulletInfo bulletInfo, int rounds) {
+    protected MapLocation projectBulletLocation(BulletInfo bulletInfo, int rounds) {
         return bulletInfo.getLocation().add(bulletInfo.getDir(), rounds * bulletInfo.getSpeed());
     }
 
@@ -239,27 +251,26 @@ public abstract class RobotBase {
         }
     }
 
-    private boolean hasLineOfSight(MapLocation target) {
+    private boolean obstructsLineOfSight(BodyInfo target, BodyInfo thing) {
+        return distanceToIntersection(robotController.getLocation(), target.getLocation(), thing) <= 0;
+    }
+
+    private boolean isLineOfSightObstructedBy(BodyInfo target, BodyInfo[] things) {
+        for (BodyInfo thing : things) {
+            if (thing.getID() != target.getID() && robotController.getID() != target.getID() && obstructsLineOfSight(target, thing)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean hasLineOfSight(BodyInfo target) {
         return hasLineOfSight(target, false);
     }
 
-    private boolean hasLineOfSight(MapLocation target, boolean returnValueIfTargetNotInRange) {
-        boolean targetDetected = false;
-        BodyInfo[][] possibleObstructions = {robotController.senseNearbyTrees(), robotController.senseNearbyRobots()};
-        for (BodyInfo[] sensedThings : possibleObstructions) {
-            for (BodyInfo thing : sensedThings) {
-                if (thing.getLocation().equals(target)) {
-                    targetDetected = true;
-                    continue;
-                } else if (robotController.getLocation().equals(target)) {
-                    continue;
-                }
-                if (distanceToIntersection(robotController.getLocation(), target, thing) >= 0) {
-                    return false;
-                }
-            }
-        }
-        return targetDetected || returnValueIfTargetNotInRange;
+    private boolean hasLineOfSight(BodyInfo target, boolean ignoreRobots) {
+        return !isLineOfSightObstructedBy(target, robotController.senseNearbyTrees()) &&
+                (ignoreRobots || !isLineOfSightObstructedBy(target, robotController.senseNearbyRobots()));
     }
 
     protected boolean attackClosestEnemy() throws GameActionException {
@@ -268,7 +279,7 @@ public abstract class RobotBase {
         if (enemies.length > 0) {
             Arrays.sort(enemies, (o1, o2) -> Float.compare(o1.getLocation().distanceTo(robotController.getLocation()), o2.getLocation().distanceTo(robotController.getLocation())));
             for (RobotInfo enemy : enemies) {
-                if (robotController.canFireSingleShot() && hasLineOfSight(enemy.location)) {
+                if (robotController.canFireSingleShot() && hasLineOfSight(enemy)) {
                     robotController.fireSingleShot(robotController.getLocation().directionTo(enemy.location));
                     return true;
                 }
@@ -277,54 +288,62 @@ public abstract class RobotBase {
         return false;
     }
 
-    protected boolean attackArchons() throws GameActionException {
-        // Listen for enemy Archon's location
-        int xPos = robotController.readBroadcast(0);
-        int yPos = robotController.readBroadcast(1);
-        MapLocation enemyArchonLoc = new MapLocation(xPos, yPos);
-
-        if (robotController.canFireSingleShot() && hasLineOfSight(enemyArchonLoc, true)) {
-            robotController.fireSingleShot(robotController.getLocation().directionTo(enemyArchonLoc));
-        }
-        return false;
-    }
+//    protected boolean attackArchons() throws GameActionException {
+//        // Listen for enemy Archon's location
+//        int xPos = robotController.readBroadcast(0);
+//        int yPos = robotController.readBroadcast(1);
+//        MapLocation enemyArchonLoc = new MapLocation(xPos, yPos);
+//
+//        if (robotController.canFireSingleShot() && hasLineOfSight(enemyArchonLoc, true)) {
+//            robotController.fireSingleShot(robotController.getLocation().directionTo(enemyArchonLoc));
+//        }
+//        return false;
+//    }
 
     // this returns a direction and distance that the unit desires to travel based on the objects it can sense
     // todo: also use things it can remember and information from broadcast
-    private Vector calculateInfluenceExample(BodyInfo bodyInfo) throws GameActionException {
-        //todo: have separate influence calculation methods for each class
-        Vector v = new Vector();
-        if (bodyInfo.isRobot()) {
-            RobotInfo robot = (RobotInfo) bodyInfo;
-            if (robotController.getTeam().equals(robot.getTeam())) {
-                v.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()), robotController.getType().strideRadius).scale(1f));
-                v.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()).opposite(), robotController.getType().strideRadius).scale(1f));
-            } else {
-                if (RobotType.SCOUT.equals(robotController.getType()) || RobotType.SOLDIER.equals(robotController.getType()) || RobotType.TANK.equals(robotController.getType())) {
-                    v.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()), robotController.getType().strideRadius).scale(1f));
-                }
-                v.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()).opposite(), robotController.getType().strideRadius).scale(1f));
-            }
-        } else if (bodyInfo.isTree()) {
-            TreeInfo tree = (TreeInfo) bodyInfo;
-            if (RobotType.LUMBERJACK.equals(robotController.getType())) {
-                if (robotController.getTeam().equals(tree.getTeam())) {
-                    v.add(new Vector(robotController.getLocation().directionTo(tree.getLocation()).opposite(), GameConstants.LUMBERJACK_STRIKE_RADIUS).scale(1f));
-                } else if (!Team.NEUTRAL.equals(tree.getTeam())) {
-                    v.add(new Vector(robotController.getLocation().directionTo(tree.getLocation()), GameConstants.LUMBERJACK_STRIKE_RADIUS).scale(1f));
-                }
-            } else if (RobotType.GARDENER.equals(robotController.getType()) && robotController.getTeam().equals(tree.getTeam())) {
-                v.add(new Vector(robotController.getLocation().directionTo(tree.getLocation()), robotController.getType().strideRadius).scale(1f));
-            } else {
-                v.add(new Vector(robotController.getLocation().directionTo(tree.getLocation()).opposite(), robotController.getType().strideRadius).scale(1f));
-            }
-        } else if (bodyInfo.isBullet()) {
-            BulletInfo bullet = (BulletInfo) bodyInfo;
-            float distance = distanceToIntersection(bullet.getLocation(), projectBulletLocation(bullet), robotController.senseRobot(robotController.getID()));
-            if (distance <= 0) {
-                v.add(new Vector(robotController.getLocation().directionTo(projectBulletLocation(bullet)).opposite(), robotController.getType().strideRadius).scale(1f));
-            }
-        }
-        return v;
+//    private Vector calculateInfluenceExample(BodyInfo bodyInfo) throws GameActionException {
+//        //todo: have separate influence calculation methods for each class
+//        Vector v = new Vector();
+//        if (bodyInfo.isRobot()) {
+//            RobotInfo robot = (RobotInfo) bodyInfo;
+//            if (robotController.getTeam().equals(robot.getTeam())) {
+//                v.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()), robotController.getType().strideRadius).scale(1f));
+//                v.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()).opposite(), robotController.getType().strideRadius).scale(1f));
+//            } else {
+//                if (RobotType.SCOUT.equals(robotController.getType()) || RobotType.SOLDIER.equals(robotController.getType()) || RobotType.TANK.equals(robotController.getType())) {
+//                    v.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()), robotController.getType().strideRadius).scale(1f));
+//                }
+//                v.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()).opposite(), robotController.getType().strideRadius).scale(1f));
+//            }
+//        } else if (bodyInfo.isTree()) {
+//            TreeInfo tree = (TreeInfo) bodyInfo;
+//            if (RobotType.LUMBERJACK.equals(robotController.getType())) {
+//                if (robotController.getTeam().equals(tree.getTeam())) {
+//                    v.add(new Vector(robotController.getLocation().directionTo(tree.getLocation()).opposite(), GameConstants.LUMBERJACK_STRIKE_RADIUS).scale(1f));
+//                } else if (!Team.NEUTRAL.equals(tree.getTeam())) {
+//                    v.add(new Vector(robotController.getLocation().directionTo(tree.getLocation()), GameConstants.LUMBERJACK_STRIKE_RADIUS).scale(1f));
+//                }
+//            } else if (RobotType.GARDENER.equals(robotController.getType()) && robotController.getTeam().equals(tree.getTeam())) {
+//                v.add(new Vector(robotController.getLocation().directionTo(tree.getLocation()), robotController.getType().strideRadius).scale(1f));
+//            } else {
+//                v.add(new Vector(robotController.getLocation().directionTo(tree.getLocation()).opposite(), robotController.getType().strideRadius).scale(1f));
+//            }
+//        } else if (bodyInfo.isBullet()) {
+//            BulletInfo bullet = (BulletInfo) bodyInfo;
+//            float distance = distanceToIntersection(bullet.getLocation(), projectBulletLocation(bullet), robotController.senseRobot(robotController.getID()));
+//            if (distance <= 0) {
+//                v.add(new Vector(robotController.getLocation().directionTo(projectBulletLocation(bullet)).opposite(), robotController.getType().strideRadius).scale(1f));
+//            }
+//        }
+//        return v;
+//    }
+
+    protected float getScaling(MapLocation location) {
+        return robotController.getLocation().distanceTo(location) / robotController.getType().sensorRadius;
+    }
+
+    protected float getInverseScaling(MapLocation location) {
+        return 1 - getScaling(location);
     }
 }

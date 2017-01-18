@@ -9,16 +9,14 @@ public class TestTroop extends Troop{
 	}
 
 	@Override
-	protected void interpretCommand() {
-		int command = comms.getCommand();
+	protected void interpretCommand(int command, int[] commandData)  {
+
 		if(command!=0){
 			System.out.println("Command Received: " + command);
 			System.out.println("Command Data recieved: " + command);
 		}
 		
-		
 	}
-	
 
 	
 	

@@ -39,7 +39,7 @@ public class TestCommander extends Commander{
 	int commandIndex = 1;
 	public void sendBogusCommands(){
 		if(commandIndex<10){
-			commander.sendIndividualCommand(commandIndex, new int[]{}, lastInvited);
+			sendIndividualCommand(commandIndex, new int[]{}, lastInvited);
 			commandIndex++;
 		}
 	}
@@ -47,7 +47,7 @@ public class TestCommander extends Commander{
 	int groupCommandIndex = 10000;
 	public void sendBogusGroupCommands(){
 		if(commandIndex>=10 && groupCommandIndex <10010){
-			commander.sendGroupCommand(groupCommandIndex, new int[]{});
+			sendGroupCommand(groupCommandIndex, new int[]{});
 			groupCommandIndex++;
 		}
 	}
@@ -55,7 +55,7 @@ public class TestCommander extends Commander{
 	int wrongCommandIndex = 3000;
 	public void sendBogusWrongIDCommands(){
 		if(groupCommandIndex>=10010 && wrongCommandIndex<3005){
-			commander.sendIndividualCommand(commandIndex, new int[]{}, 6541);
+			sendIndividualCommand(commandIndex, new int[]{}, 6541);
 			groupCommandIndex++;
 		}
 	}

@@ -126,7 +126,7 @@ public abstract class RobotBase {
     public void afterRun() throws GameActionException {
         shakeTrees();
         detectArchons();
-        markIncoming();
+        //markIncoming();
         if (robotController.getTeamVictoryPoints() + (robotController.getTeamBullets() / 10) >= 1000) {
             //if current victory points plus all our bullets turned into victory points is at least 1k, sell all bullets
             robotController.donate(robotController.getTeamBullets());
@@ -147,22 +147,28 @@ public abstract class RobotBase {
         return true;
     }
 
-    private boolean markIncoming() throws GameActionException {
-        BulletInfo[] bullets = robotController.senseNearbyBullets(-1);
-        for (BulletInfo bullet : bullets) {
-//            robotController.setIndicatorLine(bullet.getLocation().add(bullet.getDir(), 6 * bullet.getSpeed()), bullet.getLocation().add(bullet.getDir(), 8 * bullet.getSpeed()), 255, 255, 0);
-//            robotController.setIndicatorLine(bullet.getLocation().add(bullet.getDir(), 4 * bullet.getSpeed()), bullet.getLocation().add(bullet.getDir(), 6 * bullet.getSpeed()), 255, 115, 0);
-//            robotController.setIndicatorLine(bullet.getLocation().add(bullet.getDir(), 2 * bullet.getSpeed()), bullet.getLocation().add(bullet.getDir(), 4 * bullet.getSpeed()), 255, 70, 0);
-//            robotController.setIndicatorLine(bullet.getLocation(), bullet.getLocation().add(bullet.getDir(), 2 * bullet.getSpeed()), 255, 0, 0);
-            robotController.setIndicatorDot(bullet.getLocation(), 0, 0, 0);
-
-            if (willCollideWithMe(bullet)) {
-//                MapLocation collision = bullet.getLocation().add(bullet.getDir(), );
-                robotController.setIndicatorDot(robotController.getLocation(), 255, 0, 0);
-            }
-        }
-        return bullets.length > 0;
-    }
+//    private boolean markIncoming() throws GameActionException {
+//        BulletInfo[] bullets = robotController.senseNearbyBullets(-1);
+//        for (BulletInfo bullet : bullets) {
+//            float theta = bullet.getDir().radiansBetween(bullet.getLocation().directionTo(robotController.getLocation()));
+//            // If theta > 90 degrees, then the bullet is traveling away from us and we can break early
+//            if (Math.abs(theta) > Math.PI / 2) {
+//                continue;
+//            }
+//
+////            robotController.setIndicatorLine(bullet.getLocation().add(bullet.getDir(), 6 * bullet.getSpeed()), bullet.getLocation().add(bullet.getDir(), 8 * bullet.getSpeed()), 255, 255, 0);
+////            robotController.setIndicatorLine(bullet.getLocation().add(bullet.getDir(), 4 * bullet.getSpeed()), bullet.getLocation().add(bullet.getDir(), 6 * bullet.getSpeed()), 255, 115, 0);
+////            robotController.setIndicatorLine(bullet.getLocation().add(bullet.getDir(), 2 * bullet.getSpeed()), bullet.getLocation().add(bullet.getDir(), 4 * bullet.getSpeed()), 255, 70, 0);
+////            robotController.setIndicatorLine(bullet.getLocation(), bullet.getLocation().add(bullet.getDir(), 2 * bullet.getSpeed()), 255, 0, 0);
+//            robotController.setIndicatorDot(bullet.getLocation(), 0, 0, 0);
+//
+//            if (willCollideWithMe(bullet)) {
+////                MapLocation collision = bullet.getLocation().add(bullet.getDir(), );
+//                robotController.setIndicatorDot(robotController.getLocation(), 255, 0, 0);
+//            }
+//        }
+//        return bullets.length > 0;
+//    }
 
     /**
      * A slightly more complicated example function, this returns true if the given bullet is on a collision

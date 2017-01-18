@@ -246,27 +246,50 @@ public strictfp class RobotPlayer {
         }
     }
 
-    private static boolean obstructsLineOfSight(BodyInfo target, BodyInfo thing) {
-        return distanceToIntersection(rc.getLocation(), target.getLocation(), thing) <= 0;
-    }
-
-    private static boolean isLineOfSightObstructedBy(BodyInfo target, BodyInfo[] things) {
-        for (BodyInfo thing : things) {
-            if (thing.getID() != target.getID() && rc.getID() != target.getID() && obstructsLineOfSight(target, thing)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     private static boolean hasLineOfSight(BodyInfo target) {
         return hasLineOfSight(target, false);
     }
 
-    private static boolean hasLineOfSight(BodyInfo target, boolean ignoreRobots) {
-        return !isLineOfSightObstructedBy(target, rc.senseNearbyTrees()) &&
-                (ignoreRobots || !isLineOfSightObstructedBy(target, rc.senseNearbyRobots()));
+    private static boolean hasLineOfSight(BodyInfo target, boolean returnValueIfTargetNotInRange) {
+        boolean targetDetected = false;
+        BodyInfo[][] arrays = {rc.senseNearbyTrees(), rc.senseNearbyRobots()};
+        for (BodyInfo[] array : arrays) {
+            for (BodyInfo thing : array) {
+                if (thing.getID() == target.getID()) {
+                    targetDetected = true;
+                    continue;
+                } else if (rc.getID() == target.getID()) {
+                    continue;
+                }
+                if (distanceToIntersection(rc.getLocation(), target.getLocation(), thing) >= 0) {
+                    return false;
+                }
+            }
+        }
+        return targetDetected || returnValueIfTargetNotInRange;
     }
+
+    //private static boolean obstructsLineOfSight(BodyInfo target, BodyInfo thing) {
+    //    return distanceToIntersection(rc.getLocation(), target.getLocation(), thing) <= 0;
+    //}
+    //
+    //private static boolean isLineOfSightObstructedBy(BodyInfo target, BodyInfo[] things) {
+    //    for (BodyInfo thing : things) {
+    //        if (thing.getID() != target.getID() && rc.getID() != target.getID() && obstructsLineOfSight(target, thing)) {
+    //            return true;
+    //        }
+    //    }
+    //    return false;
+    //}
+    //
+    //private static boolean hasLineOfSight(BodyInfo target) {
+    //    return hasLineOfSight(target, false);
+    //}
+    //
+    //private static boolean hasLineOfSight(BodyInfo target, boolean ignoreRobots) {
+    //    return !isLineOfSightObstructedBy(target, rc.senseNearbyTrees()) &&
+    //            (ignoreRobots || !isLineOfSightObstructedBy(target, rc.senseNearbyRobots()));
+    //}
 
     private static void attackClosestEnemy() throws GameActionException {
         Team enemyTeam = rc.getTeam().opponent();

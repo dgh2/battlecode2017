@@ -11,7 +11,6 @@ import battlecode.common.TreeInfo;
 import rolesplayer.util.RobotBase;
 
 import static rolesplayer.util.Util.randomDirection;
-import static rolesplayer.util.Util.tryMove;
 
 public class Lumberjack extends RobotBase {
     public Lumberjack(RobotController robotController) {
@@ -106,12 +105,36 @@ public class Lumberjack extends RobotBase {
                 tryMove(robotController, robotController.getLocation().directionTo(neutralTrees[0].getLocation()).rotateLeftDegrees(45));
             }
         }
-        if (nearbyFriendlyRobots.length == 0 && nearbyFriendlyTrees.length == 0 && robotController.canStrike()) {
+        if (nearbyFriendlyRobots.length == 0 && nearbyFriendlyTrees.length == 0 && robotController.canStrike() &&
+                (enemyRobots.length > 0 || enemyTrees.length > 0 || neutralTrees.length > 0)) {
+            //todo: figure out why this can still hit friendly units if we don't sense them. Probably them moving into range on this turn; they should stop that
             robotController.strike();
         }
         if (!robotController.hasMoved()) {
             // Move randomly
             tryMove(robotController, randomDirection());
         }
+    }
+
+    private boolean tryChop(TreeInfo[] trees) throws GameActionException {
+        for (TreeInfo tree : trees) {
+            if (tryChop(tree)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean tryChop(TreeInfo tree) throws GameActionException {
+        if (robotController.canChop(tree.getLocation())) {
+            if (tree.getHealth() <= GameConstants.LUMBERJACK_CHOP_DAMAGE) {
+                System.out.println("Timber!");
+            } else {
+                System.out.println("Chop!");
+            }
+            robotController.chop(tree.getLocation());
+            return true;
+        }
+        return false;
     }
 }

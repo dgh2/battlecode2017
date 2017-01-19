@@ -8,7 +8,6 @@ import battlecode.common.MapLocation;
 import battlecode.common.RobotController;
 import battlecode.common.RobotInfo;
 import battlecode.common.RobotType;
-import battlecode.common.Team;
 import battlecode.common.TreeInfo;
 import boidroles.roles.Archon;
 import boidroles.roles.Gardener;
@@ -19,6 +18,9 @@ import boidroles.roles.Tank;
 
 public abstract class RobotBase {
     protected RobotController robotController;
+    protected RobotInfo[] sensedRobots;
+    protected TreeInfo[] sensedTrees;
+    protected BulletInfo[] sensedBullets;
 
     protected RobotBase(RobotController robotController) {
         if (robotController == null || robotController.getType() == null) {
@@ -112,6 +114,9 @@ public abstract class RobotBase {
     }
 
     public void beforeRun() throws GameActionException {
+        sensedRobots = robotController.senseNearbyRobots();
+        sensedTrees = robotController.senseNearbyTrees();
+        sensedBullets = robotController.senseNearbyBullets();
         //System.out.println("I'm a bot!");
         detectArchons();
 
@@ -268,10 +273,9 @@ public abstract class RobotBase {
             robotController.broadcast(1, 0);
             robotController.broadcast(2, 0);
         }
-        RobotInfo[] enemyRobots = robotController.senseNearbyRobots(-1, robotController.getTeam().opponent());
-        for (RobotInfo enemyRobot : enemyRobots) {
-            if (RobotType.ARCHON.equals(enemyRobot.getType())) {
-                MapLocation enemyArchonLocation = enemyRobot.getLocation();
+        for (RobotInfo robot : sensedRobots) {
+            if (robot.getTeam().opponent().equals(robot.getTeam()) && RobotType.ARCHON.equals(robot.getType())) {
+                MapLocation enemyArchonLocation = robot.getLocation();
                 robotController.broadcast(0, (int) enemyArchonLocation.x);
                 robotController.broadcast(1, (int) enemyArchonLocation.y);
                 robotController.broadcast(2, robotController.getRoundNum());
@@ -280,9 +284,11 @@ public abstract class RobotBase {
     }
 
     private void shakeTrees() throws GameActionException {
-        if (robotController.canShake()) {
-            TreeInfo[] trees = robotController.senseNearbyTrees(2.0f * robotController.getType().bodyRadius, Team.NEUTRAL);
-            for (TreeInfo tree : trees) {
+        if (!robotController.canShake()) {
+            for (TreeInfo tree : sensedTrees) {
+                if (robotController.getLocation().distanceTo(tree.getLocation()) > 2.0f * robotController.getType().bodyRadius) {
+                    break;
+                }
                 if (tree.getContainedBullets() > 0) {
                     robotController.shake(tree.getID());
                     break;
@@ -324,7 +330,7 @@ public abstract class RobotBase {
 
     private boolean hasLineOfSight(BodyInfo target, boolean returnValueIfTargetNotInRange) {
         boolean targetDetected = false;
-        BodyInfo[][] arrays = {robotController.senseNearbyTrees(), robotController.senseNearbyRobots()};
+        BodyInfo[][] arrays = {sensedTrees, sensedRobots};
         for (BodyInfo[] array : arrays) {
             for (BodyInfo thing : array) {
                 if (thing.getID() == target.getID()) {
@@ -365,14 +371,12 @@ public abstract class RobotBase {
     //}
 
     protected boolean attackClosestEnemy() throws GameActionException {
-        Team enemyTeam = robotController.getTeam().opponent();
-        RobotInfo[] enemies = robotController.senseNearbyRobots(-1, enemyTeam);
-        if (enemies.length > 0) {
-            for (RobotInfo enemy : enemies) {
-                if (robotController.canFireSingleShot() && hasLineOfSight(enemy)) {
-                    robotController.fireSingleShot(robotController.getLocation().directionTo(enemy.location));
-                    return true;
-                }
+        for (RobotInfo robot : sensedRobots) {
+            if (robotController.getTeam().opponent().equals(robot.getTeam())
+                    && robotController.canFireSingleShot()
+                    && hasLineOfSight(robot)) {
+                robotController.fireSingleShot(robotController.getLocation().directionTo(robot.location));
+                return true;
             }
         }
         return false;

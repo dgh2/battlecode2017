@@ -1,7 +1,6 @@
 package boidroles.roles;
 
 import battlecode.common.BodyInfo;
-import battlecode.common.BulletInfo;
 import battlecode.common.GameActionException;
 import battlecode.common.GameConstants;
 import battlecode.common.RobotController;
@@ -13,33 +12,46 @@ import boidroles.util.RobotBase;
 import boidroles.util.Vector;
 
 public class Lumberjack extends RobotBase {
+    public static final float STRIKE_RANGE = RobotType.LUMBERJACK.bodyRadius + GameConstants.LUMBERJACK_STRIKE_RADIUS;
+
     public Lumberjack(RobotController robotController) {
         super(robotController);
     }
 
+    private BodyInfo[] enemyRobots;
+    private BodyInfo[] friendlyRobots;
+    private TreeInfo[] enemyTrees;
+    private TreeInfo[] friendlyTrees;
+    private TreeInfo[] neutralTrees;
+
     @Override
     public void runOnce() throws GameActionException {
         super.runOnce();
-        System.out.println("I wanted to be... A " + getBaseType().name() + "!");
+        //System.out.println("I wanted to be... A " + getBaseType().name() + "!");
     }
 
     @Override
     public void beforeRun() throws GameActionException {
         super.beforeRun();
+        enemyRobots = robotController.senseNearbyRobots(STRIKE_RANGE, robotController.getTeam().opponent());
+        friendlyRobots = robotController.senseNearbyRobots(STRIKE_RANGE, robotController.getTeam());
+        enemyTrees = robotController.senseNearbyTrees(STRIKE_RANGE, robotController.getTeam().opponent());
+        friendlyTrees = robotController.senseNearbyTrees(STRIKE_RANGE, robotController.getTeam());
+        neutralTrees = robotController.senseNearbyTrees(STRIKE_RANGE, Team.NEUTRAL);
         detectArchons();
-        System.out.println("I am a " + getBaseType().name() + " and I'm okay");
+        //System.out.println("I am a " + getBaseType().name() + " and I'm okay");
     }
 
     @Override
     public void afterRun() throws GameActionException {
         super.afterRun();
-        System.out.println("I sleep all night and I work all day");
+        //System.out.println("I sleep all night and I work all day");
     }
 
     @Override
     public void dying() throws GameActionException {
         super.dying();
-        System.out.println("I never wanted to do this in the first place!");
+        //System.out.println("I never wanted to do this in the first place!");
     }
 
     @Override
@@ -49,12 +61,6 @@ public class Lumberjack extends RobotBase {
         tryMove(movement.getDirection(), movement.getDistance());
 
         //Handle actions
-        float strikingRange = RobotType.LUMBERJACK.bodyRadius + GameConstants.LUMBERJACK_STRIKE_RADIUS;
-        BodyInfo[] enemyRobots = robotController.senseNearbyRobots(strikingRange, robotController.getTeam().opponent());
-        BodyInfo[] friendlyRobots = robotController.senseNearbyRobots(strikingRange, robotController.getTeam());
-        TreeInfo[] enemyTrees = robotController.senseNearbyTrees(strikingRange, robotController.getTeam().opponent());
-        TreeInfo[] friendlyTrees = robotController.senseNearbyTrees(strikingRange, robotController.getTeam());
-        TreeInfo[] neutralTrees = robotController.senseNearbyTrees(strikingRange, Team.NEUTRAL);
         if (robotController.canStrike()
                 && enemyRobots.length > 0
                 && (enemyRobots.length + enemyTrees.length > friendlyRobots.length + friendlyTrees.length)) {
@@ -90,11 +96,8 @@ public class Lumberjack extends RobotBase {
 
     @Override
     protected Vector calculateInfluence() throws GameActionException {
-        RobotInfo[] nearbyRobots = robotController.senseNearbyRobots();
-        TreeInfo[] nearbyTrees = robotController.senseNearbyTrees();
-        BulletInfo[] nearbyBullets = robotController.senseNearbyBullets();
         Vector movement = new Vector();
-        for (RobotInfo robot : nearbyRobots) {
+        for (RobotInfo robot : sensedRobots) {
             if (!robotController.getTeam().equals(robot.getTeam())) {
                 movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()),
                         robotController.getType().strideRadius)
@@ -115,7 +118,7 @@ public class Lumberjack extends RobotBase {
                         robotController.getType().strideRadius * 2f).scale(getInverseScaling(robot.getLocation())));
             }
         }
-        for (TreeInfo tree : nearbyTrees) {
+        for (TreeInfo tree : sensedTrees) {
             if (tree.getContainedRobot() != null) {
                 movement.add(new Vector(robotController.getLocation().directionTo(tree.getLocation()),
                         robotController.getType().strideRadius * 1f)
@@ -127,10 +130,10 @@ public class Lumberjack extends RobotBase {
 //                    robotController.getType().strideRadius * .1f)
 //                    .scale(getInverseScalingUntested(tree.getLocation())));
         }
-        movement.add(dodgeBullets(nearbyBullets));
         movement.add(getInfluenceFromInitialEnemyArchonLocations(true, .2f));
-        movement.add(getInfluenceFromTreesWithBullets(nearbyTrees));
-        movement.add(getInfluenceFromTrees(nearbyTrees));
+        movement.add(getInfluenceFromTreesWithBullets(sensedTrees));
+        movement.add(getInfluenceFromTrees(sensedTrees));
+        movement.add(dodgeBullets(sensedBullets));
         //todo: repel from the map's edges too
         return movement;
     }

@@ -1,6 +1,5 @@
 package boidroles.roles;
 
-import battlecode.common.BulletInfo;
 import battlecode.common.GameActionException;
 import battlecode.common.RobotController;
 import battlecode.common.RobotInfo;
@@ -30,11 +29,8 @@ public class Scout extends RobotBase {
 
     @Override
     protected Vector calculateInfluence() throws GameActionException {
-        RobotInfo[] nearbyRobots = robotController.senseNearbyRobots();
-        TreeInfo[] nearbyTrees = robotController.senseNearbyTrees();
-        BulletInfo[] nearbyBullets = robotController.senseNearbyBullets();
         Vector movement = new Vector();
-        for (RobotInfo robot : nearbyRobots) {
+        for (RobotInfo robot : sensedRobots) {
             if (!robotController.getTeam().equals(robot.getTeam())) {
                 movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()),
                         robotController.getType().strideRadius)
@@ -55,17 +51,17 @@ public class Scout extends RobotBase {
                         robotController.getType().strideRadius * 2.5f).scale(getInverseScaling(robot.getLocation())));
             }
         }
-        for (TreeInfo tree : nearbyTrees) {
+        for (TreeInfo tree : sensedTrees) {
 //            movement.add(new Vector(robotController.getLocation().directionTo(tree.getLocation()),
 //                    robotController.getType().strideRadius*.1f).scale(1f));
             movement.add(new Vector(robotController.getLocation().directionTo(tree.getLocation()).opposite(),
                     robotController.getType().strideRadius * .1f)
                     .scale(getInverseScaling(tree.getLocation())));
         }
-        movement.add(dodgeBullets(nearbyBullets));
         movement.add(getInfluenceFromInitialEnemyArchonLocations(true, .5f));
-        movement.add(getInfluenceFromTreesWithBullets(nearbyTrees));
-        movement.add(getInfluenceFromTrees(nearbyTrees));
+        movement.add(getInfluenceFromTreesWithBullets(sensedTrees));
+        movement.add(getInfluenceFromTrees(sensedTrees));
+        movement.add(dodgeBullets(sensedBullets));
         //todo: repel from the map's edges too
         return movement;
     }

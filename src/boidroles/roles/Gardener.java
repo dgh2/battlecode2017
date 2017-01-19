@@ -1,6 +1,5 @@
 package boidroles.roles;
 
-import battlecode.common.BulletInfo;
 import battlecode.common.Direction;
 import battlecode.common.GameActionException;
 import battlecode.common.RobotController;
@@ -53,24 +52,20 @@ public class Gardener extends RobotBase {
             robotController.buildRobot(RobotType.TANK, dir);
         }
 
-        TreeInfo[] ourTrees = robotController.senseNearbyTrees(-1, robotController.getTeam());
-        if (ourTrees.length > 0) {
-            for (TreeInfo ourTree : ourTrees) {
-                if (ourTree.getHealth() < .8 * ourTree.getMaxHealth() && robotController.canWater(ourTree.getLocation())) {
-                    robotController.water(ourTree.getLocation());
-                    break;
-                }
+        for (TreeInfo tree : sensedTrees) {
+            if (robotController.getTeam().equals(tree.getTeam())
+                    && tree.getHealth() < .8 * tree.getMaxHealth()
+                    && robotController.canWater(tree.getLocation())) {
+                robotController.water(tree.getLocation());
+                break;
             }
         }
     }
 
     @Override
     protected Vector calculateInfluence() throws GameActionException {
-        RobotInfo[] nearbyRobots = robotController.senseNearbyRobots();
-        TreeInfo[] nearbyTrees = robotController.senseNearbyTrees();
-        BulletInfo[] nearbyBullets = robotController.senseNearbyBullets();
         Vector movement = new Vector();
-        for (RobotInfo robot : nearbyRobots) {
+        for (RobotInfo robot : sensedRobots) {
             if (!robotController.getTeam().equals(robot.getTeam())) {
                 movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()),
                         robotController.getType().strideRadius)
@@ -93,14 +88,14 @@ public class Gardener extends RobotBase {
                         robotController.getType().strideRadius * 2f).scale(getInverseScaling(robot.getLocation())));
             }
         }
-        for (TreeInfo tree : nearbyTrees) {
+        for (TreeInfo tree : sensedTrees) {
             movement.add(new Vector(robotController.getLocation().directionTo(tree.getLocation()),
                     robotController.getType().strideRadius).scale(tree.getHealth()/tree.getMaxHealth()));
         }
-        movement.add(dodgeBullets(nearbyBullets));
         movement.add(getInfluenceFromInitialEnemyArchonLocations(false, .05f));
-        movement.add(getInfluenceFromTreesWithBullets(nearbyTrees));
-        movement.add(getInfluenceFromTrees(nearbyTrees));
+        movement.add(getInfluenceFromTreesWithBullets(sensedTrees));
+        movement.add(getInfluenceFromTrees(sensedTrees));
+        movement.add(dodgeBullets(sensedBullets));
         //todo: repel from the map's edges too
         return movement;
     }

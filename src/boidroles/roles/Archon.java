@@ -1,12 +1,10 @@
 package boidroles.roles;
 
-import battlecode.common.BulletInfo;
 import battlecode.common.Direction;
 import battlecode.common.GameActionException;
 import battlecode.common.RobotController;
 import battlecode.common.RobotInfo;
 import battlecode.common.RobotType;
-import battlecode.common.TreeInfo;
 import boidroles.util.RobotBase;
 import boidroles.util.Vector;
 
@@ -36,11 +34,8 @@ public class Archon extends RobotBase {
 
     @Override
     protected Vector calculateInfluence() throws GameActionException {
-        RobotInfo[] nearbyRobots = robotController.senseNearbyRobots();
-        TreeInfo[] nearbyTrees = robotController.senseNearbyTrees();
-        BulletInfo[] nearbyBullets = robotController.senseNearbyBullets();
         Vector movement = new Vector();
-        for (RobotInfo robot : nearbyRobots) {
+        for (RobotInfo robot : sensedRobots) {
             if (!robotController.getTeam().equals(robot.getTeam())) {
                 movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()).opposite(),
                         robotController.getType().strideRadius));
@@ -57,10 +52,10 @@ public class Archon extends RobotBase {
                         robotController.getType().strideRadius * 2f).scale(getInverseScaling(robot.getLocation())));
             }
         }
-        movement.add(dodgeBullets(nearbyBullets));
         movement.add(getInfluenceFromInitialEnemyArchonLocations(false, 1));
-        movement.add(getInfluenceFromTreesWithBullets(nearbyTrees));
-        movement.add(getInfluenceFromTrees(nearbyTrees));
+        movement.add(getInfluenceFromTreesWithBullets(sensedTrees));
+        movement.add(getInfluenceFromTrees(sensedTrees));
+        movement.add(dodgeBullets(sensedBullets));
         //todo: repel from the map's edges too
         return movement;
     }

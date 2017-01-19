@@ -37,7 +37,7 @@ public class Scout extends RobotBase {
         for (RobotInfo robot : nearbyRobots) {
             if (!robotController.getTeam().equals(robot.getTeam())) {
                 movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()),
-                        robotController.getType().strideRadius * 2f)
+                        robotController.getType().strideRadius)
                         .scale(getScaling(robot.getLocation())));
                 movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()).opposite(),
                         robotController.getType().strideRadius)
@@ -47,12 +47,12 @@ public class Scout extends RobotBase {
                         robotController.getType().strideRadius)
                         .scale(getScaling(robot.getLocation())));
                 movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()).opposite(),
-                        robotController.getType().strideRadius * 2f)
+                        robotController.getType().strideRadius)
                         .scale(getInverseScaling(robot.getLocation())));
             }
             if (RobotType.LUMBERJACK.equals(robot.getType())) {
                 movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()).opposite(),
-                        robotController.getType().strideRadius).scale(2f));
+                        robotController.getType().strideRadius * 2.5f).scale(getInverseScaling(robot.getLocation())));
             }
         }
         for (TreeInfo tree : nearbyTrees) {
@@ -63,7 +63,7 @@ public class Scout extends RobotBase {
                     .scale(getInverseScaling(tree.getLocation())));
         }
         movement.add(dodgeBullets(nearbyBullets));
-        movement.add(getInfluenceFromInitialEnemyArchonLocations(true));
+        movement.add(getInfluenceFromInitialEnemyArchonLocations(true, .5f));
         movement.add(getInfluenceFromTreesWithBullets(nearbyTrees));
         movement.add(getInfluenceFromTrees(nearbyTrees));
         //todo: repel from the map's edges too

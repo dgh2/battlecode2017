@@ -119,7 +119,7 @@ public abstract class RobotBase {
 //                Vector movement = maintainSeparation(nearby);
 //                movement.add(maintainAlignment(nearby));
 //                movement.add(maintainCohesion(nearby));
-        //tryMove(movement.getDirection(), movement.getDistance());
+        //tryMove(movement.direction, movement.distance);
     }
 
     public abstract void run() throws GameActionException;
@@ -134,28 +134,26 @@ public abstract class RobotBase {
             if (Math.abs(theta) > Math.PI / 2) {
                 break;
             }
-            movement.add(new Vector(robotController.getLocation().directionTo(bullet.getLocation()).opposite(),
-                    robotController.getType().strideRadius + 2.5f * bullet.getSpeed())
-                    .scale(getInverseScaling(bullet.getLocation())));
-            movement.add(new Vector(robotController.getLocation().directionTo(bullet.getLocation()).opposite(),
-                    robotController.getType().strideRadius + 2f * bullet.getSpeed())
-                    .scale(getInverseScaling(projectBulletLocation(bullet))));
-            movement.add(new Vector(robotController.getLocation().directionTo(bullet.getLocation()).opposite(),
-                    robotController.getType().strideRadius + 1.5f * bullet.getSpeed())
-                    .scale(getInverseScaling(projectBulletLocation(bullet, 2))));
-            movement.add(new Vector(robotController.getLocation().directionTo(bullet.getLocation()).opposite(),
-                    robotController.getType().strideRadius + 1f * bullet.getSpeed())
-                    .scale(getInverseScaling(projectBulletLocation(bullet, 3))));
+            MapLocation intersection = robotController.getLocation()
+                    .add(bullet.getDir(), (float) Math.abs(robotController.getLocation().distanceTo(bullet.getLocation()) * Math.cos(theta)));
+            movement.add(new Vector(robotController.getLocation().directionTo(intersection).opposite(),
+                    robotController.getType().strideRadius * 2f)
+                    .scale(getInverseScaling(intersection)));
+            MapLocation nearBullet = bullet.getLocation().add(intersection.directionTo(robotController.getLocation()),
+                    1.1f * robotController.getType().bodyRadius);
+            movement.add(new Vector(robotController.getLocation().directionTo(nearBullet),
+                    robotController.getType().strideRadius * 2f)
+                    .scale(getScaling(intersection)));
         }
         return movement;
     }
 
-    protected Vector getInfluenceFromInitialEnemyArchonLocations(boolean attract) {
+    protected Vector getInfluenceFromInitialEnemyArchonLocations(boolean attract, float scale) {
         Vector movement = new Vector();
         for (MapLocation archonLocation : robotController.getInitialArchonLocations(robotController.getTeam().opponent())) {
             Direction direction = robotController.getLocation().directionTo(archonLocation);
             movement.add(new Vector(attract ? direction : direction.opposite(),
-                    robotController.getType().strideRadius).scale(.05f));
+                    robotController.getType().strideRadius).scale(scale));
         }
         return movement;
     }
@@ -165,7 +163,7 @@ public abstract class RobotBase {
         for (TreeInfo tree : trees) {
             if (tree.getContainedBullets() > 0) {
                 movement.add(new Vector(robotController.getLocation().directionTo(tree.getLocation()),
-                        robotController.getType().strideRadius * 1f)
+                        robotController.getType().strideRadius * .5f)
                         .scale(getScaling(tree.getLocation())));
             }
         }
@@ -176,7 +174,7 @@ public abstract class RobotBase {
         Vector movement = new Vector();
         for (TreeInfo tree : trees) {
             movement.add(new Vector(robotController.getLocation().directionTo(tree.getLocation()).opposite(),
-                    robotController.getType().strideRadius * .1f)
+                    robotController.getType().strideRadius)
                     .scale(getInverseScaling(tree.getLocation())));
         }
         return movement;
@@ -311,6 +309,13 @@ public abstract class RobotBase {
         } else {
             return -1;
         }
+    }
+
+    protected Vector vectorToIntersection(BodyInfo target, Direction direction) {
+        float targetDistance = robotController.getLocation().distanceTo(target.getLocation());
+        float theta = direction.radiansBetween(target.getLocation().directionTo(robotController.getLocation()));
+        MapLocation intersection = target.getLocation().add(direction, (float) Math.abs(targetDistance * Math.cos(theta)));
+        return new Vector(robotController.getLocation().directionTo(intersection), robotController.getLocation().distanceTo(intersection));
     }
 
     private boolean hasLineOfSight(BodyInfo target) {

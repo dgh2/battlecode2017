@@ -97,7 +97,7 @@ public class Lumberjack extends RobotBase {
         for (RobotInfo robot : nearbyRobots) {
             if (!robotController.getTeam().equals(robot.getTeam())) {
                 movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()),
-                        robotController.getType().strideRadius * 2f)
+                        robotController.getType().strideRadius)
                         .scale(getScaling(robot.getLocation())));
                 movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()).opposite(),
                         robotController.getType().strideRadius)
@@ -112,7 +112,7 @@ public class Lumberjack extends RobotBase {
             }
             if (RobotType.LUMBERJACK.equals(robot.getType())) {
                 movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()).opposite(),
-                        robotController.getType().strideRadius).scale(2f));
+                        robotController.getType().strideRadius * 2f).scale(getInverseScaling(robot.getLocation())));
             }
         }
         for (TreeInfo tree : nearbyTrees) {
@@ -125,10 +125,10 @@ public class Lumberjack extends RobotBase {
 //                    robotController.getType().strideRadius*.1f).scale(1f));
 //            movement.add(new Vector(robotController.getLocation().directionTo(tree.getLocation()).opposite(),
 //                    robotController.getType().strideRadius * .1f)
-//                    .scale(getInverseScaling(tree.getLocation())));
+//                    .scale(getInverseScalingUntested(tree.getLocation())));
         }
         movement.add(dodgeBullets(nearbyBullets));
-        movement.add(getInfluenceFromInitialEnemyArchonLocations(true));
+        movement.add(getInfluenceFromInitialEnemyArchonLocations(true, .2f));
         movement.add(getInfluenceFromTreesWithBullets(nearbyTrees));
         movement.add(getInfluenceFromTrees(nearbyTrees));
         //todo: repel from the map's edges too

@@ -76,19 +76,21 @@ public class Gardener extends RobotBase {
                         robotController.getType().strideRadius)
                         .scale(getScaling(robot.getLocation())));
                 movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()).opposite(),
-                        robotController.getType().strideRadius * 2f)
+                        robotController.getType().strideRadius)
                         .scale(getInverseScaling(robot.getLocation())));
             } else {
-                movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()),
-                        robotController.getType().strideRadius * 2f)
-                        .scale(getScaling(robot.getLocation())));
+                if (!robotController.getTeam().equals(robot.getTeam())) {
+                    movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()),
+                            robotController.getType().strideRadius)
+                            .scale(getScaling(robot.getLocation())));
+                }
                 movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()).opposite(),
                         robotController.getType().strideRadius)
                         .scale(getInverseScaling(robot.getLocation())));
             }
             if (RobotType.LUMBERJACK.equals(robot.getType())) {
                 movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()).opposite(),
-                        robotController.getType().strideRadius).scale(2f));
+                        robotController.getType().strideRadius * 2f).scale(getInverseScaling(robot.getLocation())));
             }
         }
         for (TreeInfo tree : nearbyTrees) {
@@ -96,7 +98,7 @@ public class Gardener extends RobotBase {
                     robotController.getType().strideRadius).scale(tree.getHealth()/tree.getMaxHealth()));
         }
         movement.add(dodgeBullets(nearbyBullets));
-        movement.add(getInfluenceFromInitialEnemyArchonLocations(false));
+        movement.add(getInfluenceFromInitialEnemyArchonLocations(false, .05f));
         movement.add(getInfluenceFromTreesWithBullets(nearbyTrees));
         movement.add(getInfluenceFromTrees(nearbyTrees));
         //todo: repel from the map's edges too

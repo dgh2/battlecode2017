@@ -43,7 +43,7 @@ public class Archon extends RobotBase {
         for (RobotInfo robot : nearbyRobots) {
             if (!robotController.getTeam().equals(robot.getTeam())) {
                 movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()).opposite(),
-                        robotController.getType().strideRadius).scale(1f));
+                        robotController.getType().strideRadius));
             } else {
                 movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()),
                         robotController.getType().strideRadius)
@@ -54,11 +54,11 @@ public class Archon extends RobotBase {
             }
             if (RobotType.LUMBERJACK.equals(robot.getType())) {
                 movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()).opposite(),
-                        robotController.getType().strideRadius).scale(2f));
+                        robotController.getType().strideRadius * 2f).scale(getInverseScaling(robot.getLocation())));
             }
         }
         movement.add(dodgeBullets(nearbyBullets));
-        movement.add(getInfluenceFromInitialEnemyArchonLocations(false));
+        movement.add(getInfluenceFromInitialEnemyArchonLocations(false, 1));
         movement.add(getInfluenceFromTreesWithBullets(nearbyTrees));
         movement.add(getInfluenceFromTrees(nearbyTrees));
         //todo: repel from the map's edges too

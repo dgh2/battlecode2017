@@ -196,21 +196,24 @@ public abstract class RobotBase {
     }
 
     private void detectArchons() throws GameActionException {
-        if (robotController.readBroadcast(2) != 0 && robotController.readBroadcast(2) + 15 < robotController.getRoundNum()) {
-            robotController.broadcast(0, 0);
-            robotController.broadcast(1, 0);
-            robotController.broadcast(2, 0);
-        }
-        RobotInfo[] enemyRobots = robotController.senseNearbyRobots(-1, robotController.getTeam().opponent());
-        for (RobotInfo enemyRobot : enemyRobots) {
-            if (RobotType.ARCHON.equals(enemyRobot.getType())) {
-                MapLocation enemyArchonLocation = enemyRobot.getLocation();
-                robotController.broadcast(0, (int) enemyArchonLocation.x);
-                robotController.broadcast(1, (int) enemyArchonLocation.y);
-                robotController.broadcast(2, robotController.getRoundNum());
-            }
-        }
+	        if (robotController.readBroadcast(2) != 0 && robotController.readBroadcast(2) + 15 < robotController.getRoundNum()) {
+	            robotController.broadcast(0, 0);
+	            robotController.broadcast(1, 0);
+	            robotController.broadcast(2, 0);
+	        }
+	        RobotInfo[] enemyRobots = robotController.senseNearbyRobots(-1, robotController.getTeam().opponent());
+	        for (RobotInfo enemyRobot : enemyRobots) {
+	            if (RobotType.ARCHON.equals(enemyRobot.getType())) {
+	                MapLocation enemyArchonLocation = enemyRobot.getLocation();
+	                robotController.broadcast(0, (int) enemyArchonLocation.x);
+	                robotController.broadcast(1, (int) enemyArchonLocation.y);
+	                robotController.broadcast(2, robotController.getRoundNum());
+	            }
+	        }
     }
+    
+    static MapLocation center;
+    static boolean centerFound = false;
 
     protected boolean attackClosestEnemy() throws GameActionException {
         Team enemyTeam = robotController.getTeam().opponent();

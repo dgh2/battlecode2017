@@ -24,6 +24,8 @@ public class Vector {
         dy += vector.dy;
         return this;
     }
+    
+
 
     public Vector scale(float scale) {
         Direction direction = getDirection();

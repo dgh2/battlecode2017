@@ -9,10 +9,12 @@ public class monteCarlo {
 	McPoint[] testPoints = new McPoint[32]; //array of test points
 	int tpCount = 0; // how many test points there are.
 	RobotController rc;
+	static final int MAX_MODIFIERS = 16;
+	AttractivenessMetric[] metrics = new AttractivenessMetric[MAX_MODIFIERS];
+	int metricCount = 0;
+	
 	monteCarlo(RobotController rc){
 		this.rc = rc;
-		addCardinalDirections();
-		addCardinalHalfDirections();
 	}
 	
 	public boolean addPoint(MapLocation point){
@@ -21,20 +23,71 @@ public class monteCarlo {
 		}
 		testPoints[tpCount] = new McPoint(point);
 		tpCount++;
-		
 		return true;
 	}
 	
-	private void addCardinalDirections(){
-		addPoint ( rc.getLocation().add(Direction.NORTH , rc.getType().strideRadius) );
-		addPoint ( rc.getLocation().add(Direction.SOUTH , rc.getType().strideRadius) );
-		addPoint ( rc.getLocation().add(Direction.EAST , rc.getType().strideRadius) );
-		addPoint ( rc.getLocation().add(Direction.WEST , rc.getType().strideRadius) );
+	/**
+	 * add a modifier to this 
+	 * @param mod
+	 * @return
+	 */
+	public boolean addModifier(AttractivenessMetric mod){
+		if(metricCount>=MAX_MODIFIERS){
+			return false;
+		}else{
+			metrics[metricCount] = mod;
+			metricCount++;
+			return true;
+		}
+	}
+	/**
+	 * Returns the best map location given the set of attractiveness metrics
+	 * @return
+	 * 		Best map location or null if no locations were given.
+	 * 		If no metrics are provided, it returns the first provided test point.
+	 */
+	public McPoint appraise(){
+		//There are no test points
+		if(tpCount == 0){
+			return null;
+		}
+		//There are no metrics
+		if(metricCount == 0){
+			return testPoints[0];
+		}
+		//normal case
+		McPoint bestLocation = testPoints[0];
+		
+		for(int i = 0;i<tpCount;i++){
+			for(int j = 0 ; j<metricCount ; j++){
+				int appraisal =  metrics[j].appraiseAttractiveness(testPoints[i]);
+				testPoints[i].addValue(appraisal);	
+			}
+			
+			if(testPoints[i].getValue() > bestLocation.getValue()){
+				bestLocation = testPoints[i];
+			}
+		}
+		
+		return bestLocation;
 	}
 	
-	private void addCardinalHalfDirections(){
-		
+	/**
+	 * Returns the best map location given the set of attractiveness metrics
+	 * @return
+	 * 		Best map location or null if no locations were given.
+	 * 		If no metrics are provided, it returns the first provided test point.
+	 */
+	public MapLocation appraiseForMapLocation(){
+		McPoint best = appraise();
+		if(best!=null){
+			return best.location;
+		}else{
+			return null;
+		}
 	}
+	
+	
 	
 	
 	

@@ -15,6 +15,16 @@ public class McPoint{
 		return location;
 	}
 	
+	public McPoint addValue(int value){
+		this.value += value;
+		return this;
+	}
+	
+	public int getValue(){
+		return value;
+	}
+	
+	
 	
 	
 }

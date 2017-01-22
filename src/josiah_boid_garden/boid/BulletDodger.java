@@ -8,29 +8,34 @@ public class BulletDodger extends BulletResponse{
 
 
 	
-	int antiBulletPower = 400;
-	int halfPower;
-	int quarterPower;
+	static final int antiBulletPower = 400;
+	static final int halfPower;
+	static final int quarterPower;
 	
-	public BulletDodger(Boid base) {
-		super(base);
+	static{
 		halfPower = antiBulletPower/2;
 		quarterPower =  halfPower/2;
 	}
 	
+	public BulletDodger(Boid base) {
+		super(base);
+		
+	}
+	public BulletDodger(Boid base , int calculationPower) {
+		super(base, calculationPower);
+		
+	}
 	
 	/**
 	 * respond to where a bullet will be now and in the next 2 turns
 	 */
 	protected void respond ( Boid controller , BulletInfo bullet){
-		
-		
-		BulletInfo nextBullet = getWhereBulletWillBeNextTurn(bullet);	
-		BulletInfo nextNextBullet = getWhereBulletWillBeNextTurn(nextBullet);
-		
+
 		singleBulletResponse(controller ,bullet,antiBulletPower);
-		singleBulletResponse(controller ,nextBullet,halfPower);
-		singleBulletResponse(controller ,nextNextBullet,quarterPower);
+		int turnsTillImpactApprox = (int)( bullet.getLocation().distanceTo(controller.rc.getLocation()) / bullet.speed );
+		BulletInfo bulletInXTurns = getBulletInXTurns(bullet,turnsTillImpactApprox*2);
+		singleBulletResponse(controller ,bulletInXTurns,antiBulletPower);
+	
 	}
 	
 	private void singleBulletResponse(Boid controller , BulletInfo bullet , int power ){
@@ -50,8 +55,8 @@ public class BulletDodger extends BulletResponse{
 		controller.addForce(dir, multiplier);
 	}
 
-	private BulletInfo getWhereBulletWillBeNextTurn(BulletInfo bullet){
-		return new BulletInfo( 0 , bullet.getLocation().add(bullet.getDir(),bullet.getSpeed()), bullet.getDir(), bullet.getSpeed(), bullet.getDamage());
+	private BulletInfo getBulletInXTurns(BulletInfo bullet,int turns){
+		return new BulletInfo( 0 , bullet.getLocation().add(bullet.getDir(),bullet.getSpeed()*turns), bullet.getDir(), bullet.getSpeed(), bullet.getDamage());
 	}
 		
 	

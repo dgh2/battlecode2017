@@ -132,7 +132,7 @@ public abstract class RobotBase {
 
     protected abstract Vector calculateInfluence() throws GameActionException;
 
-    protected Vector dodgeBullets(BulletInfo[] bullets) {
+    protected Vector dodgeBullets(BulletInfo[] bullets) throws GameActionException {
         Vector movement = new Vector();
         for (BulletInfo bullet : bullets) {
             float theta = bullet.getDir().radiansBetween(bullet.getLocation().directionTo(robotController.getLocation()));
@@ -140,16 +140,19 @@ public abstract class RobotBase {
             if (Math.abs(theta) > Math.PI / 2) {
                 break;
             }
+            robotController.setIndicatorDot(bullet.getLocation(), 255, 0, 0);
             MapLocation intersection = robotController.getLocation()
                     .add(bullet.getDir(), (float) Math.abs(robotController.getLocation().distanceTo(bullet.getLocation()) * Math.cos(theta)));
             movement.add(new Vector(robotController.getLocation().directionTo(intersection).opposite(),
                     robotController.getType().strideRadius * 2f)
                     .scale(getInverseScaling(intersection)));
-            MapLocation nearBullet = bullet.getLocation().add(intersection.directionTo(robotController.getLocation()),
-                    1.1f * robotController.getType().bodyRadius);
-            movement.add(new Vector(robotController.getLocation().directionTo(nearBullet),
-                    robotController.getType().strideRadius * 2f)
-                    .scale(getScaling(intersection)));
+            robotController.setIndicatorLine(bullet.getLocation(), intersection, 255, 0, 0);
+            robotController.setIndicatorLine(robotController.getLocation(), intersection, 255, 255, 0);
+//            MapLocation nearBullet = bullet.getLocation().add(intersection.directionTo(robotController.getLocation()),
+//                    1.1f * robotController.getType().bodyRadius);
+//            movement.add(new Vector(robotController.getLocation().directionTo(nearBullet),
+//                    robotController.getType().strideRadius * 2f)
+//                    .scale(getScaling(intersection)));
         }
         return movement;
     }

@@ -20,6 +20,8 @@ public class Gardener extends RobotBase {
     public void run() throws GameActionException {
         //Handle movement
         Vector movement = calculateInfluence();
+        robotController.setIndicatorLine(robotController.getLocation(),
+                robotController.getLocation().translate(movement.dx, movement.dy), 255, 255, 255);
         tryMove(movement.getDirection(), movement.getDistance());
 
         //Handle actions
@@ -74,11 +76,11 @@ public class Gardener extends RobotBase {
                         robotController.getType().strideRadius)
                         .scale(getInverseScaling(robot.getLocation())));
             } else {
-                if (!robotController.getType().equals(robot.getType())) {
-                    movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()),
-                            robotController.getType().strideRadius)
-                            .scale(getScaling(robot.getLocation())));
-                }
+//                if (!robotController.getType().equals(robot.getType())) {
+//                    movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()),
+//                            robotController.getType().strideRadius)
+//                            .scale(getScaling(robot.getLocation())));
+//                }
                 movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()).opposite(),
                         robotController.getType().strideRadius)
                         .scale(getInverseScaling(robot.getLocation())));
@@ -96,7 +98,7 @@ public class Gardener extends RobotBase {
         }
         movement.add(getInfluenceFromInitialEnemyArchonLocations(false, .05f));
         movement.add(getInfluenceFromTreesWithBullets(sensedTrees));
-        movement.add(getInfluenceFromTrees(sensedTrees));
+//        movement.add(getInfluenceFromTrees(sensedTrees));
         movement.add(dodgeBullets(sensedBullets));
         //todo: repel from the map's edges too
         outputInfluenceDebugging("Gardener total influence", movement);

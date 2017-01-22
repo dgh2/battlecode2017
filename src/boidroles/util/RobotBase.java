@@ -140,12 +140,16 @@ public abstract class RobotBase {
             if (Math.abs(theta) > Math.PI / 2) {
                 break;
             }
-            robotController.setIndicatorDot(bullet.getLocation(), 255, 0, 0);
+            //todo: find what's wrong with the intersection point
+            //The intersection is the point on the bullet's path closest to this robot
             MapLocation intersection = robotController.getLocation()
                     .add(bullet.getDir(), (float) Math.abs(robotController.getLocation().distanceTo(bullet.getLocation()) * Math.cos(theta)));
             movement.add(new Vector(robotController.getLocation().directionTo(intersection).opposite(),
                     robotController.getType().strideRadius * 2f)
                     .scale(getInverseScaling(intersection)));
+            robotController.setIndicatorDot(bullet.getLocation(), 255, 0, 0);
+            robotController.setIndicatorDot(intersection, 255, 255, 0);
+            robotController.setIndicatorDot(robotController.getLocation(), 255, 255, 255);
             robotController.setIndicatorLine(bullet.getLocation(), intersection, 255, 0, 0);
             robotController.setIndicatorLine(robotController.getLocation(), intersection, 255, 255, 0);
 //            MapLocation nearBullet = bullet.getLocation().add(intersection.directionTo(robotController.getLocation()),

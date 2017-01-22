@@ -25,7 +25,7 @@ public class Archon extends RobotBase {
         Direction dir = randomDirection();
 
         // Randomly attempt to build a Gardener in this direction
-        if (robotController.canHireGardener(dir) && Math.random() < .02) {
+        if (robotController.canHireGardener(dir) && Math.random() < .5) {
             robotController.hireGardener(dir);
         }
 

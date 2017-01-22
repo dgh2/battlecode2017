@@ -2,6 +2,7 @@ package boidroles.util;
 
 import battlecode.common.BodyInfo;
 import battlecode.common.BulletInfo;
+import battlecode.common.Clock;
 import battlecode.common.Direction;
 import battlecode.common.GameActionException;
 import battlecode.common.MapLocation;
@@ -168,7 +169,7 @@ public abstract class RobotBase {
         for (TreeInfo tree : trees) {
             if (tree.getContainedBullets() > 0) {
                 movement.add(new Vector(robotController.getLocation().directionTo(tree.getLocation()),
-                        robotController.getType().strideRadius * .5f)
+                        robotController.getType().strideRadius * 1.5f)
                         .scale(getScaling(tree.getLocation())));
             }
         }
@@ -284,12 +285,9 @@ public abstract class RobotBase {
     }
 
     private void shakeTrees() throws GameActionException {
-        if (!robotController.canShake()) {
+        if (robotController.canShake()) {
             for (TreeInfo tree : sensedTrees) {
-                if (robotController.getLocation().distanceTo(tree.getLocation()) > 2.0f * robotController.getType().bodyRadius) {
-                    break;
-                }
-                if (tree.getContainedBullets() > 0) {
+                if (tree.getContainedBullets() > 0 && robotController.canInteractWithTree(tree.getID())) {
                     robotController.shake(tree.getID());
                     break;
                 }
@@ -441,10 +439,19 @@ public abstract class RobotBase {
         return 1 - getScaling(location);
     }
 
-    protected void outputInfluenceDebugging(BodyInfo target, Vector movement, boolean total) {
-        System.out.println((total ? "Total Influence" : "Influence") + " from ("
-                + target.getLocation().x + "," + target.getLocation().y
-                + ") on (" + robotController.getLocation().x + "," + robotController.getLocation().y + "): ("
+    protected void outputInfluenceDebugging(String title, Vector movement) {
+        outputInfluenceDebugging(title, null, movement);
+    }
+
+    protected void outputInfluenceDebugging(String title, BodyInfo target, Vector movement) {
+        String from = target == null ? "" : " from (" + target.getLocation().x + "," + target.getLocation().y + ") ";
+        System.out.println(title + from + " on (" + robotController.getLocation().x + "," + robotController.getLocation().y + "): ("
                 + movement.dx + "," + movement.dy + ")");
+    }
+
+    public void debugBytecodeUsed(String title) {
+        System.out.println(title + ": "
+                + (100f * Clock.getBytecodesLeft() / Clock.getBytecodeNum()) + "% ("
+                + (Clock.getBytecodeNum() - Clock.getBytecodesLeft()) + ") of Bytecode used.");
     }
 }

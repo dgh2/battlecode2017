@@ -67,14 +67,14 @@ public class Gardener extends RobotBase {
         Vector movement = new Vector();
         for (RobotInfo robot : sensedRobots) {
             if (!robotController.getTeam().equals(robot.getTeam())) {
-                movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()),
-                        robotController.getType().strideRadius)
-                        .scale(getScaling(robot.getLocation())));
+//                movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()),
+//                        robotController.getType().strideRadius)
+//                        .scale(getScaling(robot.getLocation())));
                 movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()).opposite(),
                         robotController.getType().strideRadius)
                         .scale(getInverseScaling(robot.getLocation())));
             } else {
-                if (!robotController.getTeam().equals(robot.getTeam())) {
+                if (!robotController.getType().equals(robot.getType())) {
                     movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()),
                             robotController.getType().strideRadius)
                             .scale(getScaling(robot.getLocation())));
@@ -87,16 +87,19 @@ public class Gardener extends RobotBase {
                 movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()).opposite(),
                         robotController.getType().strideRadius * 2f).scale(getInverseScaling(robot.getLocation())));
             }
+            outputInfluenceDebugging("Gardener robot influence", robot, movement);
         }
         for (TreeInfo tree : sensedTrees) {
             movement.add(new Vector(robotController.getLocation().directionTo(tree.getLocation()),
                     robotController.getType().strideRadius).scale(tree.getHealth()/tree.getMaxHealth()));
+            outputInfluenceDebugging("Gardener robot + tree influence", tree, movement);
         }
         movement.add(getInfluenceFromInitialEnemyArchonLocations(false, .05f));
         movement.add(getInfluenceFromTreesWithBullets(sensedTrees));
         movement.add(getInfluenceFromTrees(sensedTrees));
         movement.add(dodgeBullets(sensedBullets));
         //todo: repel from the map's edges too
+        outputInfluenceDebugging("Gardener total influence", movement);
         return movement;
     }
 }

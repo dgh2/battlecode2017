@@ -51,12 +51,14 @@ public class Archon extends RobotBase {
                 movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()).opposite(),
                         robotController.getType().strideRadius * 2f).scale(getInverseScaling(robot.getLocation())));
             }
+            outputInfluenceDebugging("Archon robot influence", robot, movement);
         }
         movement.add(getInfluenceFromInitialEnemyArchonLocations(false, 1));
         movement.add(getInfluenceFromTreesWithBullets(sensedTrees));
         movement.add(getInfluenceFromTrees(sensedTrees));
         movement.add(dodgeBullets(sensedBullets));
         //todo: repel from the map's edges too
+        outputInfluenceDebugging("Archon total influence", movement);
         return movement;
     }
 }

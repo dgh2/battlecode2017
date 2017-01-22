@@ -49,12 +49,14 @@ public class Soldier extends RobotBase {
                 movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()).opposite(),
                         robotController.getType().strideRadius * 2f).scale(getInverseScaling(robot.getLocation())));
             }
+            outputInfluenceDebugging("Soldier robot influence", robot, movement);
         }
         movement.add(getInfluenceFromInitialEnemyArchonLocations(true, .2f));
         movement.add(getInfluenceFromTreesWithBullets(sensedTrees));
         movement.add(getInfluenceFromTrees(sensedTrees));
         movement.add(dodgeBullets(sensedBullets));
         //todo: repel from the map's edges too
+        outputInfluenceDebugging("Soldier total influence", movement);
         return movement;
     }
 }

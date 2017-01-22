@@ -1,5 +1,6 @@
 package boidroles.roles;
 
+import battlecode.common.Direction;
 import battlecode.common.GameActionException;
 import battlecode.common.RobotController;
 import battlecode.common.RobotInfo;
@@ -31,38 +32,43 @@ public class Scout extends RobotBase {
     protected Vector calculateInfluence() throws GameActionException {
         Vector movement = new Vector();
         for (RobotInfo robot : sensedRobots) {
+            Direction robotDirection = robotController.getLocation().directionTo(robot.getLocation());
             if (!robotController.getTeam().equals(robot.getTeam())) {
-                movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()),
+                movement.add(new Vector(robotDirection,
                         robotController.getType().strideRadius)
                         .scale(getScaling(robot.getLocation())));
-                movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()).opposite(),
+                movement.add(new Vector(robotDirection.opposite(),
                         robotController.getType().strideRadius)
                         .scale(getInverseScaling(robot.getLocation())));
             } else {
-                movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()),
-                        robotController.getType().strideRadius)
-                        .scale(getScaling(robot.getLocation())));
-                movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()).opposite(),
+//                movement.add(new Vector(robotDirection,
+//                        robotController.getType().strideRadius)
+//                        .scale(getScaling(robot.getLocation())));
+                movement.add(new Vector(robotDirection.opposite(),
                         robotController.getType().strideRadius)
                         .scale(getInverseScaling(robot.getLocation())));
             }
             if (RobotType.LUMBERJACK.equals(robot.getType())) {
-                movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()).opposite(),
+                movement.add(new Vector(robotDirection.opposite(),
                         robotController.getType().strideRadius * 2.5f).scale(getInverseScaling(robot.getLocation())));
             }
+            outputInfluenceDebugging("Scout robot influence", robot, movement);
         }
         for (TreeInfo tree : sensedTrees) {
-//            movement.add(new Vector(robotController.getLocation().directionTo(tree.getLocation()),
+            Direction treeDirection = robotController.getLocation().directionTo(tree.getLocation());
+//            movement.add(new Vector(treeDirection,
 //                    robotController.getType().strideRadius*.1f).scale(1f));
-            movement.add(new Vector(robotController.getLocation().directionTo(tree.getLocation()).opposite(),
+            movement.add(new Vector(treeDirection.opposite(),
                     robotController.getType().strideRadius * .1f)
                     .scale(getInverseScaling(tree.getLocation())));
+            outputInfluenceDebugging("Scout robot + tree influence", tree, movement);
         }
         movement.add(getInfluenceFromInitialEnemyArchonLocations(true, .5f));
         movement.add(getInfluenceFromTreesWithBullets(sensedTrees));
         movement.add(getInfluenceFromTrees(sensedTrees));
         movement.add(dodgeBullets(sensedBullets));
         //todo: repel from the map's edges too
+        outputInfluenceDebugging("Scout total influence", movement);
         return movement;
     }
 }

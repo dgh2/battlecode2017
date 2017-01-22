@@ -19,6 +19,7 @@ public strictfp class RobotPlayer {
         RobotPlayer.self = RobotBase.createForController(robotController);
         try {
             self.runOnce();
+            self.debugBytecodeUsed("runOnce");
         } catch (Exception e) {
             self.logRobotException("runOnce", e);
         }
@@ -27,6 +28,7 @@ public strictfp class RobotPlayer {
             rememberedRound = robotController.getRoundNum();
             try {
                 self.beforeRun();
+                self.debugBytecodeUsed("beforeRun");
             } catch (Exception e) {
                 self.logRobotException("beforeRun", e);
             }
@@ -37,6 +39,7 @@ public strictfp class RobotPlayer {
             }
             try {
                 self.afterRun();
+                self.debugBytecodeUsed("afterRun");
             } catch (Exception e) {
                 self.logRobotException("afterRun", e);
             }
@@ -47,6 +50,7 @@ public strictfp class RobotPlayer {
 
         try {
             self.dying();
+            self.debugBytecodeUsed("dying");
         } catch (Exception e) {
             self.logRobotException("dying", e);
         }

@@ -1,18 +1,19 @@
-package rolesplayer.roles;
+package josiah_boid_garden.roles;
 
 import battlecode.common.GameActionException;
-import battlecode.common.GameConstants;
 import battlecode.common.MapLocation;
 import battlecode.common.RobotController;
-import battlecode.common.RobotInfo;
-import battlecode.common.RobotType;
-import battlecode.common.Team;
+import josiah_boid_garden.boid.AntiSocialBehavior;
 import josiah_boid_garden.boid.Boid;
-import rolesplayer.util.RobotBase;
-
-import static rolesplayer.util.Util.randomDirection;
+import josiah_boid_garden.boid.BulletDodger;
+import josiah_boid_garden.boid.TargetResponse;
+import josiah_boid_garden.util.RobotBase;
 
 public class Scout extends RobotBase {
+	
+	MapLocation[] archons;
+	boolean startFound = false;
+	
     public Scout(RobotController robotController) {
         super(robotController);
     }
@@ -22,7 +23,27 @@ public class Scout extends RobotBase {
     	
     	Boid actionController = new Boid (this.robotController);
     	
+    	if(!startFound)
+    		archons = this.robotController.getInitialArchonLocations(this.robotController.getTeam().opponent());
+    	
+    	//move to the archon if you are far away from it
+    	if(this.robotController.getLocation().distanceTo(archons[0])>10){
+    		TargetResponse targetLockOn = new TargetResponse(actionController);
+    		targetLockOn.run( archons[0] );
+    	}
+    	
+    	//let's be honest, you're always anti-social. keep it up.
+    	AntiSocialBehavior antiSocial = new AntiSocialBehavior(actionController);
+    	antiSocial.run(this.robotController.senseNearbyRobots());
+    	
+    	//...and bullets. We don't like bullets
+    	BulletDodger dodger = new BulletDodger(actionController);
+    	dodger.run(this.robotController.senseNearbyBullets());
+    	
+    	//apply those movements
     	actionController.apply();
+    	
+    
     	
         // Listen for enemy Archon's location
 //        int xPos = robotController.readBroadcast(0);

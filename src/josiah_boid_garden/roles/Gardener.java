@@ -1,4 +1,4 @@
-package rolesplayer.roles;
+package josiah_boid_garden.roles;
 
 import battlecode.common.Direction;
 import battlecode.common.GameActionException;
@@ -6,7 +6,7 @@ import battlecode.common.RobotController;
 import battlecode.common.RobotInfo;
 import battlecode.common.RobotType;
 import battlecode.common.TreeInfo;
-import rolesplayer.util.RobotBase;
+import josiah_boid_garden.util.RobotBase;
 
 import static rolesplayer.util.Util.randomDirection;
 

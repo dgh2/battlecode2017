@@ -22,6 +22,8 @@ public class Soldier extends RobotBase {
 
         //Handle actions
 
+        //todo: add multiple shots if "adjacent" to enemy
+
         attackClosestEnemy();
 //        if (!attackClosestEnemy()) {
 //            attackArchons();

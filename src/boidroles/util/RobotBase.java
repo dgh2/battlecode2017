@@ -197,11 +197,18 @@ public abstract class RobotBase {
         shakeTrees();
         detectArchons();
         //markIncoming();
-        if (robotController.getTeamVictoryPoints() + (robotController.getTeamBullets() / 10) >= 1000) {
+
+        if (robotController.getTeamVictoryPoints() + getAllVP() >= 1000) {
             //if current victory points plus all our bullets turned into victory points is at least 1k, sell all bullets
             robotController.donate(robotController.getTeamBullets());
         }
         //System.out.println("We're done here!");
+    }
+
+    private float getAllVP() { //if u donate all bullets, how many victory points do we get?
+        float vpCost = 7.5f + (robotController.getRoundNum() * 12.5f) / 3000f;
+        vpCost = robotController.getTeamBullets() / vpCost;
+        return vpCost;
     }
 
     public void dying() throws GameActionException {
@@ -461,4 +468,12 @@ public abstract class RobotBase {
                 + (100f * Clock.getBytecodesLeft() / Clock.getBytecodeNum()) + "% ("
                 + (Clock.getBytecodeNum() - Clock.getBytecodesLeft()) + ") of Bytecode used.");
     }
+
+    protected float getDonationQty( float desiredVP )  {
+    //victory point = 7.5 bullets + (round)*12.5 / 3000
+    float factor = (robotController.getRoundNum() *12.5f ) / 3000f;
+            return (factor + 7.5f) * desiredVP;
+    }
+
+
 }

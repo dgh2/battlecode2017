@@ -21,7 +21,8 @@ public class Archon extends RobotBase {
         Vector movement = calculateInfluence();
         robotController.setIndicatorLine(robotController.getLocation(),
                 robotController.getLocation().translate(movement.dx, movement.dy), 255, 255, 255);
-        tryMove(movement.getDirection(), movement.getDistance());
+        Direction go = movement.getDirection();
+        tryMove(go, movement.getDistance());
 
         //Handle actions
         //todo: remove randomness, plan building better
@@ -29,10 +30,31 @@ public class Archon extends RobotBase {
         // Generate a random direction
         Direction dir = randomDirection();
 
+
+
+        //todo: more behavior code like below:
+
+
+        // if turn zero or one, buy a victory point
+        if(robotController.getRoundNum() <=1){
+            robotController.donate(getDonationQty(1)); //getDonationQty returns #bullets based on current round's exchange rate
+        }
+
+        // Build a gardener on the first turn possible! even if that's "zero"
+        if(robotController.getRoundNum() <=15) {
+            if (robotController.canHireGardener(go)) {
+                robotController.hireGardener(go);
+            }
+        }
+
+
+
         // Randomly attempt to build a Gardener in this direction
         if (robotController.canHireGardener(dir) && Math.random() < .75) {
             robotController.hireGardener(dir);
         }
+
+
     }
 
     @Override
@@ -42,14 +64,15 @@ public class Archon extends RobotBase {
             if (!robotController.getTeam().equals(robot.getTeam())) {
                 movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()).opposite(),
                         robotController.getType().strideRadius));
-            } else {
+            }
+//            else {
 //                movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()),
 //                        robotController.getType().strideRadius)
 //                        .scale(getScaling(robot.getLocation())));
 //                movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()).opposite(),
 //                        robotController.getType().strideRadius)
 //                        .scale(getInverseScaling(robot.getLocation())));
-            }
+//            }
             if (RobotType.LUMBERJACK.equals(robot.getType())) {
                 movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()).opposite(),
                         robotController.getType().strideRadius * 2f).scale(getInverseScaling(robot.getLocation())));

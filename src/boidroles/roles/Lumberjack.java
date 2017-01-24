@@ -98,7 +98,7 @@ public class Lumberjack extends RobotBase {
     @Override
     protected Vector calculateInfluence() throws GameActionException {
         Vector movement = new Vector();
-        for (RobotInfo robot : sensedRobots) {
+        for (RobotInfo robot : sensedRobots) { //todo: continue if id is equal to own id
             if (!robotController.getTeam().equals(robot.getTeam())) {
                 movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()),
                         robotController.getType().strideRadius)
@@ -135,7 +135,8 @@ public class Lumberjack extends RobotBase {
         }
         movement.add(getInfluenceFromInitialEnemyArchonLocations(true, .2f));
         movement.add(getInfluenceFromTreesWithBullets(sensedTrees));
-        movement.add(getInfluenceFromTrees(sensedTrees));
+//        movement.add(getInfluenceFromTrees(sensedTrees));
+        //todo: stay away from our own bullet trees
         movement.add(dodgeBullets(sensedBullets));
         //todo: repel from the map's edges too
         outputInfluenceDebugging("Lumberjack total influence", movement);

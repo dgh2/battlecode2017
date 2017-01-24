@@ -47,7 +47,7 @@ public class Scout extends RobotBase {
 //                        robotController.getType().strideRadius)
 //                        .scale(getScaling(robot.getLocation())));
                 movement.add(new Vector(robotDirection.opposite(),
-                        robotController.getType().strideRadius)
+                        robotController.getType().strideRadius * 2f)
                         .scale(getInverseScaling(robot.getLocation())));
             }
             if (RobotType.LUMBERJACK.equals(robot.getType())) {
@@ -56,15 +56,15 @@ public class Scout extends RobotBase {
             }
             outputInfluenceDebugging("Scout robot influence", robot, movement);
         }
-        for (TreeInfo tree : sensedTrees) {
-            Direction treeDirection = robotController.getLocation().directionTo(tree.getLocation());
-//            movement.add(new Vector(treeDirection,
-//                    robotController.getType().strideRadius*.1f).scale(1f));
-            movement.add(new Vector(treeDirection.opposite(),
-                    robotController.getType().strideRadius * .1f)
-                    .scale(getInverseScaling(tree.getLocation())));
-            outputInfluenceDebugging("Scout robot + tree influence", tree, movement);
-        }
+//        for (TreeInfo tree : sensedTrees) {
+//            Direction treeDirection = robotController.getLocation().directionTo(tree.getLocation());
+////            movement.add(new Vector(treeDirection,
+////                    robotController.getType().strideRadius*.1f).scale(1f));
+//            movement.add(new Vector(treeDirection.opposite(),
+//                    robotController.getType().strideRadius * .1f)
+//                    .scale(getInverseScaling(tree.getLocation())));
+//            outputInfluenceDebugging("Scout robot + tree influence", tree, movement);
+//        }
         movement.add(getInfluenceFromInitialEnemyArchonLocations(true, .5f));
         movement.add(getInfluenceFromTreesWithBullets(sensedTrees));
 //        movement.add(getInfluenceFromTrees(sensedTrees));

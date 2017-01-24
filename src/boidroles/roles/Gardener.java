@@ -41,16 +41,34 @@ public class Gardener extends RobotBase {
         //    rc.buildRobot(RobotType.TANK, dir);
         //}
 
-        // Randomly attempt to build a Soldier or lumberjack in this direction
-        if (robotController.canBuildRobot(RobotType.SCOUT, dir) && (robotController.getRoundNum() <= 4 || Math.random() < .2) && robotController.isBuildReady()) {
-            robotController.buildRobot(RobotType.SCOUT, dir);
-        } else if (robotController.canPlantTree(dir) && Math.random() < .1) {
+        //todo: use a method for finding available direction to build something or plant a tree
+
+        //todo: remember what you've built, build units on a build order
+
+        //scoutrush?
+        if(robotController.getRoundNum() <=4) {
+            robotController.buildRobot(RobotType.SCOUT, dir); // maybe 3 turns to build a scout or two or three lol
+        }
+        //trees!! need those haha
+        if(robotController.getRoundNum() > 3 && robotController.getRoundNum() <= 20) { // 16 turns hoping to build a tree
             robotController.plantTree(dir);
-        } else if (robotController.canBuildRobot(RobotType.SOLDIER, dir) && Math.random() < .15) {
+        }
+        //defence!?
+        if(robotController.getRoundNum() > 10 && robotController.getRoundNum() <= 25) { // 15 turns hoping to build a lumberjack
+            robotController.buildRobot(RobotType.LUMBERJACK, dir);
+        }
+
+
+        // Randomly attempt to build a Soldier or lumberjack in this direction
+        if (robotController.canBuildRobot(RobotType.SCOUT, dir) && Math.random() < .1 && robotController.isBuildReady()) {
+            robotController.buildRobot(RobotType.SCOUT, dir);
+        } else if (robotController.canPlantTree(dir) && Math.random() < .1 && robotController.isBuildReady()) {
+            robotController.plantTree(dir);
+        } else if (robotController.canBuildRobot(RobotType.SOLDIER, dir) && Math.random() < .15 && robotController.isBuildReady()) {
             robotController.buildRobot(RobotType.SOLDIER, dir);
         } else if (robotController.canBuildRobot(RobotType.LUMBERJACK, dir) && Math.random() < .15 && robotController.isBuildReady()) {
             robotController.buildRobot(RobotType.LUMBERJACK, dir);
-        } else if (robotController.canBuildRobot(RobotType.TANK, dir) && Math.random() < .05 && robotController.isBuildReady()) {
+        } else if (robotController.canBuildRobot(RobotType.TANK, dir) && Math.random() < .08 && robotController.isBuildReady()) {
             robotController.buildRobot(RobotType.TANK, dir);
         }
 

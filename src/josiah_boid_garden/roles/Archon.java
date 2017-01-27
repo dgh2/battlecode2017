@@ -2,32 +2,42 @@ package josiah_boid_garden.roles;
 
 import battlecode.common.Direction;
 import battlecode.common.GameActionException;
-import battlecode.common.MapLocation;
 import battlecode.common.RobotController;
 import battlecode.common.RobotInfo;
+import battlecode.common.RobotType;
 import josiah_boid_garden.util.RobotBase;
-
-import static rolesplayer.util.Util.randomDirection;
+import josiah_boid_garden.util.Util;
 
 public class Archon extends RobotBase {
-    public Archon(RobotController robotController) {
+    
+	private final int MAXTRIES = 32;
+	
+	public Archon(RobotController robotController) {
         super(robotController);
     }
 
     @Override
     public void run() throws GameActionException {
-  
-        MapLocation enemyArchonLoc = new MapLocation(0, 0);
-
-        // Generate a random direction
-        Direction dir = randomDirection();
-
-        // Randomly attempt to build a Gardener in this direction
-        if (robotController.canHireGardener(dir) && Math.random() < .02) {
-            robotController.hireGardener(dir);
+ 
+        try {
+	        
+	        if (this.robotController.getTeamBullets() > RobotType.GARDENER.bulletCost){
+	        	
+	        	for (int i = 0 ; i < MAXTRIES ; i++){
+	        		Direction dir = Util.randomDirection();	
+	        		if(robotController.canHireGardener(dir)) {
+	        			robotController.hireGardener(dir);
+	        		}
+	        	}
+	        	
+	        }
+        	
+        } catch (Exception e){
+        	System.out.println(e.getMessage());
         }
 
-        RobotInfo[] enemyRobots = robotController.senseNearbyRobots(-1, robotController.getTeam().opponent());
+        RobotInfo[] enemyRobots = robotController.senseNearbyRobots( -1, robotController.getTeam().opponent() );
+        
         if (enemyRobots.length > 0) {
             // If there is an enemy robot, move away from it
             if (rightHanded) {
@@ -36,19 +46,12 @@ public class Archon extends RobotBase {
             if (!robotController.hasMoved()) {
                 tryMove(robotController, robotController.getLocation().directionTo(enemyRobots[0].getLocation()).opposite().rotateLeftDegrees(30));
             }
-        } else {
-            if (enemyArchonLoc.x != 0 || enemyArchonLoc.y != 0) {
-                tryMove(robotController, robotController.getLocation().directionTo(enemyArchonLoc).opposite());
-            }
-        }
+        } 
+        
         if (!robotController.hasMoved()) {
             // Move randomly
-            tryMove(robotController, randomDirection());
+            tryMove(robotController, Util.randomDirection());
         }
 
-        // Broadcast Archon's location for other robots on the team to know
-//        MapLocation myLocation = robotController.getLocation();
-//        robotController.broadcast(0,(int)myLocation.x);
-//        robotController.broadcast(1,(int)myLocation.y);
     }
 }

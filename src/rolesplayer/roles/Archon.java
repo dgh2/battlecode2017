@@ -1,10 +1,12 @@
 package rolesplayer.roles;
 
+import battlecode.common.Clock;
 import battlecode.common.Direction;
 import battlecode.common.GameActionException;
 import battlecode.common.MapLocation;
 import battlecode.common.RobotController;
 import battlecode.common.RobotInfo;
+import battlecode.common.TreeInfo;
 import rolesplayer.util.RobotBase;
 
 import static rolesplayer.util.Util.randomDirection;
@@ -48,9 +50,59 @@ public class Archon extends RobotBase {
             tryMove(robotController, randomDirection());
         }
 
-        // Broadcast Archon's location for other robots on the team to know
-//        MapLocation myLocation = robotController.getLocation();
-//        robotController.broadcast(0,(int)myLocation.x);
-//        robotController.broadcast(1,(int)myLocation.y);
+        
+    }
+    
+    
+    void analyzeMap(){
+    	
+    	int startByteCodes = Clock.getBytecodeNum();
+    	
+    	MapLocation[] allyArchons = this.robotController.getInitialArchonLocations(robotController.getTeam());
+    	MapLocation[] enemyArchons = this.robotController.getInitialArchonLocations(robotController.getTeam().opponent());
+    	
+    	float x = 0;
+    	float y = 0;
+    	int archonCount = 0;
+    	for(MapLocation loc : allyArchons){
+    		x+=loc.x;
+    		y+=loc.y;
+    		archonCount++;
+    		
+    	}
+    	
+    	for(MapLocation loc : enemyArchons){
+    		x+=loc.x;
+    		y+=loc.y;
+    		archonCount++;
+    		
+    		
+    	}
+    	
+    	mapInfo.center = new MapLocation(  x/archonCount , y/archonCount );
+    	mapInfo.size = Math.max(x/archonCount, y/archonCount) * 2f;
+    	
+    	TreeInfo[] nearbyTrees = robotController.senseNearbyTrees();
+    	
+    	
+    	
+    	for(TreeInfo trees : nearbyTrees){
+    		
+    		
+    		
+    	}
+    	
+    	
+    	int cost = Clock.getBytecodeNum() - startByteCodes;
+    	System.out.println("Map Analysis costs : " + cost);
+    }
+    
+    MapInformation mapInfo = new MapInformation();
+    
+    class MapInformation{
+    	
+    	public MapLocation center;
+    	public float size;
+    	
     }
 }

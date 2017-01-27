@@ -31,13 +31,10 @@ public class CardinalPoints implements PointGenerator {
 	}
 	
 	@Override
-	public void addPoints(monteCarlo mc) {
-		
+	public void addPoints(MonteCarlo mc) {
 		for(int i = 0 ; i<dirs.length;i++){
-			//get full stride away
-			mc.addPoint(rc.getLocation().add(dirs[i], rc.getType().strideRadius));
-			//get half stride away
-			mc.addPoint(rc.getLocation().add(dirs[i], rc.getType().strideRadius));
+			mc.addPoint(rc.getLocation().add(dirs[i], 1));
+			mc.addPoint(rc.getLocation().add(dirs[i], 2));
 		}
 				
 		

@@ -20,24 +20,28 @@ public class UnitVector extends Vector{
     public UnitVector(Vector source) {
         super(source);
         super.setMagnitude(1);
-    	System.out.println("(Copy constructor)Hi, I'm a unit vector and I have dx of "+dx+" and a dy of "+dy);
         
     }
 
     public UnitVector(Direction direction, float distance) {
         this(direction.getDeltaX(distance), direction.getDeltaY(distance));
         super.setMagnitude(1);
-    	System.out.println("(Direction Constructor)Hi, I'm a unit vector and I have dx of "+dx+" and a dy of "+dy);
     }
     
     public UnitVector(MapLocation start , MapLocation finish){
     	dx = finish.x - start.x;
     	dy = finish.y - start.y;
     	super.setMagnitude(1);
-    	System.out.println("(Map Constructor)Hi, I'm a unit vector and I have dx of "+dx+" and a dy of "+dy);
     }
 
-    public Vector add(Vector vector) {
+    public UnitVector(Direction dir) {
+    	
+    	dy =  (float) (Math.sin(dir.radians));
+		dx = (float) (Math.cos(dir.radians));
+		
+	}
+
+	public Vector add(Vector vector) {
         dx += vector.dx;
         dy += vector.dy;
         super.setMagnitude(1);

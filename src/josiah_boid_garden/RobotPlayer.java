@@ -16,36 +16,19 @@ public strictfp class RobotPlayer {
     @SuppressWarnings("unused")
     public static void run(RobotController robotController) throws GameActionException {
         RobotPlayer.self = RobotBase.createForController(robotController);
-        try {
-            self.runOnce();
-        } catch (Exception e) {
-            logRobotException("runOnce", e);
-        }
+
 
         do {
-            try {
-                self.beforeRun();
-            } catch (Exception e) {
-                logRobotException("beforeRun", e);
-            }
+
             try {
                 self.run();
             } catch (Exception e) {
                 logRobotException("run", e);
             }
-            try {
-                self.afterRun();
-            } catch (Exception e) {
-                logRobotException("afterRun", e);
-            }
-            Clock.yield(); // continue from here next turn
-        } while (self.getWillToLive()); // loop or die
 
-        try {
-            self.dying();
-        } catch (Exception e) {
-            logRobotException("dying", e);
-        }
+            Clock.yield(); // continue from here next turn
+        } while (true); // loop or die
+
     }
 
     private static void logRobotException(String method, Exception e) {

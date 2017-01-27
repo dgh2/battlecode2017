@@ -1,68 +1,64 @@
 package josiah_boid_garden.roles;
 
+import static josiah_boid_garden.util.Util.randomDirection;
+
 import battlecode.common.Direction;
 import battlecode.common.GameActionException;
+import battlecode.common.MapLocation;
 import battlecode.common.RobotController;
-import battlecode.common.RobotInfo;
 import battlecode.common.RobotType;
-import battlecode.common.TreeInfo;
+import josiah_boid_garden.boid.Boid;
+import josiah_boid_garden.gardening.Formation;
+import josiah_boid_garden.gardening.Maintainer;
+import josiah_boid_garden.gardening.PlantingFormation;
 import josiah_boid_garden.util.RobotBase;
 
-import static rolesplayer.util.Util.randomDirection;
-
 public class Gardener extends RobotBase {
+	
+
+	Formation formation;
+	Maintainer maintainer;
+	MapLocation start;
+	
+	boolean searching = true;
+	
     public Gardener(RobotController robotController) {
         super(robotController);
+        start = robotController.getLocation();
     }
 
     @Override
     public void run() throws GameActionException {
-        // Listen for home Archon's location
-//        int xPos = robotController.readBroadcast(0);
-//        int yPos = robotController.readBroadcast(1);
-//        MapLocation archonLoc = new MapLocation(xPos, yPos);
 
-        // Generate a random direction
-        Direction dir = randomDirection();
+	    	if(searching){
+	        
+	    		Boid controller = new Boid(this.robotController);
 
-        // Randomly attempt to build a Soldier or lumberjack in this direction
-        if (robotController.canBuildRobot(RobotType.SCOUT, dir) && (robotController.getRoundNum() <= 4 || Math.random() < .005) && robotController.isBuildReady()) {
-            robotController.buildRobot(RobotType.SCOUT, dir);
-        }
-//            
-//        } else if (robotController.canPlantTree(dir) && Math.random() < .05) {
-//            robotController.plantTree(dir);
-//        } else if (robotController.canBuildRobot(RobotType.SOLDIER, dir) && Math.random() < .01) {
-//            robotController.buildRobot(RobotType.SOLDIER, dir);
-//        } else if (robotController.canBuildRobot(RobotType.LUMBERJACK, dir) && Math.random() < .01 && robotController.isBuildReady()) {
-//            robotController.buildRobot(RobotType.LUMBERJACK, dir);
-//        } else if (robotController.canBuildRobot(RobotType.TANK, dir) && Math.random() < .01 && robotController.isBuildReady()) {
-//            robotController.buildRobot(RobotType.TANK, dir);
-//        }
-
-        RobotInfo[] enemyRobots = robotController.senseNearbyRobots(-1, robotController.getTeam().opponent());
-        TreeInfo[] ourTrees = robotController.senseNearbyTrees(-1, robotController.getTeam());
-
-        if (enemyRobots.length > 0) {
-            // If there is an enemy robot, move away from it
-            if (rightHanded) {
-                tryMove(robotController, robotController.getLocation().directionTo(enemyRobots[0].getLocation()).opposite().rotateRightDegrees(30));
-            }
-            if (!robotController.hasMoved()) {
-                tryMove(robotController, robotController.getLocation().directionTo(enemyRobots[0].getLocation()).opposite().rotateLeftDegrees(30));
-            }
-        } else if (ourTrees.length > 0) {
-            for (TreeInfo ourTree : ourTrees) {
-                if (ourTree.getHealth() < .8 * ourTree.getMaxHealth() && robotController.canWater(ourTree.getLocation())) {
-                    tryMove(robotController, robotController.getLocation().directionTo(ourTree.getLocation()));
-                    robotController.water(ourTree.getLocation());
-                    break;
-                }
-            }
-        }
-        if (!robotController.hasMoved()) {
-            // Move randomly
-            tryMove(robotController, randomDirection());
-        }
+	    		Direction dir = new Direction( start , this.robotController.getLocation());
+	  
+	          // Randomly attempt to build a Soldier or lumberjack in this direction
+	          if (robotController.canBuildRobot(RobotType.SCOUT, dir) && (robotController.getRoundNum() <= 50 || Math.random() < .5) && robotController.isBuildReady()) {
+	              robotController.buildRobot(RobotType.SCOUT, dir);
+	          }
+	          
+	          
+	          if(controller.getMagnitude() < 0.05*RobotType.GARDENER.strideRadius){
+	        	  searching = false;
+	        	  formation = new Formation(robotController,new Direction( start , this.robotController.getLocation()), Formation.Form.C);
+	        	  maintainer = new Maintainer(this.robotController);
+	          }
+	          controller.apply();
+	    } else {
+	    	
+	    	formation.plant();
+	    	maintainer.maintain();
+	          // Randomly attempt to build a Soldier or lumberjack in this direction
+	          if (robotController.canBuildRobot(RobotType.SCOUT,formation.getBuildDirection()) && (robotController.getRoundNum() <= 50 || Math.random() < .5) && robotController.isBuildReady()) {
+	              robotController.buildRobot(RobotType.SCOUT, formation.getBuildDirection());
+	          }
+	    	
+	    }
+    	
+    	
     }
 }

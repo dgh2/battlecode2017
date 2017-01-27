@@ -10,32 +10,12 @@ import battlecode.common.Team;
 import battlecode.common.TreeInfo;
 import josiah_boid_garden.util.RobotBase;
 
-import static rolesplayer.util.Util.randomDirection;
-
 public class Lumberjack extends RobotBase {
     public Lumberjack(RobotController robotController) {
         super(robotController);
     }
 
-    @Override
-    public void runOnce() {
-        System.out.println("I wanted to be... A " + getBaseType().name() + "!");
-    }
 
-    @Override
-    public void beforeRun() {
-        System.out.println("I am a " + getBaseType().name() + " and I'm okay");
-    }
-
-    @Override
-    public void afterRun() {
-        System.out.println("I sleep all night and I work all day");
-    }
-
-    @Override
-    public void dying() {
-        System.out.println("I never wanted to do this in the first place!");
-    }
 
     @Override
     public void run() throws GameActionException {
@@ -110,10 +90,7 @@ public class Lumberjack extends RobotBase {
             //todo: figure out why this can still hit friendly units if we don't sense them. Probably them moving into range on this turn; they should stop that
             robotController.strike();
         }
-        if (!robotController.hasMoved()) {
-            // Move randomly
-            tryMove(robotController, randomDirection());
-        }
+  
     }
 
     private boolean tryChop(TreeInfo[] trees) throws GameActionException {

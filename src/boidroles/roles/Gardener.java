@@ -110,9 +110,11 @@ public class Gardener extends RobotBase {
             outputInfluenceDebugging("Gardener robot influence", robot, movement);
         }
         for (TreeInfo tree : sensedTrees) {
-            movement.add(new Vector(robotController.getLocation().directionTo(tree.getLocation()),
-                    robotController.getType().strideRadius).scale(tree.getHealth()/tree.getMaxHealth()));
-            outputInfluenceDebugging("Gardener robot + tree influence", tree, movement);
+            if (robotController.getTeam().equals(tree.getTeam()) && tree.getHealth() < tree.getMaxHealth()) {
+                movement.add(new Vector(robotController.getLocation().directionTo(tree.getLocation()),
+                        robotController.getType().strideRadius).scale(tree.getHealth() / tree.getMaxHealth()));
+                outputInfluenceDebugging("Gardener robot + tree influence", tree, movement);
+            }
         }
         movement.add(getInfluenceFromInitialEnemyArchonLocations(false, .05f));
         movement.add(getInfluenceFromTreesWithBullets(sensedTrees));

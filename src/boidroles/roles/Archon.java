@@ -8,7 +8,7 @@ import battlecode.common.RobotType;
 import boidroles.util.RobotBase;
 import boidroles.util.Vector;
 
-import static rolesplayer.util.Util.randomDirection;
+import static boidroles.util.Util.randomDirection;
 
 public class Archon extends RobotBase {
     public Archon(RobotController robotController) {
@@ -42,7 +42,9 @@ public class Archon extends RobotBase {
 
         // Build a gardener on the first turn possible! even if that's "zero"
         if(robotController.getRoundNum() <=15) {
-            if (robotController.canHireGardener(go)) {
+            if (robotController.canHireGardener(go.opposite())) {
+                robotController.hireGardener(go);
+            } else if (robotController.canHireGardener(go)) {
                 robotController.hireGardener(go);
             }
         }
@@ -77,14 +79,14 @@ public class Archon extends RobotBase {
                 movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()).opposite(),
                         robotController.getType().strideRadius * 2f).scale(getInverseScaling(robot.getLocation())));
             }
-            outputInfluenceDebugging("Archon robot influence", robot, movement);
+            outputInfluenceDebugging("Robot influence", robot, movement);
         }
         movement.add(getInfluenceFromInitialEnemyArchonLocations(false, 1));
         movement.add(getInfluenceFromTreesWithBullets(sensedTrees));
         movement.add(getInfluenceFromTrees(sensedTrees));
         movement.add(dodgeBullets(sensedBullets));
         //todo: repel from the map's edges too
-        outputInfluenceDebugging("Archon total influence", movement);
+        outputInfluenceDebugging("Total influence", movement);
         return movement;
     }
 }

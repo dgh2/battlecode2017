@@ -20,6 +20,8 @@ public class Gardener extends RobotBase {
     public void run() throws GameActionException {
         //Handle movement
         Vector movement = calculateInfluence();
+        robotController.setIndicatorLine(robotController.getLocation(),
+                robotController.getLocation().translate(movement.dx, movement.dy), 255, 255, 255);
         tryMove(movement.getDirection(), movement.getDistance());
 
         //Handle actions
@@ -39,16 +41,34 @@ public class Gardener extends RobotBase {
         //    rc.buildRobot(RobotType.TANK, dir);
         //}
 
-        // Randomly attempt to build a Soldier or lumberjack in this direction
-        if (robotController.canBuildRobot(RobotType.SCOUT, dir) && (robotController.getRoundNum() <= 4 || Math.random() < .2) && robotController.isBuildReady()) {
-            robotController.buildRobot(RobotType.SCOUT, dir);
-        } else if (robotController.canPlantTree(dir) && Math.random() < .1) {
+        //todo: use a method for finding available direction to build something or plant a tree
+
+        //todo: remember what you've built, build units on a build order
+
+        //scoutrush?
+        if(robotController.getRoundNum() <=4) {
+            robotController.buildRobot(RobotType.SCOUT, dir); // maybe 3 turns to build a scout or two or three lol
+        }
+        //trees!! need those haha
+        if(robotController.getRoundNum() > 3 && robotController.getRoundNum() <= 20) { // 16 turns hoping to build a tree
             robotController.plantTree(dir);
-        } else if (robotController.canBuildRobot(RobotType.SOLDIER, dir) && Math.random() < .15) {
+        }
+        //defence!?
+        if(robotController.getRoundNum() > 10 && robotController.getRoundNum() <= 25) { // 15 turns hoping to build a lumberjack
+            robotController.buildRobot(RobotType.LUMBERJACK, dir);
+        }
+
+
+        // Randomly attempt to build a Soldier or lumberjack in this direction
+        if (robotController.canBuildRobot(RobotType.SCOUT, dir) && Math.random() < .1 && robotController.isBuildReady()) {
+            robotController.buildRobot(RobotType.SCOUT, dir);
+        } else if (robotController.canPlantTree(dir) && Math.random() < .1 && robotController.isBuildReady()) {
+            robotController.plantTree(dir);
+        } else if (robotController.canBuildRobot(RobotType.SOLDIER, dir) && Math.random() < .15 && robotController.isBuildReady()) {
             robotController.buildRobot(RobotType.SOLDIER, dir);
         } else if (robotController.canBuildRobot(RobotType.LUMBERJACK, dir) && Math.random() < .15 && robotController.isBuildReady()) {
             robotController.buildRobot(RobotType.LUMBERJACK, dir);
-        } else if (robotController.canBuildRobot(RobotType.TANK, dir) && Math.random() < .05 && robotController.isBuildReady()) {
+        } else if (robotController.canBuildRobot(RobotType.TANK, dir) && Math.random() < .08 && robotController.isBuildReady()) {
             robotController.buildRobot(RobotType.TANK, dir);
         }
 
@@ -67,18 +87,18 @@ public class Gardener extends RobotBase {
         Vector movement = new Vector();
         for (RobotInfo robot : sensedRobots) {
             if (!robotController.getTeam().equals(robot.getTeam())) {
-                movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()),
-                        robotController.getType().strideRadius)
-                        .scale(getScaling(robot.getLocation())));
+//                movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()),
+//                        robotController.getType().strideRadius)
+//                        .scale(getScaling(robot.getLocation())));
                 movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()).opposite(),
                         robotController.getType().strideRadius)
                         .scale(getInverseScaling(robot.getLocation())));
             } else {
-                if (!robotController.getTeam().equals(robot.getTeam())) {
-                    movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()),
-                            robotController.getType().strideRadius)
-                            .scale(getScaling(robot.getLocation())));
-                }
+//                if (!robotController.getType().equals(robot.getType())) {
+//                    movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()),
+//                            robotController.getType().strideRadius)
+//                            .scale(getScaling(robot.getLocation())));
+//                }
                 movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()).opposite(),
                         robotController.getType().strideRadius)
                         .scale(getInverseScaling(robot.getLocation())));
@@ -87,16 +107,21 @@ public class Gardener extends RobotBase {
                 movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()).opposite(),
                         robotController.getType().strideRadius * 2f).scale(getInverseScaling(robot.getLocation())));
             }
+            outputInfluenceDebugging("Gardener robot influence", robot, movement);
         }
         for (TreeInfo tree : sensedTrees) {
-            movement.add(new Vector(robotController.getLocation().directionTo(tree.getLocation()),
-                    robotController.getType().strideRadius).scale(tree.getHealth()/tree.getMaxHealth()));
+            if (robotController.getTeam().equals(tree.getTeam()) && tree.getHealth() < tree.getMaxHealth()) {
+                movement.add(new Vector(robotController.getLocation().directionTo(tree.getLocation()),
+                        robotController.getType().strideRadius).scale(tree.getHealth() / tree.getMaxHealth()));
+                outputInfluenceDebugging("Gardener robot + tree influence", tree, movement);
+            }
         }
         movement.add(getInfluenceFromInitialEnemyArchonLocations(false, .05f));
         movement.add(getInfluenceFromTreesWithBullets(sensedTrees));
-        movement.add(getInfluenceFromTrees(sensedTrees));
+//        movement.add(getInfluenceFromTrees(sensedTrees));
         movement.add(dodgeBullets(sensedBullets));
         //todo: repel from the map's edges too
+        outputInfluenceDebugging("Gardener total influence", movement);
         return movement;
     }
 }

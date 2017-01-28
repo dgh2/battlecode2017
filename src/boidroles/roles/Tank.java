@@ -16,6 +16,8 @@ public class Tank extends RobotBase {
     public void run() throws GameActionException {
         //Handle movement
         Vector movement = calculateInfluence();
+        robotController.setIndicatorLine(robotController.getLocation(),
+                robotController.getLocation().translate(movement.dx, movement.dy), 255, 255, 255);
         tryMove(movement.getDirection(), movement.getDistance());
 
         //Handle actions
@@ -38,9 +40,9 @@ public class Tank extends RobotBase {
                         robotController.getType().strideRadius)
                         .scale(getInverseScaling(robot.getLocation())));
             } else {
-                movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()),
-                        robotController.getType().strideRadius)
-                        .scale(getScaling(robot.getLocation())));
+//                movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()),
+//                                robotController.getType().strideRadius)
+//                                .scale(getScaling(robot.getLocation())));
                 movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()).opposite(),
                         robotController.getType().strideRadius * 2f)
                         .scale(getInverseScaling(robot.getLocation())));
@@ -49,12 +51,14 @@ public class Tank extends RobotBase {
                 movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()).opposite(),
                         robotController.getType().strideRadius * 2f).scale(getInverseScaling(robot.getLocation())));
             }
+            outputInfluenceDebugging("Tank robot influence", robot, movement);
         }
         movement.add(getInfluenceFromInitialEnemyArchonLocations(true, .2f));
         movement.add(getInfluenceFromTreesWithBullets(sensedTrees));
         movement.add(getInfluenceFromTrees(sensedTrees));
         movement.add(dodgeBullets(sensedBullets));
         //todo: repel from the map's edges too
+        outputInfluenceDebugging("Tank total influence", movement);
         return movement;
     }
 }

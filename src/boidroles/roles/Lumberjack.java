@@ -13,16 +13,15 @@ import boidroles.util.Vector;
 
 public class Lumberjack extends RobotBase {
     public static final float STRIKE_RANGE = RobotType.LUMBERJACK.bodyRadius + GameConstants.LUMBERJACK_STRIKE_RADIUS;
-
-    public Lumberjack(RobotController robotController) {
-        super(robotController);
-    }
-
     private BodyInfo[] enemyRobots;
     private BodyInfo[] friendlyRobots;
     private TreeInfo[] enemyTrees;
     private TreeInfo[] friendlyTrees;
     private TreeInfo[] neutralTrees;
+
+    public Lumberjack(RobotController robotController) {
+        super(robotController);
+    }
 
     @Override
     public void runOnce() throws GameActionException {
@@ -58,6 +57,8 @@ public class Lumberjack extends RobotBase {
     public void run() throws GameActionException {
         //Handle movement
         Vector movement = calculateInfluence();
+        robotController.setIndicatorLine(robotController.getLocation(),
+                robotController.getLocation().translate(movement.dx, movement.dy), 255, 255, 255);
         tryMove(movement.getDirection(), movement.getDistance());
 
         //Handle actions
@@ -97,18 +98,18 @@ public class Lumberjack extends RobotBase {
     @Override
     protected Vector calculateInfluence() throws GameActionException {
         Vector movement = new Vector();
-        for (RobotInfo robot : sensedRobots) {
+        for (RobotInfo robot : sensedRobots) { //todo: continue if id is equal to own id
             if (!robotController.getTeam().equals(robot.getTeam())) {
                 movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()),
                         robotController.getType().strideRadius)
                         .scale(getScaling(robot.getLocation())));
-                movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()).opposite(),
-                        robotController.getType().strideRadius)
-                        .scale(getInverseScaling(robot.getLocation())));
+//                movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()).opposite(),
+//                        robotController.getType().strideRadius)
+//                        .scale(getInverseScaling(robot.getLocation())));
             } else {
-                movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()),
-                        robotController.getType().strideRadius)
-                        .scale(getScaling(robot.getLocation())));
+//                movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()),
+//                        robotController.getType().strideRadius)
+//                        .scale(getScaling(robot.getLocation())));
                 movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()).opposite(),
                         robotController.getType().strideRadius * 3f)
                         .scale(getInverseScaling(robot.getLocation())));
@@ -117,6 +118,7 @@ public class Lumberjack extends RobotBase {
                 movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()).opposite(),
                         robotController.getType().strideRadius * 2f).scale(getInverseScaling(robot.getLocation())));
             }
+            outputInfluenceDebugging("Lumberjack robot influence", robot, movement);
         }
         for (TreeInfo tree : sensedTrees) {
             if (tree.getContainedRobot() != null) {
@@ -129,12 +131,15 @@ public class Lumberjack extends RobotBase {
 //            movement.add(new Vector(robotController.getLocation().directionTo(tree.getLocation()).opposite(),
 //                    robotController.getType().strideRadius * .1f)
 //                    .scale(getInverseScalingUntested(tree.getLocation())));
+            outputInfluenceDebugging("Lumberjack robot + tree influence", tree, movement);
         }
         movement.add(getInfluenceFromInitialEnemyArchonLocations(true, .2f));
         movement.add(getInfluenceFromTreesWithBullets(sensedTrees));
-        movement.add(getInfluenceFromTrees(sensedTrees));
+//        movement.add(getInfluenceFromTrees(sensedTrees));
+        //todo: stay away from our own bullet trees
         movement.add(dodgeBullets(sensedBullets));
         //todo: repel from the map's edges too
+        outputInfluenceDebugging("Lumberjack total influence", movement);
         return movement;
     }
 }

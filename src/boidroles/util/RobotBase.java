@@ -17,10 +17,12 @@ import boidroles.roles.Scout;
 import boidroles.roles.Soldier;
 import boidroles.roles.Tank;
 
-//import battlecode.common.Clock;
+//import static boidroles.util.Util.invSqrt;
 
 public abstract class RobotBase {
     protected RobotController robotController;
+    //todo: do some preprocessing to split these into groups based on team and type, so we don't always loop over the whole array
+    //todo: maybe split into groups of things that are in view too?
     protected RobotInfo[] sensedRobots;
     protected TreeInfo[] sensedTrees;
     protected BulletInfo[] sensedBullets;
@@ -137,34 +139,37 @@ public abstract class RobotBase {
     protected Vector dodgeBullets(BulletInfo[] bullets) throws GameActionException {
         Vector movement = new Vector();
         for (BulletInfo bullet : bullets) {
-            if (!hasLineOfSight(bullet, false, true)) {
-                continue;
-            }
+            //todo: fix line of sight, since this incorrectly marks incoming bullets
+//            if (!hasLineOfSight(bullet, false, true, false)) {
+//                robotController.setIndicatorDot(bullet.getLocation(), 0, 0, 0);
+//                continue;
+//            }
             float theta = bullet.getDir().radiansBetween(bullet.getLocation().directionTo(robotController.getLocation()));
-            // If theta > 90 degrees, then the bullet is traveling away from us and we can skip processing it
-            if (Math.abs(theta) > Math.PI / 2) {
+            // If theta > /*90*/ 100 degrees, then the bullet is traveling away from us and we can skip processing it
+            if (1.8f * Math.abs(theta) > Math.PI) {
+//                robotController.setIndicatorDot(bullet.getLocation(), 0, 255, 0);
                 continue;
             }
             //The intersection is the point on the bullet's path closest to this robot
-//            MapLocation intersection = bullet.getLocation()
-//                    .add(bullet.getDir(), (float) Math.abs(robotController.getLocation().distanceTo(bullet.getLocation()) * Math.cos(theta)));
             MapLocation intersection = bullet.getLocation()
-                    .add(bullet.getDir(),
-                            distanceToIntersection(bullet.getLocation(), projectBulletLocation(bullet), robotController.getLocation()));
-            if (robotController.getLocation().distanceTo(intersection) == 0) {
+                    .add(bullet.getDir(), (float) Math.abs(robotController.getLocation().distanceTo(bullet.getLocation()) * Math.cos(theta)));
+//            MapLocation intersection = bullet.getLocation()
+//                    .add(bullet.getDir(),
+//                            distanceToIntersection(bullet.getLocation(), projectBulletLocation(bullet), robotController.getLocation()));
+            if (robotController.getLocation().distanceTo(intersection) < robotController.getType().bodyRadius) {
                 movement.add(new Vector(robotController.getLocation().directionTo(bullet.getLocation()).rotateLeftDegrees(90),
-                        robotController.getType().strideRadius * 2f)
+                        robotController.getType().strideRadius * 4f)
                         .scale(getInverseScaling(intersection)));
             } else {
                 movement.add(new Vector(robotController.getLocation().directionTo(intersection).opposite(),
-                        robotController.getType().strideRadius * 2f)
+                        robotController.getType().strideRadius * 4f)
                         .scale(getInverseScaling(intersection)));
             }
-            robotController.setIndicatorDot(robotController.getLocation(), 255, 255, 255);
-            robotController.setIndicatorDot(bullet.getLocation(), 255, 0, 0);
-            robotController.setIndicatorDot(intersection, 255, 255, 0);
-            robotController.setIndicatorLine(bullet.getLocation(), intersection, 255, 0, 0);
-            robotController.setIndicatorLine(robotController.getLocation(), intersection, 255, 255, 0);
+//            robotController.setIndicatorDot(robotController.getLocation(), 255, 255, 255);
+//            robotController.setIndicatorDot(bullet.getLocation(), 255, 0, 0);
+//            robotController.setIndicatorDot(intersection, 255, 255, 0);
+//            robotController.setIndicatorLine(bullet.getLocation(), intersection, 255, 0, 0);
+//            robotController.setIndicatorLine(robotController.getLocation(), intersection, 255, 255, 0);
 //            MapLocation nearBullet = bullet.getLocation().add(intersection.directionTo(robotController.getLocation()),
 //                    1.1f * robotController.getType().bodyRadius);
 //            movement.add(new Vector(robotController.getLocation().directionTo(nearBullet),
@@ -174,7 +179,7 @@ public abstract class RobotBase {
         return movement;
     }
 
-    protected Vector getInfluenceFromInitialEnemyArchonLocations(boolean attract, float scale) {
+    protected Vector getInfluenceFromInitialEnemyArchonLocations(boolean attract, float scale) throws GameActionException {
         Vector movement = new Vector();
         for (MapLocation archonLocation : robotController.getInitialArchonLocations(robotController.getTeam().opponent())) {
             Direction direction = robotController.getLocation().directionTo(archonLocation);
@@ -184,26 +189,30 @@ public abstract class RobotBase {
         return movement;
     }
 
-    protected Vector getInfluenceFromTreesWithBullets(TreeInfo[] trees) {
+    protected Vector getInfluenceFromTreesWithBullets(TreeInfo[] trees) throws GameActionException {
         Vector movement = new Vector();
         for (TreeInfo tree : trees) {
-            if (tree.getContainedBullets() > 0 && hasLineOfSight(tree)) {
+            //todo: improve bytecode use here
+            if (tree.getContainedBullets() > 0 && (RobotType.SCOUT.equals(robotController.getType()) || hasLineOfSight(tree))) {
                 movement.add(new Vector(robotController.getLocation().directionTo(tree.getLocation()),
-                        robotController.getType().strideRadius * 1.5f)
-                        .scale(getScaling(tree.getLocation())));
+                                robotController.getType().strideRadius/* * 1.5f*/)
+//                        .scale(getScaling(tree.getLocation())));
+                );
             }
         }
         return movement;
     }
 
-    protected Vector getInfluenceFromTrees(TreeInfo[] trees) {
+    protected Vector getInfluenceFromTrees(TreeInfo[] trees) throws GameActionException {
         Vector movement = new Vector();
         for (TreeInfo tree : trees) {
-            if (hasLineOfSight(tree)) {
+            //todo: improve bytecode use here
+//            if (hasLineOfSight(tree)) { //commenting this out solved issue of maxing out bytecode use
                 movement.add(new Vector(robotController.getLocation().directionTo(tree.getLocation()).opposite(),
                         robotController.getType().strideRadius)
-                        .scale(getInverseScaling(tree.getLocation())));
-            }
+//                        .scale(getInverseScaling(tree.getLocation()))
+                );
+//            }
         }
         return movement;
     }
@@ -242,11 +251,12 @@ public abstract class RobotBase {
         System.out.println("Oh, what a world!");
     }
 
-    public boolean getWillToLive() {
-        return true;
+    public boolean getWillToLive() throws GameActionException {
+        return robotController.getRoundNum() < GameConstants.GAME_DEFAULT_ROUNDS - 1
+                || robotController.getTeamVictoryPoints() < GameConstants.VICTORY_POINTS_TO_WIN;
     }
 
-    public final void logRobotException(String method, Exception e) {
+    public final void logRobotException(String method, Exception e) throws GameActionException {
         System.out.print("An exception was caught from " + robotController.getType().name() + "." + method + "(): " + e.getMessage());
     }
 
@@ -254,8 +264,8 @@ public abstract class RobotBase {
 //        BulletInfo[] bullets = robotController.senseNearbyBullets(-1);
 //        for (BulletInfo bullet : bullets) {
 //            float theta = bullet.getDir().radiansBetween(bullet.getLocation().directionTo(robotController.getLocation()));
-//            // If theta > 90 degrees, then the bullet is traveling away from us and we can break early
-//            if (Math.abs(theta) > Math.PI / 2) {
+//            // If theta > /*90*/ 100 degrees, then the bullet is traveling away from us and we can break early
+//            if (1.8f * Math.abs(theta) > Math.PI) {
 //                continue;
 //            }
 ////            robotController.setIndicatorLine(bullet.getLocation().add(bullet.getDir(), 6 * bullet.getSpeed()), bullet.getLocation().add(bullet.getDir(), 8 * bullet.getSpeed()), 255, 255, 0);
@@ -295,7 +305,7 @@ public abstract class RobotBase {
         float theta = propagationDirection.radiansBetween(directionToRobot);
 
         // If theta > 90 degrees, then the bullet is traveling away from us and we can break early
-        if (Math.abs(theta) > Math.PI / 2) {
+        if (2 * Math.abs(theta) > Math.PI) {
             return false;
         }
 
@@ -335,17 +345,18 @@ public abstract class RobotBase {
         }
     }
 
-    protected MapLocation projectBulletLocation(BulletInfo bulletInfo) {
+    protected MapLocation projectBulletLocation(BulletInfo bulletInfo) throws GameActionException {
         return projectBulletLocation(bulletInfo, 1);
     }
 
-    protected MapLocation projectBulletLocation(BulletInfo bulletInfo, int rounds) {
+    protected MapLocation projectBulletLocation(BulletInfo bulletInfo, int rounds) throws GameActionException {
         return bulletInfo.getLocation().add(bulletInfo.getDir(), rounds * bulletInfo.getSpeed());
     }
 
-    protected float distanceToIntersection(MapLocation a, MapLocation b, MapLocation c) {
+    protected float distanceToIntersection(MapLocation a, MapLocation b, MapLocation c) throws GameActionException {
         float slope = (b.y - a.y) / (b.x - a.x);
-        return (float) (Math.abs(c.y - (slope * c.x) - a.y + (slope * a.x)) / Math.sqrt(1 + Math.pow(slope, 2)));
+        return (float) (Math.abs(c.y - (slope * c.x) - a.y + (slope * a.x)) / Math.sqrt(1 + (slope * slope)));
+//        return Math.abs(c.y - (slope * c.x) - a.y + (slope * a.x)) * invSqrt(1 + (slope * slope));
         //x,y = rc.loc
         //a,b = MapLoc a; c,d = MapLoc b
 //        //Coordinates are (a,b) and (c,d)
@@ -364,43 +375,60 @@ public abstract class RobotBase {
 //        $distance=abs($y-($m*$x)-$b+($m*$a))/sqrt(1+($m*$m));
 
 
-//        float triangleArea = Math.abs((b.x - a.x) * (target.getLocation().y - a.y) - (target.getLocation().x - a.x) * (b.y - a.y));
+//        float triangleArea = Math.abs((b.x - a.x) * (c.y - a.y) - (c.x - a.x) * (b.y - a.y));
 //        float triangleHeight = triangleArea / a.distanceTo(b);
-//        if (triangleHeight < target.getRadius()
-//                && a.distanceTo(target.getLocation()) < a.distanceTo(b)
-//                && b.distanceTo(target.getLocation()) < b.distanceTo(a)) {
+//        if (a.distanceTo(c) < a.distanceTo(b) && b.distanceTo(c) < b.distanceTo(a)) {
 //            return triangleHeight;
 //        } else {
 //            return -1;
 //        }
     }
 
-    protected Vector vectorToIntersection(BodyInfo target, Direction direction) {
-        float targetDistance = robotController.getLocation().distanceTo(target.getLocation());
-        float theta = direction.radiansBetween(target.getLocation().directionTo(robotController.getLocation()));
-        MapLocation intersection = target.getLocation().add(direction, (float) Math.abs(targetDistance * Math.cos(theta)));
-        return new Vector(robotController.getLocation().directionTo(intersection), robotController.getLocation().distanceTo(intersection));
-    }
+//    protected Vector vectorToIntersection(BodyInfo target, Direction direction) throws GameActionException {
+//        float targetDistance = robotController.getLocation().distanceTo(target.getLocation());
+//        float theta = direction.radiansBetween(target.getLocation().directionTo(robotController.getLocation()));
+//        MapLocation intersection = target.getLocation().add(direction, (float) Math.abs(targetDistance * Math.cos(theta)));
+//        return new Vector(robotController.getLocation().directionTo(intersection), robotController.getLocation().distanceTo(intersection));
+//    }
 
-    private boolean hasLineOfSight(BodyInfo target) {
-        return hasLineOfSight(target, false, false);
+    private boolean hasLineOfSight(BodyInfo target) throws GameActionException {
+        return hasLineOfSight(target, false, false, false);
     }
 
     //todo: check for line of sight to any of target, not just target's location/center
-    private boolean hasLineOfSight(BodyInfo target, boolean returnValueIfTargetNotInRange, boolean ignoreRobots) {
+    //todo: but also improve efficiency because calling this often quickly maxes out bytecode use
+    private boolean hasLineOfSight(BodyInfo target, boolean returnValueIfTargetNotInRange, boolean ignoreTrees, boolean ignoreRobots) throws GameActionException {
+        if ((robotController.getLocation().distanceTo(target.getLocation()) - robotController.getType().bodyRadius - target.getRadius())
+                <= GameConstants.BULLET_SPAWN_OFFSET) {
+            return true;
+        }
         boolean targetDetected = false;
         BodyInfo[][] arrays = {sensedTrees, sensedRobots};
         for (BodyInfo[] array : arrays) {
+            if (ignoreTrees) {
+                continue;
+            }
             for (BodyInfo thing : array) {
-                if (thing.isBullet()) {
-                    continue;
-                } else if (thing.getID() == target.getID()) {
+                if (thing.getID() == target.getID()) {
                     targetDetected = true;
                     continue;
-                } else if ((ignoreRobots && thing.isRobot()) || robotController.getID() == target.getID()) {
+                } else if (robotController.getID() == thing.getID()) {
+                    continue;
+                } else if (ignoreRobots && thing.isRobot()) {
+                    break;
+                }
+                float theta1 = robotController.getLocation().directionTo(target.getLocation())
+                        .radiansBetween(robotController.getLocation().directionTo(thing.getLocation()));
+                float theta2 = target.getLocation().directionTo(robotController.getLocation())
+                        .radiansBetween(target.getLocation().directionTo(thing.getLocation()));
+                // If theta > /*90*/ 100 degrees, then the thing is not between the two us and we can skip processing it
+                float limit = (float) Math.PI / 1.8f;
+                if (Math.abs(theta1) > limit || Math.abs(theta2) > limit) {
                     continue;
                 }
-                if (distanceToIntersection(robotController.getLocation(), target.getLocation(), thing.getLocation()) <= thing.getRadius()) {
+                if (distanceToIntersection(robotController.getLocation(), target.getLocation(), thing.getLocation()) < thing.getRadius() * 1.1) {
+                    robotController.setIndicatorDot(thing.getLocation(), 0, 0, 0);
+                    robotController.setIndicatorLine(thing.getLocation(), target.getLocation(), 42, 42, 42);
                     return false;
                 }
             }
@@ -408,6 +436,7 @@ public abstract class RobotBase {
         return targetDetected || returnValueIfTargetNotInRange;
     }
 
+    //mason put this back in because he doesn't know what will happen
     protected boolean checkLineOfSight(BodyInfo robot) {
         if (hasLineOfSight(robot)){
             return true;
@@ -446,8 +475,7 @@ public abstract class RobotBase {
         }
         float angle, distance;
         for (RobotInfo robot : sensedRobots) {
-            if (robotController.getTeam().opponent().equals(robot.getTeam()) &&
-                    (RobotType.SCOUT.equals(robotController.getType()) || hasLineOfSight(robot))) {
+            if (robotController.getTeam().opponent().equals(robot.getTeam()) && hasLineOfSight(robot)) {
                 if (robotController.canFirePentadShot() || robotController.canFireTriadShot()) {
                     distance = robotController.getLocation().distanceTo(robot.getLocation());
                     angle = (float) Math.toDegrees(Math.atan(robot.getType().bodyRadius / distance));
@@ -518,30 +546,34 @@ public abstract class RobotBase {
 //        return v;
 //    }
 
-    protected float getScaling(MapLocation location) {
+    protected float getScaling(MapLocation location) throws GameActionException {
         return robotController.getLocation().distanceTo(location) / robotController.getType().sensorRadius;
     }
 
-    protected float getInverseScaling(MapLocation location) {
+    protected float getInverseScaling(MapLocation location) throws GameActionException {
         return 1 - getScaling(location);
     }
 
-    protected void outputInfluenceDebugging(String title, Vector movement) {
+    protected void outputInfluenceDebugging(String title, Vector movement) throws GameActionException {
         outputInfluenceDebugging(title, null, movement);
     }
 
-    protected void outputInfluenceDebugging(String title, BodyInfo target, Vector movement) {
+    protected void outputInfluenceDebugging(String title, BodyInfo target, Vector movement) throws GameActionException {
 //        String from = target == null ? "" : " from (" + target.getLocation().x + "," + target.getLocation().y + ") ";
 //        System.out.println(title + from + " on (" + robotController.getLocation().x + "," + robotController.getLocation().y + "): ("
 //                + movement.dx + "," + movement.dy + ")");
     }
 
-    public void debugBytecodeUsed(String title) {
+    public void debugBytecodeUsed(String title) throws GameActionException {
 //        System.out.println(title + ": "
 //                + (100f * Clock.getBytecodesLeft() / Clock.getBytecodeNum()) + "% ("
 //                + (Clock.getBytecodeNum() - Clock.getBytecodesLeft()) + ") of Bytecode used.");
     }
 
+    protected float getDonationQty(float desiredVP) throws GameActionException {
+    //victory point = 7.5 bullets + (round)*12.5 / 3000
+    float factor = (robotController.getRoundNum() *12.5f ) / 3000f;
+            return (factor + 7.5f) * desiredVP;
 //    robotController.plantTree(dir);
 
     //try to build trees at certain locations relative to gardener
@@ -561,12 +593,6 @@ public abstract class RobotBase {
         //maybe NE and SE as well, leaving west open for building units
         return false;
     }
-
-
-    //try to build at point a or b
-
-
-
 
 
 }

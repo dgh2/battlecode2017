@@ -5,7 +5,6 @@ import battlecode.common.GameActionException;
 import battlecode.common.RobotController;
 import battlecode.common.RobotInfo;
 import battlecode.common.RobotType;
-import battlecode.common.TreeInfo;
 import boidroles.util.RobotBase;
 import boidroles.util.Vector;
 
@@ -45,9 +44,15 @@ public class Scout extends RobotBase {
         for (RobotInfo robot : sensedRobots) {
             Direction robotDirection = robotController.getLocation().directionTo(robot.getLocation());
             if (!robotController.getTeam().equals(robot.getTeam())) {
-                movement.add(new Vector(robotDirection,
-                        robotController.getType().strideRadius)
-                        .scale(getScaling(robot.getLocation())));
+                if (RobotType.GARDENER.equals(robot.getType())) {
+                    movement.add(new Vector(robotDirection,
+                            robotController.getType().strideRadius * 3f)
+                            .scale(getScaling(robot.getLocation())));
+                } else {
+                    movement.add(new Vector(robotDirection,
+                            robotController.getType().strideRadius)
+                            .scale(getScaling(robot.getLocation())));
+                }
 //                movement.add(new Vector(robotDirection.opposite(),
 //                        robotController.getType().strideRadius)
 //                        .scale(getInverseScaling(robot.getLocation())));
@@ -63,7 +68,7 @@ public class Scout extends RobotBase {
                 movement.add(new Vector(robotDirection.opposite(),
                         robotController.getType().strideRadius * 2.5f).scale(getInverseScaling(robot.getLocation())));
             }
-            outputInfluenceDebugging("Scout robot influence", robot, movement);
+            outputInfluenceDebugging("Robot influence", robot, movement);
         }
 //        for (TreeInfo tree : sensedTrees) {
 //            Direction treeDirection = robotController.getLocation().directionTo(tree.getLocation());
@@ -79,7 +84,7 @@ public class Scout extends RobotBase {
 //        movement.add(getInfluenceFromTrees(sensedTrees));
         movement.add(dodgeBullets(sensedBullets));
         //todo: repel from the map's edges too
-        outputInfluenceDebugging("Scout total influence", movement);
+        outputInfluenceDebugging("Total influence", movement);
         return movement;
     }
 }

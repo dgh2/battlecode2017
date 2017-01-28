@@ -38,6 +38,6 @@ public class Vector {
     }
 
     public float getDistance() {
-        return (float) Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
+        return (float) Math.sqrt(dx * dx + dy * dy);
     }
 }

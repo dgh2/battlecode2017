@@ -118,10 +118,10 @@ public class Gardener extends RobotBase {
             outputInfluenceDebugging("Gardener robot influence", robot, movement);
         }
         for (TreeInfo tree : sensedTrees) {
-            if(tree.getTeam() == robotController.getTeam()) { //only be attracted to our own trees... hopefully to stay next to them and water
+            if (robotController.getTeam().equals(tree.getTeam()) && tree.getHealth() < tree.getMaxHealth()) {
                 movement.add(new Vector(robotController.getLocation().directionTo(tree.getLocation()),
                         robotController.getType().strideRadius).scale(tree.getHealth() / tree.getMaxHealth()));
-                outputInfluenceDebugging("Gardener robot +  team tree influence", tree, movement);
+                outputInfluenceDebugging("Gardener robot + tree influence", tree, movement);
             }
         }
         movement.add(getInfluenceFromInitialEnemyArchonLocations(false, .05f));

@@ -24,7 +24,16 @@ public class Scout extends RobotBase {
 
         //Handle actions
 
-        attackClosestEnemy();
+        // attack closest enemy except archons
+        for (RobotInfo robot : sensedRobots) {
+            if (robotController.getTeam().opponent().equals(robot.getTeam())
+                    && robot.getType() != RobotType.ARCHON //wanted to add this line
+                    && robotController.canFireSingleShot()
+                    && checkLineOfSight(robot)) { // had to change this one as a result, and make an accessor function to run the function that runs the fuction
+                robotController.fireSingleShot(robotController.getLocation().directionTo(robot.location));
+            }
+        }
+//        attackClosestEnemy(); //this has basically been written above
 //        if (!attackClosestEnemy()) {
 //            attackArchons();
 //        }
@@ -65,7 +74,7 @@ public class Scout extends RobotBase {
 //                    .scale(getInverseScaling(tree.getLocation())));
 //            outputInfluenceDebugging("Scout robot + tree influence", tree, movement);
 //        }
-        movement.add(getInfluenceFromInitialEnemyArchonLocations(true, .5f));
+        movement.add(getInfluenceFromInitialEnemyArchonLocations(true, 0.5f));
         movement.add(getInfluenceFromTreesWithBullets(sensedTrees));
 //        movement.add(getInfluenceFromTrees(sensedTrees));
         movement.add(dodgeBullets(sensedBullets));

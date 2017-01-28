@@ -52,7 +52,7 @@ public class Tank extends RobotBase {
                     robotController.fireSingleShot(robotController.getLocation().directionTo(enemyArchonLoc).rotateLeftDegrees((float) (.5 * Math.random())));
                 }
             }
-        } else if (!robotController.hasMoved()) {
+        } else if (!robotController.hasMoved() && robotController.canFireSingleShot()) { // attempt to not run into a bullet that we may have fired
             // Move randomly
             tryMove(robotController, randomDirection());
         }

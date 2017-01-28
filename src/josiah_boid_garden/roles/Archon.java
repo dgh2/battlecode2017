@@ -9,10 +9,14 @@ import josiah_boid_garden.util.RobotBase;
 
 import static rolesplayer.util.Util.randomDirection;
 
+
+
 public class Archon extends RobotBase {
     public Archon(RobotController robotController) {
         super(robotController);
     }
+
+    float lastTurnBullets = 0; //variable we will need
 
     @Override
     public void run() throws GameActionException {
@@ -21,6 +25,19 @@ public class Archon extends RobotBase {
 
         // Generate a random direction
         Direction dir = randomDirection();
+
+
+        // if turn zero or one, buy a victory point
+        if(robotController.getRoundNum() <=1){
+            robotController.donate(getDonationQty(1)); //getDonationQty returns #bullets based on current round's exchange rate
+        }
+
+        // Build a gardener on the first turn possible! even if that's "zero"
+        if(robotController.getRoundNum() <=15) {
+            if (robotController.canHireGardener(dir)) {
+                robotController.hireGardener(dir);
+            }
+        }
 
         // Randomly attempt to build a Gardener in this direction
         if (robotController.canHireGardener(dir) && Math.random() < .02) {

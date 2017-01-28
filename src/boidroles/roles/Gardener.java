@@ -1,13 +1,14 @@
 package boidroles.roles;
 
-import battlecode.common.Direction;
+import battlecode.common.*;
+import boidroles.util.RobotBase;
+import boidroles.util.Vector;
+import battlecode.common.TreeInfo;
 import battlecode.common.GameActionException;
 import battlecode.common.RobotController;
 import battlecode.common.RobotInfo;
 import battlecode.common.RobotType;
-import battlecode.common.TreeInfo;
-import boidroles.util.RobotBase;
-import boidroles.util.Vector;
+import battlecode.common.Team;
 
 import static rolesplayer.util.Util.randomDirection;
 
@@ -15,6 +16,8 @@ public class Gardener extends RobotBase {
     public Gardener(RobotController robotController) {
         super(robotController);
     }
+
+//    private TreeInfo[] neutralTrees;
 
     @Override
     public void run() throws GameActionException {
@@ -51,13 +54,18 @@ public class Gardener extends RobotBase {
         }
         //trees!! need those haha
         if(robotController.getRoundNum() > 3 && robotController.getRoundNum() <= 20) { // 16 turns hoping to build a tree
-            robotController.plantTree(dir);
+            plantGarden1();
         }
         //defence!?
         if(robotController.getRoundNum() > 10 && robotController.getRoundNum() <= 25) { // 15 turns hoping to build a lumberjack
             robotController.buildRobot(RobotType.LUMBERJACK, dir);
         }
 
+        //chop down forrest - if you see a neutral tree, make a lumberjack
+        TreeInfo[] neutralTrees = robotController.senseNearbyTrees(-1, Team.NEUTRAL);
+        if(neutralTrees.length > 0) {
+            robotController.buildRobot(RobotType.LUMBERJACK, dir);
+        }
 
         // Randomly attempt to build a Soldier or lumberjack in this direction
         if (robotController.canBuildRobot(RobotType.SCOUT, dir) && Math.random() < .1 && robotController.isBuildReady()) {
@@ -110,9 +118,11 @@ public class Gardener extends RobotBase {
             outputInfluenceDebugging("Gardener robot influence", robot, movement);
         }
         for (TreeInfo tree : sensedTrees) {
-            movement.add(new Vector(robotController.getLocation().directionTo(tree.getLocation()),
-                    robotController.getType().strideRadius).scale(tree.getHealth()/tree.getMaxHealth()));
-            outputInfluenceDebugging("Gardener robot + tree influence", tree, movement);
+            if(tree.getTeam() == robotController.getTeam()) { //only be attracted to our own trees... hopefully to stay next to them and water
+                movement.add(new Vector(robotController.getLocation().directionTo(tree.getLocation()),
+                        robotController.getType().strideRadius).scale(tree.getHealth() / tree.getMaxHealth()));
+                outputInfluenceDebugging("Gardener robot +  team tree influence", tree, movement);
+            }
         }
         movement.add(getInfluenceFromInitialEnemyArchonLocations(false, .05f));
         movement.add(getInfluenceFromTreesWithBullets(sensedTrees));

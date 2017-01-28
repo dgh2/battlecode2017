@@ -123,20 +123,43 @@ public abstract class RobotBase {
 
     public abstract void run() throws GameActionException;
 
+    //variable used in afterRun()
+    float lastTurnBullets = 0;
+
     public void afterRun() throws GameActionException {
         shakeTrees();
         detectArchons();
         //markIncoming();
-        if (robotController.getTeamVictoryPoints() + (robotController.getTeamBullets() / 10) >= 1000) {
+        if (robotController.getTeamVictoryPoints() + getAllVP() >= 1000) {
             //if current victory points plus all our bullets turned into victory points is at least 1k, sell all bullets
             robotController.donate(robotController.getTeamBullets());
         }
-//        if(robotController.getTeamBullets() * 0.1 >= 4 ) {
-//            //if we have so many bullets that it's costing us to keep them around, sell all but 500.
-//            robotController.donate(robotController.getTeamBullets() - 500);
-//        }
+
+        if (robotController.getTeamBullets() > 500f) { //don't amass bullets once u have enough for a tank and some activity
+            robotController.donate(robotController.getTeamBullets() - 500f);
+        }
+
+
+        lastTurnBullets = robotController.getTeamBullets(); //record how many bullets for our comparison above next turn
+
         System.out.println("We're done here!");
     }
+
+    private float getAllVP() { //if u donate all bullets, how many victory points do we get?
+        float vpCost = 7.5f + (robotController.getRoundNum() * 12.5f) / 3000f;
+        vpCost = robotController.getTeamBullets() / vpCost;
+        return vpCost;
+    }
+
+    protected float getDonationQty( float desiredVP )  {
+        //1 victory point = 7.5 bullets + (round)*12.5 / 3000
+        float factor = (robotController.getRoundNum() *12.5f ) / 3000f;
+        return (factor + 7.5f) * desiredVP;
+    }
+
+
+
+
 
     public void dying() throws GameActionException {
         detectArchons();

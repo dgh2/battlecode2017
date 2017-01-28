@@ -213,17 +213,28 @@ public abstract class RobotBase {
         detectArchons();
         //markIncoming();
 
-        if (robotController.getTeamVictoryPoints() + getAllVP() >= 1000) {
-            //if current victory points plus all our bullets turned into victory points is at least 1k, sell all bullets
+        if (robotController.getTeamVictoryPoints() + getAllVP() >= 1000) {//if current victory points plus all our bullets turned into victory points is at least 1k, sell all bullets
             robotController.donate(robotController.getTeamBullets());
         }
-        //System.out.println("We're done here!");
+        if (robotController.getTeamBullets() > 500f) { //don't amass bullets once u have enough for a tank and some activity
+            robotController.donate(robotController.getTeamBullets() - 500f);
+        }
+        if (robotController.getRoundNum() > 100 && robotController.getTeamBullets() > 150) { //buy some while they are cheap
+            robotController.donate(getDonationQty(1));
+        }
+        System.out.println("We're done here!");
     }
 
     private float getAllVP() { //if u donate all bullets, how many victory points do we get?
         float vpCost = 7.5f + (robotController.getRoundNum() * 12.5f) / 3000f;
         vpCost = robotController.getTeamBullets() / vpCost;
         return vpCost;
+    }
+
+    protected float getDonationQty( float desiredVP )  {
+        //1 victory point = 7.5 bullets + (round)*12.5 / 3000
+        float factor = (robotController.getRoundNum() *12.5f ) / 3000f;
+        return (factor + 7.5f) * desiredVP;
     }
 
     public void dying() throws GameActionException {
@@ -397,6 +408,15 @@ public abstract class RobotBase {
         return targetDetected || returnValueIfTargetNotInRange;
     }
 
+    protected boolean checkLineOfSight(BodyInfo robot) {
+        if (hasLineOfSight(robot)){
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
     //private boolean obstructsLineOfSight(BodyInfo target, BodyInfo thing) {
     //    return distanceToIntersection(robotController.getLocation(), target.getLocation(), thing) <=
     //            target.getRadius() + thing.getRadius();
@@ -522,11 +542,31 @@ public abstract class RobotBase {
 //                + (Clock.getBytecodeNum() - Clock.getBytecodesLeft()) + ") of Bytecode used.");
     }
 
-    protected float getDonationQty( float desiredVP )  {
-    //victory point = 7.5 bullets + (round)*12.5 / 3000
-    float factor = (robotController.getRoundNum() *12.5f ) / 3000f;
-            return (factor + 7.5f) * desiredVP;
+//    robotController.plantTree(dir);
+
+    //try to build trees at certain locations relative to gardener
+    protected boolean plantGarden1() throws GameActionException {
+        if(robotController.canPlantTree(Direction.NORTH)) {
+            robotController.plantTree(Direction.NORTH);
+            return true;
+        }
+        else if (robotController.canPlantTree(Direction.EAST)) {
+            robotController.plantTree(Direction.EAST);
+            return true;
+        }
+        else if (robotController.canPlantTree(Direction.SOUTH)) {
+            robotController.plantTree(Direction.SOUTH);
+            return true;
+        }
+        //maybe NE and SE as well, leaving west open for building units
+        return false;
     }
+
+
+    //try to build at point a or b
+
+
+
 
 
 }

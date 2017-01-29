@@ -41,18 +41,34 @@ public class Archon extends RobotBase {
         }
 
         // Build a gardener on the first turn possible! even if that's "zero"
-        if(robotController.getRoundNum() <=15) {
-            if (robotController.canHireGardener(go.opposite())) {
-                robotController.hireGardener(go);
-            } else if (robotController.canHireGardener(go)) {
-                robotController.hireGardener(go);
-            }
+        if(robotController.getRoundNum() <=10) {
+                if(robotController.canHireGardener(Direction.NORTH)) {
+                    robotController.hireGardener(Direction.NORTH);
+                }
+                else if (robotController.canHireGardener(Direction.EAST)) {
+                    robotController.hireGardener(Direction.EAST);
+                }
+                else if (robotController.canHireGardener(Direction.SOUTH)) {
+                    robotController.hireGardener(Direction.SOUTH);
+                }
+            } else if (robotController.canHireGardener(dir)) {
+                robotController.hireGardener(dir);
         }
 
 
 
         // Randomly attempt to build a Gardener in this direction
         if (robotController.canHireGardener(dir) && Math.random() < .75) {
+            if(robotController.canHireGardener(Direction.NORTH)) {
+                robotController.hireGardener(Direction.NORTH);
+            }
+            else if (robotController.canHireGardener(Direction.EAST)) {
+                robotController.hireGardener(Direction.EAST);
+            }
+            else if (robotController.canHireGardener(Direction.SOUTH)) {
+                robotController.hireGardener(Direction.SOUTH);
+            }
+        } else if (robotController.canHireGardener(dir)) {
             robotController.hireGardener(dir);
         }
 

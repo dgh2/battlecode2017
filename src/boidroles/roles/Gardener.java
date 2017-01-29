@@ -12,7 +12,13 @@ import battlecode.common.Team;
 
 import static rolesplayer.util.Util.randomDirection;
 
+
 public class Gardener extends RobotBase {
+
+    //variables for garden making
+    private boolean Glock = false;
+    private boolean JustSpawned = true;
+
     public Gardener(RobotController robotController) {
         super(robotController);
     }
@@ -22,10 +28,12 @@ public class Gardener extends RobotBase {
     @Override
     public void run() throws GameActionException {
         //Handle movement
-        Vector movement = calculateInfluence();
-        robotController.setIndicatorLine(robotController.getLocation(),
-                robotController.getLocation().translate(movement.dx, movement.dy), 255, 255, 255);
-        tryMove(movement.getDirection(), movement.getDistance());
+        if (!Glock) { // only perform movement when not in gardening mode
+            Vector movement = calculateInfluence();
+            robotController.setIndicatorLine(robotController.getLocation(),
+                    robotController.getLocation().translate(movement.dx, movement.dy), 255, 255, 255);
+            tryMove(movement.getDirection(), movement.getDistance());
+        }
 
         //Handle actions
 
@@ -54,31 +62,32 @@ public class Gardener extends RobotBase {
         }
         //trees!! need those haha
         if(robotController.getRoundNum() > 3 && robotController.getRoundNum() <= 20) { // 16 turns hoping to build a tree
-            plantGarden1();
+            if (plantGarden1()){
+                Glock = true; //if planting was sucessful, lock us in this position. maybe later check if all trees r dead
+            }
         }
         //defence!?
         if(robotController.getRoundNum() > 10 && robotController.getRoundNum() <= 25) { // 15 turns hoping to build a lumberjack
             robotController.buildRobot(RobotType.LUMBERJACK, dir);
         }
-
         //chop down forrest - if you see a neutral tree, make a lumberjack
         TreeInfo[] neutralTrees = robotController.senseNearbyTrees(-1, Team.NEUTRAL);
         if(neutralTrees.length > 0) {
-            robotController.buildRobot(RobotType.LUMBERJACK, dir);
+            robotController.buildRobot(RobotType.LUMBERJACK, Direction.WEST);
         }
 
         // Randomly attempt to build a Soldier or lumberjack in this direction
-        if (robotController.canBuildRobot(RobotType.SCOUT, dir) && Math.random() < .1 && robotController.isBuildReady()) {
-            robotController.buildRobot(RobotType.SCOUT, dir);
-        } else if (robotController.canPlantTree(dir) && Math.random() < .1 && robotController.isBuildReady()) {
-            robotController.plantTree(dir);
-        } else if (robotController.canBuildRobot(RobotType.SOLDIER, dir) && Math.random() < .15 && robotController.isBuildReady()) {
-            robotController.buildRobot(RobotType.SOLDIER, dir);
-        } else if (robotController.canBuildRobot(RobotType.LUMBERJACK, dir) && Math.random() < .15 && robotController.isBuildReady()) {
-            robotController.buildRobot(RobotType.LUMBERJACK, dir);
-        } else if (robotController.canBuildRobot(RobotType.TANK, dir) && Math.random() < .08 && robotController.isBuildReady()) {
-            robotController.buildRobot(RobotType.TANK, dir);
-        }
+//        if (robotController.canBuildRobot(RobotType.SCOUT, dir) && Math.random() < .1 && robotController.isBuildReady()) {
+//            robotController.buildRobot(RobotType.SCOUT, dir);
+//        } else if (robotController.canPlantTree(dir) && Math.random() < .1 && robotController.isBuildReady()) {
+//            robotController.plantTree(dir);
+//        } else if (robotController.canBuildRobot(RobotType.SOLDIER, dir) && Math.random() < .15 && robotController.isBuildReady()) {
+//            robotController.buildRobot(RobotType.SOLDIER, dir);
+//        } else if (robotController.canBuildRobot(RobotType.LUMBERJACK, dir) && Math.random() < .15 && robotController.isBuildReady()) {
+//            robotController.buildRobot(RobotType.LUMBERJACK, dir);
+//        } else if (robotController.canBuildRobot(RobotType.TANK, dir) && Math.random() < .08 && robotController.isBuildReady()) {
+//            robotController.buildRobot(RobotType.TANK, dir);
+//        }
 
         for (TreeInfo tree : sensedTrees) {
             if (robotController.getTeam().equals(tree.getTeam())
@@ -94,13 +103,17 @@ public class Gardener extends RobotBase {
     protected Vector calculateInfluence() throws GameActionException {
         Vector movement = new Vector();
         for (RobotInfo robot : sensedRobots) {
+            if (RobotType.ARCHON.equals(robot.getType())) {
+                movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()).opposite(),
+                        robotController.getType().strideRadius * 2f).scale(getInverseScaling(robot.getLocation())));
+            }
             if (!robotController.getTeam().equals(robot.getTeam())) {
 //                movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()),
 //                        robotController.getType().strideRadius)
 //                        .scale(getScaling(robot.getLocation())));
                 movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()).opposite(),
                         robotController.getType().strideRadius)
-                        .scale(getInverseScaling(robot.getLocation())));
+                        .scale(getScaling(robot.getLocation())));
             } else {
 //                if (!robotController.getType().equals(robot.getType())) {
 //                    movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()),
@@ -108,7 +121,7 @@ public class Gardener extends RobotBase {
 //                            .scale(getScaling(robot.getLocation())));
 //                }
                 movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()).opposite(),
-                        robotController.getType().strideRadius)
+                        robotController.getType().strideRadius * 3f)
                         .scale(getInverseScaling(robot.getLocation())));
             }
             if (RobotType.LUMBERJACK.equals(robot.getType())) {
@@ -125,7 +138,7 @@ public class Gardener extends RobotBase {
             }
         }
         movement.add(getInfluenceFromInitialEnemyArchonLocations(false, .05f));
-        movement.add(getInfluenceFromTreesWithBullets(sensedTrees));
+//        movement.add(getInfluenceFromTreesWithBullets(sensedTrees));
 //        movement.add(getInfluenceFromTrees(sensedTrees));
         movement.add(dodgeBullets(sensedBullets));
         //todo: repel from the map's edges too

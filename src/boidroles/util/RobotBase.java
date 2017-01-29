@@ -437,7 +437,7 @@ public abstract class RobotBase {
     }
 
     //mason put this back in because he doesn't know what will happen
-    protected boolean checkLineOfSight(BodyInfo robot) {
+    protected boolean checkLineOfSight(BodyInfo robot) throws GameActionException {
         if (hasLineOfSight(robot)){
             return true;
         }
@@ -569,12 +569,6 @@ public abstract class RobotBase {
 //                + (100f * Clock.getBytecodesLeft() / Clock.getBytecodeNum()) + "% ("
 //                + (Clock.getBytecodeNum() - Clock.getBytecodesLeft()) + ") of Bytecode used.");
     }
-
-    protected float getDonationQty(float desiredVP) throws GameActionException {
-    //victory point = 7.5 bullets + (round)*12.5 / 3000
-    float factor = (robotController.getRoundNum() *12.5f ) / 3000f;
-            return (factor + 7.5f) * desiredVP;
-//    robotController.plantTree(dir);
 
     //try to build trees at certain locations relative to gardener
     protected boolean plantGarden1() throws GameActionException {

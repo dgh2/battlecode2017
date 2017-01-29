@@ -34,6 +34,7 @@ sourceSets {
     }
 }
 
+
 repositories {
     // Let Gradle know about our own repository for hosting Battlecode.
     maven {
@@ -41,7 +42,9 @@ repositories {
     }
 
     // Use the JCenter repo to resolve Scala dependencies.
+    // Also used for Mockito
     jcenter()
+    
 }
 
 // Mark the client as a special dependency, so that we can handle it separately.
@@ -67,6 +70,9 @@ dependencies {
     compile group: 'org.scala-lang', name: 'scala-library', version: '2.11.7'
     compile group: 'org.scala-lang', name: 'scala-compiler', version: '2.11.7'
     compile group: 'org.scala-lang', name: 'scala-reflect', version: '2.11.7'
+    //mockito
+	 testCompile "org.mockito:mockito-core:2.0.57-beta"
+	 testCompile 'junit:junit:4.12'
 }
 
 // Eclipse specific setup to enable docs and sources, and configure layout.
@@ -224,3 +230,6 @@ buildscript {
         resolutionStrategy.cacheDynamicVersionsFor 60, 'seconds'
     }
 }
+
+//Include Mockito for testing, because unit testing man.
+

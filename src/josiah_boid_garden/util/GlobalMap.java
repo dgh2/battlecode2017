@@ -1,25 +1,40 @@
 package josiah_boid_garden.util;
 
-import battlecode.common.GameActionException;
-import battlecode.common.RobotController;
+import battlecode.common.MapLocation;
 
 public class GlobalMap {
 	
 	private static final int MapOffset = 1000;
+	
+	private static final float gridSize = 4.0f;
+	private static int xDivisions,yDivisions;
+	
+	private static final int headerOffset = 3000;
+	
+	
+	
+	
+	private static final int dataPackageSize = 4;
+	private static final int forestationDataOffset = 0;
+	private static final int otherDataOffset1 = 1;
+	private static final int otherDataOffset2 = 2;
+	private static final int otherDataOffset3 = 3;
 	
 	private boolean westAcquired, eastAcquired,
 					northAcquired , southAcquired,
 					widthAcquired, heightAcquired,
 					offsetAcquired , dimensionsAcquired;
 	private float xOffset,yOffset,width,height;
-	RobotController rc;
+	MapArray mapArray;
 	
-	private static final int leftMostIndex = MapOffset + 1;
-	private static final int rightMostIndex = MapOffset + 2;
-	private static final int bottomIndex = MapOffset + 3;
-	private static final int topIndex = MapOffset + 4;
+	//header data
+	private static final int leftMostIndex = headerOffset + 1;
+	private static final int rightMostIndex = leftMostIndex + 1;
+	private static final int bottomIndex = rightMostIndex + 1;
+	private static final int topIndex = bottomIndex + 1;
 	
-	public GlobalMap(RobotController rc){
+	private static final int MapArrayOffset =topIndex+1 ;
+	public GlobalMap(MapArray rc){
 		widthAcquired=false;
 		heightAcquired=false;
 		offsetAcquired=false;
@@ -28,7 +43,7 @@ public class GlobalMap {
 		northAcquired = false;
 		southAcquired = false;
 		dimensionsAcquired = false;
-		this.rc = rc;
+		this.mapArray = rc;
 		
 	}
 	
@@ -44,58 +59,55 @@ public class GlobalMap {
 			if(!widthAcquired){
 				
 				//Check to see if the left and right most points of the map have been found
-				try {
-					left = rc.readBroadcastFloat(leftMostIndex);
-					right = rc.readBroadcastFloat(rightMostIndex);
-					
-					if(left!=0){
-						westAcquired = true;
-						xOffset = left;
-					}
-					
-					if(right!=0){
-						eastAcquired = true;
-					}
-					
-					if(westAcquired && eastAcquired){
-						widthAcquired = true;
-						width  = right - left;
-					}
-					
-				} catch (GameActionException e) {
-					System.err.println("There was a problem with GlobalMap.check()");
+				
+				left = mapArray.readBroadcast(leftMostIndex);
+				right = mapArray.readBroadcast(rightMostIndex);
+				
+				if(left!=0){
+					westAcquired = true;
+					xOffset = left;
 				}
+				
+				if(right!=0){
+					eastAcquired = true;
+				}
+				
+				if(westAcquired && eastAcquired){
+					widthAcquired = true;
+					width  = right - left;
+				}
+					
+
 			}
 			
 			//Check to see if the top and bottom have been found
 			if(!heightAcquired){
-				try {
-					top = rc.readBroadcastFloat(topIndex);
-					bottom = rc.readBroadcastFloat(bottomIndex);
-					
-					if(top!=0){
-						northAcquired = true;
-					}
-					
-					if(bottom!=0){
-						southAcquired = true;
-						yOffset = bottom;
-					}
-					
-					if(northAcquired && southAcquired){
-						heightAcquired = true;
-						height = top - bottom;
-					}
-					
-				} catch (GameActionException e) {
-					System.err.println("There was a problem with GlobalMap.check()");
+				top = mapArray.readBroadcast(topIndex);
+				bottom = mapArray.readBroadcast(bottomIndex);
+				
+				if(top!=0){
+					northAcquired = true;
 				}
+				
+				if(bottom!=0){
+					southAcquired = true;
+					yOffset = bottom;
+				}
+				
+				if(northAcquired && southAcquired){
+					heightAcquired = true;
+					height = top - bottom;
+				}
+					
+
 			}
 			
 			//Check to see if all the map's dimensions have been discovered
 			if(heightAcquired && widthAcquired ){
 				dimensionsAcquired = true;
 				offsetAcquired = true;
+				xDivisions = (int) (width/gridSize);
+				yDivisions = (int) (height / gridSize);
 			}
 		}
 		
@@ -108,11 +120,9 @@ public class GlobalMap {
 	 */
 	public void setWestBound(float left){
 		if(! westAcquired){
-			try {
-				rc.broadcastFloat(leftMostIndex, left);
-			} catch (GameActionException e) {
-				e.printStackTrace();
-			}	
+
+			mapArray.broadcast(leftMostIndex, left);
+
 		}
 		
 	}
@@ -123,11 +133,7 @@ public class GlobalMap {
 	 */
 	public void setEastBound(float right){
 		if(! eastAcquired){
-			try {
-				rc.broadcastFloat(rightMostIndex, right);
-			} catch (GameActionException e) {
-				e.printStackTrace();
-			}
+			mapArray.broadcast(rightMostIndex, right);
 		}
 	}
 	
@@ -137,11 +143,9 @@ public class GlobalMap {
 	 */
 	public void setNorthBound(float top){
 		if( ! northAcquired ){
-			try {
-				rc.broadcastFloat(topIndex, top);
-			} catch (GameActionException e) {
-				e.printStackTrace();
-			}
+	
+			mapArray.broadcast(topIndex, top);
+
 		}
 	}
 	
@@ -151,11 +155,9 @@ public class GlobalMap {
 	 */
 	public void setSouthBound(float bottom){
 		if(! southAcquired){
-			try {
-				rc.broadcastFloat(bottomIndex, bottom);
-			} catch (GameActionException e) {
-				e.printStackTrace();
-			}
+
+			mapArray.broadcast(bottomIndex, bottom);
+
 		}
 	}
 
@@ -174,5 +176,155 @@ public class GlobalMap {
 	
 	public boolean hasSouthBound(){
 		return southAcquired;
+	}
+	
+	public float getWidth(){
+		if(widthAcquired){
+			return width;
+		} else {
+			return -1;
+		}
+	}
+	
+	public float getHeight(){
+		if(heightAcquired){
+			return height;
+		} else {
+			return -1;
+		}
+	}
+	
+	
+	public float getXOffset(){
+		return xOffset;
+	}
+	
+	public float getYOffset(){
+		return yOffset;
+	}
+	
+	public void setLocationForestation(MapLocation location , int forestationValue){
+
+		
+	}
+	
+	public int getChannelOffsetFromLocation (MapLocation location){
+		if(offsetAcquired){
+			MapIndex index = new MapIndex(location);
+			
+			int arrayIndex = getArrayIndexFromMapIndex(index);
+			
+			int channel = getChannelNumberFromArrayIndex( arrayIndex );
+			
+			return channel;
+		} else {
+			return -1;
+		}
+	}
+	
+	public MapLocation getLocationFromChannelOffset(int channelOffset){
+		
+		int arrayIndex = getArrayIndexFromChannelNumber(channelOffset);
+		
+		MapIndex mapIndex = getMapIndexFromArrayIndex(arrayIndex);
+		
+		return getLocationFromMapIndex(mapIndex);
+	}
+	
+	public int getArrayIndexFromMapIndex(int x , int y){
+		return this.getArrayIndexFromMapIndex(new MapIndex(x,y));
+	}
+	
+	public int getArrayIndexFromMapIndex(MapIndex mapIndex){
+		int arrayIndex = 0;
+		
+		arrayIndex = mapIndex.x + (mapIndex.y*xDivisions);
+		
+		return arrayIndex;
+	}
+	
+	public MapIndex getMapIndexFromArrayIndex( int arrayIndex){
+		
+		arrayIndex-=MapOffset;
+		
+		int x = arrayIndex % yDivisions;
+		int y = arrayIndex / yDivisions;
+		
+		return new MapIndex(x,y);
+	}
+	
+	public int getChannelNumberFromArrayIndex(int arrayIndex){
+		
+		return (arrayIndex * dataPackageSize) + MapArrayOffset;
+		
+	}
+	
+	public int getXDivisions(){
+		return xDivisions;
+	}
+	
+	public int getYDivisions(){
+		return yDivisions;
+	}
+	
+	public int getArrayIndexFromChannelNumber(int channelNumber){
+		
+		return (channelNumber - MapArrayOffset)/dataPackageSize;
+	}
+	
+	public float getGridSize(){
+		return gridSize;
+	}
+
+	public int getXIndex(float xPosition){
+		float adjustedPostion = xPosition - xOffset;
+		int index = (int)(adjustedPostion / gridSize);
+		return index;
+	}
+	
+	public int getYIndex(float yPosition){
+		float adjustedPostion = yPosition - yOffset;
+		int index = (int)(adjustedPostion / gridSize);
+		return index;
+	}
+	
+	public int getDataOffset(){
+		return MapArrayOffset;
+	}
+	
+	private MapLocation getLocationFromMapIndex(MapIndex index){
+		
+		float x = (index.x * xDivisions) + xOffset;
+		
+		float y = (index.y * yDivisions) + yOffset;
+		
+		return new MapLocation(x,y);
+		
+	}
+	
+	class MapIndex{
+		
+		public MapIndex(){
+			x=y=0;
+		}
+		
+		public MapIndex(int x , int y){
+			this.x = x;
+			this.y = y;
+		}
+		
+		public MapIndex(MapLocation location){
+			this( getXIndex(location.x) , getYIndex(location.y) );
+		}
+		
+		public MapIndex(MapIndex rhs){
+			this.x = rhs.x;
+			this.y= rhs.y;
+		}
+		
+		
+		
+		
+		public int x , y;
 	}
 }

@@ -15,6 +15,7 @@ import josiah_boid_garden.boid.AvoidEdges;
 import josiah_boid_garden.boid.Boid;
 import josiah_boid_garden.boid.BulletResponse;
 import josiah_boid_garden.util.GlobalMap;
+import josiah_boid_garden.util.MapArrayLocal;
 import josiah_boid_garden.util.RobotBase;
 
 public class Scout extends RobotBase {
@@ -42,7 +43,7 @@ public class Scout extends RobotBase {
         rand = new Random();
         rand.setSeed(robotController.getRoundNum());
         try{
-        map = new GlobalMap(robotController);
+        map = new GlobalMap(new MapArrayLocal());
         } catch (Exception e){
         	System.out.println(e.getMessage());
         }
@@ -75,6 +76,16 @@ public class Scout extends RobotBase {
     	//apply those movements
     	actionController.apply();
     	
+    	int index = map.getChannelOffsetFromLocation(this.robotController.getLocation());
+    	
+    	if(index > -1){
+    		
+    		MapLocation gridLocation = map.getLocationFromChannelOffset(index);
+    		System.out.println("The dot location is : " + gridLocation);
+    		this.robotController.setIndicatorDot(gridLocation, 0, 0, 255);
+    	} else {
+    		System.out.println("Map returned : " + index);
+    	}
     }
     
     public void scoutEdges(Boid controller){

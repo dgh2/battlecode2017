@@ -2,13 +2,18 @@ package boidroles.roles;
 
 import battlecode.common.Direction;
 import battlecode.common.GameActionException;
+import battlecode.common.MapLocation;
 import battlecode.common.RobotController;
 import battlecode.common.RobotInfo;
 import battlecode.common.RobotType;
 import boidroles.util.RobotBase;
 import boidroles.util.Vector;
 
+import static boidroles.util.Util.randomDirection;
+
 public class Scout extends RobotBase {
+    private MapLocation previousLocation = null;
+
     public Scout(RobotController robotController) {
         super(robotController);
     }
@@ -16,6 +21,12 @@ public class Scout extends RobotBase {
     @Override
     public void run() throws GameActionException {
         //Handle movement
+        if (previousLocation == null) {
+            previousLocation = robotController.getLocation();
+        }
+        if (previousLocation == robotController.getLocation()) {
+            previousLocation = previousLocation.add(randomDirection(), robotController.getType().strideRadius);
+        }
         Vector movement = calculateInfluence();
         robotController.setIndicatorLine(robotController.getLocation(),
                 robotController.getLocation().translate(movement.dx, movement.dy), 255, 255, 255);
@@ -26,9 +37,9 @@ public class Scout extends RobotBase {
         // attack closest enemy except archons
         for (RobotInfo robot : sensedRobots) {
             if (robotController.getTeam().opponent().equals(robot.getTeam())
-                    && robot.getType() != RobotType.ARCHON //wanted to add this line
+                    && robot.getType() != RobotType.ARCHON
                     && robotController.canFireSingleShot()
-                    && checkLineOfSight(robot)) { // had to change this one as a result, and make an accessor function to run the function that runs the fuction
+                    && hasLineOfSight(robot)) {
                 robotController.fireSingleShot(robotController.getLocation().directionTo(robot.location));
             }
         }
@@ -79,11 +90,16 @@ public class Scout extends RobotBase {
 //                    .scale(getInverseScaling(tree.getLocation())));
 //            outputInfluenceDebugging("Scout robot + tree influence", tree, movement);
 //        }
+        if (!robotController.getLocation().equals(previousLocation)) {
+            movement.add(new Vector(robotController.getLocation().x - previousLocation.x,
+                    robotController.getLocation().y - previousLocation.y)
+                    .scale(1f));
+        }
         movement.add(getInfluenceFromInitialEnemyArchonLocations(true, 0.5f));
         movement.add(getInfluenceFromTreesWithBullets(sensedTrees));
 //        movement.add(getInfluenceFromTrees(sensedTrees));
         movement.add(dodgeBullets(sensedBullets));
-        //todo: repel from the map's edges too
+        movement.add(repelFromMapEdges());
         outputInfluenceDebugging("Total influence", movement);
         return movement;
     }

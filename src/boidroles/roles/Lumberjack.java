@@ -64,17 +64,19 @@ public class Lumberjack extends RobotBase {
         //Handle actions
         if (robotController.canStrike()
                 && enemyRobots.length > 0
-                && (enemyRobots.length + enemyTrees.length > friendlyRobots.length + friendlyTrees.length)) {
+                && (enemyRobots.length + enemyTrees.length > friendlyRobots.length)) {
             robotController.strike();
-        } else {
-            if (enemyTrees.length < 0 || !tryChop(enemyTrees)) {
-                tryChop(neutralTrees);
-            }
+        } else if (enemyTrees.length < 0 || !tryChop(enemyTrees)) {
+            tryChop(neutralTrees);
         }
     }
 
     private boolean tryChop(TreeInfo[] trees) throws GameActionException {
         for (TreeInfo tree : trees) {
+            if (robotController.getLocation().distanceTo(tree.getLocation()) - tree.getRadius()
+                    > GameConstants.LUMBERJACK_STRIKE_RADIUS) {
+                break;
+            }
             if (tryChop(tree)) {
                 return true;
             }
@@ -138,7 +140,7 @@ public class Lumberjack extends RobotBase {
 //        movement.add(getInfluenceFromTrees(sensedTrees));
         //todo: stay away from our own bullet trees
         movement.add(dodgeBullets(sensedBullets));
-        //todo: repel from the map's edges too
+        movement.add(repelFromMapEdges());
         outputInfluenceDebugging("Lumberjack total influence", movement);
         return movement;
     }

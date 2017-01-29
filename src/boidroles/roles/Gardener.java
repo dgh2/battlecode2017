@@ -148,7 +148,7 @@ public class Gardener extends RobotBase {
 //        movement.add(getInfluenceFromTreesWithBullets(sensedTrees));
 //        movement.add(getInfluenceFromTrees(sensedTrees));
         movement.add(dodgeBullets(sensedBullets));
-        //todo: repel from the map's edges too
+        movement.add(repelFromMapEdges());
         outputInfluenceDebugging("Gardener total influence", movement);
         return movement;
     }

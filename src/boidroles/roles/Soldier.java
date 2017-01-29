@@ -22,8 +22,6 @@ public class Soldier extends RobotBase {
 
         //Handle actions
 
-        //todo: add multiple shots if "adjacent" to enemy
-
         attackClosestEnemy();
 //        if (!attackClosestEnemy()) {
 //            attackArchons();
@@ -59,7 +57,7 @@ public class Soldier extends RobotBase {
         movement.add(getInfluenceFromTreesWithBullets(sensedTrees));
         movement.add(getInfluenceFromTrees(sensedTrees));
         movement.add(dodgeBullets(sensedBullets));
-        //todo: repel from the map's edges too
+        movement.add(repelFromMapEdges());
         outputInfluenceDebugging("Soldier total influence", movement);
         return movement;
     }

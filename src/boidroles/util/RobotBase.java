@@ -2,6 +2,7 @@ package boidroles.util;
 
 import battlecode.common.BodyInfo;
 import battlecode.common.BulletInfo;
+import battlecode.common.Clock;
 import battlecode.common.Direction;
 import battlecode.common.GameActionException;
 import battlecode.common.GameConstants;
@@ -135,6 +136,17 @@ public abstract class RobotBase {
     public abstract void run() throws GameActionException;
 
     protected abstract Vector calculateInfluence() throws GameActionException;
+
+    protected Vector repelFromMapEdges() throws GameActionException {
+        Vector movement = new Vector();
+//        Direction[] compass = {Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST};
+//        for (Direction dir : compass) {
+//            if (!robotController.onTheMap(robotController.getLocation().add(dir, robotController.getType().sensorRadius*.95f))) {
+//                movement = movement.add(new Vector(dir.opposite(), robotController.getType().strideRadius));
+//            }
+//        }
+        return movement;
+    }
 
     protected Vector dodgeBullets(BulletInfo[] bullets) throws GameActionException {
         Vector movement = new Vector();
@@ -391,59 +403,90 @@ public abstract class RobotBase {
 //        return new Vector(robotController.getLocation().directionTo(intersection), robotController.getLocation().distanceTo(intersection));
 //    }
 
-    private boolean hasLineOfSight(BodyInfo target) throws GameActionException {
+    protected boolean hasLineOfSight(BodyInfo target) throws GameActionException {
         return hasLineOfSight(target, false, false, false);
     }
 
     //todo: check for line of sight to any of target, not just target's location/center
     //todo: but also improve efficiency because calling this often quickly maxes out bytecode use
-    private boolean hasLineOfSight(BodyInfo target, boolean returnValueIfTargetNotInRange, boolean ignoreTrees, boolean ignoreRobots) throws GameActionException {
+    protected boolean hasLineOfSight(BodyInfo target, boolean returnValueIfTargetNotInRange, boolean ignoreTrees, boolean ignoreRobots) throws GameActionException {
         if ((robotController.getLocation().distanceTo(target.getLocation()) - robotController.getType().bodyRadius - target.getRadius())
                 <= GameConstants.BULLET_SPAWN_OFFSET) {
             return true;
         }
-        boolean targetDetected = false;
-        BodyInfo[][] arrays = {sensedTrees, sensedRobots};
-        for (BodyInfo[] array : arrays) {
-            if (ignoreTrees) {
-                continue;
+
+        Direction direction = robotController.getLocation().directionTo(target.getLocation());
+        float distance = 1;
+        MapLocation location = robotController.getLocation()
+                .add(direction, robotController.getType().bodyRadius + distance * .5f);
+        float startingBytecode = Clock.getBytecodesLeft();
+        do {
+            if (location.distanceTo(target.getLocation()) - target.getRadius() < distance) {
+                return true;
             }
-            for (BodyInfo thing : array) {
-                if (thing.getID() == target.getID()) {
-                    targetDetected = true;
-                    continue;
-                } else if (robotController.getID() == thing.getID()) {
-                    continue;
-                } else if (ignoreRobots && thing.isRobot()) {
-                    break;
-                }
-                float theta1 = robotController.getLocation().directionTo(target.getLocation())
-                        .radiansBetween(robotController.getLocation().directionTo(thing.getLocation()));
-                float theta2 = target.getLocation().directionTo(robotController.getLocation())
-                        .radiansBetween(target.getLocation().directionTo(thing.getLocation()));
-                // If theta > /*90*/ 100 degrees, then the thing is not between the two us and we can skip processing it
-                float limit = (float) Math.PI / 1.8f;
-                if (Math.abs(theta1) > limit || Math.abs(theta2) > limit) {
-                    continue;
-                }
-                if (distanceToIntersection(robotController.getLocation(), target.getLocation(), thing.getLocation()) < thing.getRadius() * 1.1) {
-                    robotController.setIndicatorDot(thing.getLocation(), 0, 0, 0);
-                    robotController.setIndicatorLine(thing.getLocation(), target.getLocation(), 42, 42, 42);
+            if (ignoreRobots && ignoreTrees) {
+                return (robotController.getLocation().distanceTo(target.getLocation()) <
+                        (target.isBullet()
+                                ? robotController.getType().bulletSightRadius
+                                : robotController.getType().sensorRadius))
+                        || returnValueIfTargetNotInRange;
+            } else if (ignoreRobots) {
+                if (robotController.isLocationOccupiedByTree(location)) {
                     return false;
                 }
+                robotController.setIndicatorDot(location, 42, 42, 200);
+            } else if (ignoreTrees) {
+                if (robotController.isLocationOccupiedByRobot(location)) {
+                    return false;
+                }
+                robotController.setIndicatorDot(location, 42, 200, 42);
+            } else if (robotController.isLocationOccupied(location)) {
+                robotController.setIndicatorDot(location, 200, 42, 42);
+                return false;
+            } else {
+                robotController.setIndicatorDot(location, 42, 42, 42);
             }
-        }
-        return targetDetected || returnValueIfTargetNotInRange;
-    }
+            location = location.add(direction, distance);
+            if (!robotController.canSenseLocation(location)) {
+                return returnValueIfTargetNotInRange;
+            }
+        } while (startingBytecode - Clock.getBytecodesLeft() < 300);
+        return true;
 
-    //mason put this back in because he doesn't know what will happen
-    protected boolean checkLineOfSight(BodyInfo robot) throws GameActionException {
-        if (hasLineOfSight(robot)){
-            return true;
-        }
-        else {
-            return false;
-        }
+
+
+//        boolean targetDetected = false;
+//        BodyInfo[][] arrays = {sensedTrees, sensedRobots};
+//        for (BodyInfo[] array : arrays) {
+//            if (ignoreTrees) {
+//                continue;
+//            }
+//            for (BodyInfo thing : array) {
+//                if (thing.getID() == target.getID()) {
+//                    targetDetected = true;
+//                    continue;
+//                } else if (robotController.getID() == thing.getID()) {
+//                    continue;
+//                } else if (ignoreRobots && thing.isRobot()) {
+//                    break;
+//                }
+//                float theta1 = robotController.getLocation().directionTo(target.getLocation())
+//                        .radiansBetween(robotController.getLocation().directionTo(thing.getLocation()));
+//                float theta2 = target.getLocation().directionTo(robotController.getLocation())
+//                        .radiansBetween(target.getLocation().directionTo(thing.getLocation()));
+//                // If theta > /*90*/ 100 degrees, then the thing is not between the two us and we can skip processing it
+//                float limit = (float) Math.PI / 1.8f;
+//                if (Math.abs(theta1) > limit || Math.abs(theta2) > limit) {
+//                    continue;
+//                }
+//                if (distanceToIntersection(robotController.getLocation(), target.getLocation(), thing.getLocation()) < thing.getRadius() * 1.1) {
+//                    robotController.setIndicatorDot(thing.getLocation(), 0, 0, 0);
+//                    robotController.setIndicatorLine(thing.getLocation(), target.getLocation(), 42, 42, 42);
+//                    return false;
+//                }
+//            }
+//        }
+//        return targetDetected || returnValueIfTargetNotInRange;
     }
 
     //private boolean obstructsLineOfSight(BodyInfo target, BodyInfo thing) {
@@ -470,11 +513,26 @@ public abstract class RobotBase {
     //}
 
     protected boolean attackClosestEnemy() throws GameActionException {
+        return attackClosestEnemy(RobotType.values());
+    }
+
+    protected boolean attackClosestEnemy(RobotType[] attackTypes) throws GameActionException {
         if (robotController.hasAttacked()) {
             return false;
         }
         float angle, distance;
+        boolean skip;
         for (RobotInfo robot : sensedRobots) {
+            skip = true;
+            for (RobotType attackType : attackTypes) {
+                if (attackType.equals(robot.getType())) {
+                    skip = false;
+                    break;
+                }
+            }
+            if (skip) {
+                continue;
+            }
             if (robotController.getTeam().opponent().equals(robot.getTeam()) && hasLineOfSight(robot)) {
                 if (robotController.canFirePentadShot() || robotController.canFireTriadShot()) {
                     distance = robotController.getLocation().distanceTo(robot.getLocation());
@@ -587,7 +645,8 @@ public abstract class RobotBase {
         //maybe NE and SE as well, leaving west open for building units
         return false;
     }
-    protected void maintain() {
+    protected void maintain() throws GameActionException {
+        //todo: stop sensing! use sensed trees and break on first one farther away than this limit
         TreeInfo[] trees = robotController.senseNearbyTrees(2f, robotController.getTeam());
 
         if(trees.length>0){
@@ -604,11 +663,7 @@ public abstract class RobotBase {
             }
 
             if(lowest!=null && robotController.canWater(lowest.getID())){
-                try {
-                    robotController.water(lowest.getID());
-                } catch (GameActionException e) {
-
-                }
+                robotController.water(lowest.getID());
             }
         }
     }

@@ -101,7 +101,7 @@ public class Archon extends RobotBase {
         movement.add(getInfluenceFromTreesWithBullets(sensedTrees));
         movement.add(getInfluenceFromTrees(sensedTrees));
         movement.add(dodgeBullets(sensedBullets));
-        //todo: repel from the map's edges too
+        movement.add(repelFromMapEdges());
         outputInfluenceDebugging("Total influence", movement);
         return movement;
     }

@@ -28,6 +28,7 @@ public class Gardener extends RobotBase {
 
     @Override
     public void run() throws GameActionException {
+        maintain(); //TreeInfo[] trees = robotController.senseNearbyTrees(2f, robotController.getTeam());
         //Handle movement
         if (!Glock) { // only perform movement when not in gardening mode
             Vector movement = calculateInfluence();
@@ -92,14 +93,17 @@ public class Gardener extends RobotBase {
 //            robotController.buildRobot(RobotType.TANK, dir);
 //        }
 
-        for (TreeInfo tree : sensedTrees) {
-            if (robotController.getTeam().equals(tree.getTeam())
-                    && tree.getHealth() < .8 * tree.getMaxHealth()
-                    && robotController.canWater(tree.getLocation())) {
-                robotController.water(tree.getLocation());
-                break;
-            }
-        }
+//        for (TreeInfo tree : sensedTrees) {
+//            if (robotController.getTeam().equals(tree.getTeam())
+//                    && tree.getHealth() < .8 * tree.getMaxHealth()
+//                    && robotController.canWater(tree.getLocation())) {
+//                robotController.water(tree.getLocation());
+//                break;
+//            }
+//        }
+
+
+
     }
 
     @Override
@@ -149,3 +153,4 @@ public class Gardener extends RobotBase {
         return movement;
     }
 }
+

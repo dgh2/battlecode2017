@@ -587,6 +587,30 @@ public abstract class RobotBase {
         //maybe NE and SE as well, leaving west open for building units
         return false;
     }
+    protected void maintain() {
+        TreeInfo[] trees = robotController.senseNearbyTrees(2f, robotController.getTeam());
 
+        if(trees.length>0){
+            //find lowest tree
+            TreeInfo lowest = null;
+            for(TreeInfo checkTree : trees){
+
+                if(lowest == null && robotController.canWater(checkTree.getID())){
+                    lowest = checkTree;
+                } else if(lowest.getHealth()>checkTree.getHealth() && robotController.canWater(checkTree.getID())){
+                    lowest = checkTree;
+                }
+
+            }
+
+            if(lowest!=null && robotController.canWater(lowest.getID())){
+                try {
+                    robotController.water(lowest.getID());
+                } catch (GameActionException e) {
+
+                }
+            }
+        }
+    }
 
 }

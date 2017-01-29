@@ -85,8 +85,8 @@ public class Boid{
 		}
 		
 		UnitVector moveDir = new UnitVector(dir);
-		
-		rc.setIndicatorLine(rc.getLocation(), rc.getLocation().translate(moveDir.dx, moveDir.dy), 0, 255, 0);
+
+//		rc.setIndicatorLine(rc.getLocation(), rc.getLocation().translate(moveDir.dx, moveDir.dy), 0, 255, 0);
 		
 		this.addForce(moveDir, magnitude);
 	}
@@ -112,8 +112,6 @@ public class Boid{
 		
 	}
 	
-	public enum Dir{LEFT,RIGHT}
-	
 	public void applyPerpendicular(Dir direction){
 		try{
 			float strideLength = getAdjustedMagnitude();
@@ -134,16 +132,15 @@ public class Boid{
 			}
 		} catch (GameActionException e) {
 			e.printStackTrace();
-		}	
+		}
 	}
-	
 	
 	/**
 	 * The cumulative vector stored is actually the summation of a bunch of unit vectors (effectively).
-	 * In order to decompose that into a single vector of magnitude =<1, we divide it by the number of 
+	 * In order to decompose that into a single vector of magnitude =<1, we divide it by the number of
 	 * forces have affected it.
-	 * 
-	 * After we have a vector with a magnitude between 1 and 0, we scale this to match the robot's stride radius 
+	 *
+	 * After we have a vector with a magnitude between 1 and 0, we scale this to match the robot's stride radius
 	 * so that we end up with a direction and a percentage of the robot's available movement speed.
 	 * @return
 	 */
@@ -161,5 +158,7 @@ public class Boid{
 	public float getMagnitude(){
 		return cumulative.getMagnitude();
 	}
+
+	public enum Dir {LEFT, RIGHT}
 
 }

@@ -46,9 +46,9 @@ public class BulletResponse {
 			UnitVector dodgeDirection = new UnitVector(directionToCraft.rotateLeftDegrees(90));
 			int dodgePower = (int) (antiBullet / distance);
 			controller.addForce(dodgeDirection , dodgePower);
-			controller.rc.setIndicatorLine(controller.rc.getLocation(),
-					controller.rc.getLocation().add(dodgeDirection.getDirection(), dodgePower/10)
-					,  255, 0, 0);
+//			controller.rc.setIndicatorLine(controller.rc.getLocation(),
+//					controller.rc.getLocation().add(dodgeDirection.getDirection(), dodgePower/10)
+//					,  255, 0, 0);
 		}
 		
 		

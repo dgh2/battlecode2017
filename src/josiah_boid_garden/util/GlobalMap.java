@@ -7,33 +7,25 @@ public class GlobalMap {
 	private static final int MapOffset = 1000;
 	
 	private static final float gridSize = 4.0f;
-	private static int xDivisions,yDivisions;
-	
 	private static final int headerOffset = 3000;
-	
-	
-	
-	
 	private static final int dataPackageSize = 4;
 	private static final int forestationDataOffset = 0;
 	private static final int otherDataOffset1 = 1;
 	private static final int otherDataOffset2 = 2;
 	private static final int otherDataOffset3 = 3;
-	
-	private boolean westAcquired, eastAcquired,
-					northAcquired , southAcquired,
-					widthAcquired, heightAcquired,
-					offsetAcquired , dimensionsAcquired;
-	private float xOffset,yOffset,width,height;
-	MapArray mapArray;
-	
 	//header data
 	private static final int leftMostIndex = headerOffset + 1;
 	private static final int rightMostIndex = leftMostIndex + 1;
 	private static final int bottomIndex = rightMostIndex + 1;
 	private static final int topIndex = bottomIndex + 1;
-	
 	private static final int MapArrayOffset =topIndex+1 ;
+	private static int xDivisions, yDivisions;
+	MapArray mapArray;
+	private boolean westAcquired, eastAcquired,
+			northAcquired, southAcquired,
+			widthAcquired, heightAcquired,
+			offsetAcquired, dimensionsAcquired;
+	private float xOffset, yOffset, width, height;
 	public GlobalMap(MapArray rc){
 		widthAcquired=false;
 		heightAcquired=false;
@@ -116,7 +108,7 @@ public class GlobalMap {
 	
 	/**
 	 * set left most point of map
-	 * @param width
+	 * @param left
 	 */
 	public void setWestBound(float left){
 		if(! westAcquired){
@@ -303,6 +295,8 @@ public class GlobalMap {
 	}
 	
 	class MapIndex{
+
+		public int x, y;
 		
 		public MapIndex(){
 			x=y=0;
@@ -316,15 +310,11 @@ public class GlobalMap {
 		public MapIndex(MapLocation location){
 			this( getXIndex(location.x) , getYIndex(location.y) );
 		}
-		
+
+
 		public MapIndex(MapIndex rhs){
 			this.x = rhs.x;
 			this.y= rhs.y;
 		}
-		
-		
-		
-		
-		public int x , y;
 	}
 }

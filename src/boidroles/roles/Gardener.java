@@ -17,13 +17,14 @@ public class Gardener extends RobotBase {
 
     //variables for garden making
     private boolean Glock = false;
-    private boolean JustSpawned = true;
+//    private boolean JustSpawned = true;
 
     public Gardener(RobotController robotController) {
         super(robotController);
     }
 
 //    private TreeInfo[] neutralTrees;
+    float speed;
 
     @Override
     public void run() throws GameActionException {
@@ -32,7 +33,8 @@ public class Gardener extends RobotBase {
             Vector movement = calculateInfluence();
             robotController.setIndicatorLine(robotController.getLocation(),
                     robotController.getLocation().translate(movement.dx, movement.dy), 255, 255, 255);
-            tryMove(movement.getDirection(), movement.getDistance());
+            speed = movement.getDistance();
+            tryMove(movement.getDirection(), speed);
         }
 
         //Handle actions
@@ -61,7 +63,8 @@ public class Gardener extends RobotBase {
             robotController.buildRobot(RobotType.SCOUT, dir); // maybe 3 turns to build a scout or two or three lol
         }
         //trees!! need those haha
-        if(robotController.getRoundNum() > 3 && robotController.getRoundNum() <= 20) { // 16 turns hoping to build a tree
+        if(robotController.getRoundNum() > 3 && speed < 0.5) { // we might have built a scout by now and we have stopped running away from things
+            System.out.println("Trying to build a garden");
             if (plantGarden1()){
                 Glock = true; //if planting was sucessful, lock us in this position. maybe later check if all trees r dead
             }

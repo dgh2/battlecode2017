@@ -41,18 +41,14 @@ public class BulletResponse {
 		float degreesBetween =  bullet.getDir().degreesBetween( directionToCraft );
 
 		double maxAngle = Math.tan( controller.rc.getType().bodyRadius /  distance);
-	
 		
-		
-		if(degreesBetween < maxAngle*2 && degreesBetween> -maxAngle*2){
-			
+		if(degreesBetween < maxAngle*2 && degreesBetween> -maxAngle*2){	
 			UnitVector dodgeDirection = new UnitVector(directionToCraft.rotateLeftDegrees(90));
 			int dodgePower = (int) (antiBullet / distance);
 			controller.addForce(dodgeDirection , dodgePower);
 			controller.rc.setIndicatorLine(controller.rc.getLocation(),
 					controller.rc.getLocation().add(dodgeDirection.getDirection(), dodgePower/10)
 					,  255, 0, 0);
-			
 		}
 		
 		

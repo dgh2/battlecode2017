@@ -25,7 +25,6 @@ public class BulletResponse {
 	public void run(BulletInfo[] robots ){
 		
 		int timeout = Clock.getBytecodeNum() + calculationTime;
-		
 		for(int i = 0 ; i<robots.length; i++){
 			respond ( base , robots[i]) ;
 			//limit calculation time

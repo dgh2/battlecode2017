@@ -71,7 +71,7 @@ public class Gardener extends RobotBase {
             }
         }
         //defence!?
-        if(robotController.getRoundNum() > 10 && robotController.getRoundNum() <= 45 && robotController.canBuildRobot(RobotType.LUMBERJACK, dir) && robotController.isBuildReady()) { // 15 turns hoping to build a lumberjack
+        if(robotController.getRoundNum() > 10 && robotController.getRoundNum() <= 120 && robotController.canBuildRobot(RobotType.LUMBERJACK, dir) && robotController.isBuildReady()) { // 15 turns hoping to build a lumberjack
             robotController.buildRobot(RobotType.LUMBERJACK, dir);
         }
 
@@ -93,9 +93,9 @@ public class Gardener extends RobotBase {
         }
 
         //chop down forrest - if you see a neutral tree, make a lumberjack
-//        if(sensedTrees.length > 0) {
-//            robotController.buildRobot(RobotType.LUMBERJACK, Direction.WEST);
-//        }
+        if(sensedTrees.length > 0) {
+            robotController.buildRobot(RobotType.LUMBERJACK, Direction.WEST);
+        }
 
 //        for (TreeInfo tree : sensedTrees) {
 //            if (robotController.getTeam().equals(tree.getTeam())

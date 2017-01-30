@@ -135,7 +135,7 @@ public class Lumberjack extends RobotBase {
 //                    .scale(getInverseScalingUntested(tree.getLocation())));
             outputInfluenceDebugging("Lumberjack robot + tree influence", tree, movement);
         }
-        movement.add(getInfluenceFromInitialEnemyArchonLocations(true, .2f));
+        movement.add(getInfluenceFromInitialEnemyArchonLocations(true, .4f));
         movement.add(getInfluenceFromTreesWithBullets(sensedTrees));
 //        movement.add(getInfluenceFromTrees(sensedTrees));
         //todo: stay away from our own bullet trees

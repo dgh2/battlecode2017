@@ -41,7 +41,7 @@ public class Archon extends RobotBase {
         }
 
         // Build a gardener on the first turn possible! even if that's "zero"
-        if(robotController.getRoundNum() <=10) {
+        if(robotController.getRoundNum() <=45) {
                 if(robotController.canHireGardener(Direction.NORTH)) {
                     robotController.hireGardener(Direction.NORTH);
                 }
@@ -56,22 +56,20 @@ public class Archon extends RobotBase {
         }
 
 
-
-        // Randomly attempt to build a Gardener in this direction
-        if (Math.random() < .75 && robotController.getTeamBullets() > 500) {
-            if(robotController.canHireGardener(Direction.NORTH)) {
-                robotController.hireGardener(Direction.NORTH);
+        if(robotController.getRoundNum() > 150) {
+            // Randomly attempt to build a Gardener in this direction
+            if (Math.random() < .75 && robotController.getTeamBullets() > 500) {
+                if (robotController.canHireGardener(Direction.NORTH)) {
+                    robotController.hireGardener(Direction.NORTH);
+                } else if (robotController.canHireGardener(Direction.EAST)) {
+                    robotController.hireGardener(Direction.EAST);
+                } else if (robotController.canHireGardener(Direction.SOUTH)) {
+                    robotController.hireGardener(Direction.SOUTH);
+                }
+            } else if (robotController.canHireGardener(dir)) {
+                robotController.hireGardener(dir);
             }
-            else if (robotController.canHireGardener(Direction.EAST)) {
-                robotController.hireGardener(Direction.EAST);
-            }
-            else if (robotController.canHireGardener(Direction.SOUTH)) {
-                robotController.hireGardener(Direction.SOUTH);
-            }
-        } else if (robotController.canHireGardener(dir)) {
-            robotController.hireGardener(dir);
         }
-
 
     }
 
@@ -97,7 +95,7 @@ public class Archon extends RobotBase {
             }
             outputInfluenceDebugging("Robot influence", robot, movement);
         }
-        movement.add(getInfluenceFromInitialEnemyArchonLocations(true, 1));
+        movement.add(getInfluenceFromInitialEnemyArchonLocations(true, 0.5f));
         movement.add(getInfluenceFromTreesWithBullets(sensedTrees));
         movement.add(getInfluenceFromTrees(sensedTrees));
         movement.add(dodgeBullets(sensedBullets));

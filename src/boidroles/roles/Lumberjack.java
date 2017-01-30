@@ -116,7 +116,7 @@ public class Lumberjack extends RobotBase {
                         robotController.getType().strideRadius * 3f)
                         .scale(getInverseScaling(robot.getLocation())));
             }
-            if (RobotType.LUMBERJACK.equals(robot.getType())) {
+            if (RobotType.LUMBERJACK.equals(robot.getType()) && robotController.getTeam().equals(robot.getTeam())) {
                 movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()).opposite(),
                         robotController.getType().strideRadius * 2f).scale(getInverseScaling(robot.getLocation())));
             }

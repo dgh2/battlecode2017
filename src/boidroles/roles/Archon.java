@@ -97,7 +97,7 @@ public class Archon extends RobotBase {
             }
             outputInfluenceDebugging("Robot influence", robot, movement);
         }
-        movement.add(getInfluenceFromInitialEnemyArchonLocations(false, 1));
+        movement.add(getInfluenceFromInitialEnemyArchonLocations(true, 1));
         movement.add(getInfluenceFromTreesWithBullets(sensedTrees));
         movement.add(getInfluenceFromTrees(sensedTrees));
         movement.add(dodgeBullets(sensedBullets));

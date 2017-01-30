@@ -237,7 +237,9 @@ public abstract class RobotBase {
             robotController.donate(robotController.getTeamBullets());
         }
         if (robotController.getTeamBullets() > 500f) { //don't amass bullets once u have enough for a tank and some activity
-            robotController.donate(robotController.getTeamBullets() - 500f);
+            float num = buyVP((robotController.getTeamBullets() - 500f));
+            robotController.donate(num);
+            System.out.println("donated: " + num + " factor: " + ((robotController.getRoundNum() *12.5f ) / 3000f ));
         }
         if (robotController.getRoundNum() > 100 && robotController.getTeamBullets() > 150) { //buy some while they are cheap
             robotController.donate(getDonationQty(1));
@@ -250,6 +252,12 @@ public abstract class RobotBase {
 //        vpCost = robotController.getTeamBullets() / vpCost;
 //        return vpCost;
 //    }
+
+    protected float buyVP( float availBullets) throws GameActionException {
+        float factor = (robotController.getRoundNum() *12.5f ) / 3000f;
+        float remainder = availBullets % factor;
+        return (availBullets - remainder);
+    }
 
     protected float getDonationQty( float desiredVP )  {
         //1 victory point = 7.5 bullets + (round)*12.5 / 3000

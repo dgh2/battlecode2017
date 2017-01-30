@@ -258,16 +258,16 @@ public abstract class RobotBase {
         detectArchons();
         //markIncoming();
         if (robotController.getType().equals(RobotType.ARCHON)){
-            if (robotController.getTeamBullets() >
-                    getDonationQty(GameConstants.VICTORY_POINTS_TO_WIN - robotController.getTeamBullets())) {
-                //robotController.donate(robotController.getTeamBullets());
-            }
+//            if (robotController.getTeamBullets() >
+//                    getDonationQty(GameConstants.VICTORY_POINTS_TO_WIN - robotController.getTeamBullets())) {
+//                //robotController.donate(robotController.getTeamBullets());
+//            }
             if (robotController.getTeamBullets() > 500f) { //don't amass bullets once u have enough for a tank and some activity
                 float num = buyVP((robotController.getTeamBullets() - 500f));
                 robotController.donate(num);
                 System.out.println("donated: " + num + " factor: " + ((robotController.getRoundNum() *12.5f ) / 3000f ));
             }
-            if (robotController.getRoundNum() > 100 && robotController.getTeamBullets() > 150) { //buy some while they are cheap
+            if (robotController.getRoundNum() < 100 && robotController.getTeamBullets() > 150) { //buy some while they are cheap
                 robotController.donate(getDonationQty(1));
             }
         }

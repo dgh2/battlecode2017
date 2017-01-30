@@ -2,14 +2,11 @@ package boidroles.roles;
 
 import battlecode.common.Direction;
 import battlecode.common.GameActionException;
-import battlecode.common.MapLocation;
 import battlecode.common.RobotController;
 import battlecode.common.RobotInfo;
 import battlecode.common.RobotType;
 import boidroles.util.RobotBase;
 import boidroles.util.Vector;
-
-import static boidroles.util.Util.randomDirection;
 
 public class Scout extends RobotBase {
 //    private MapLocation previousLocation = null;

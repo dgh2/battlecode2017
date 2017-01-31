@@ -131,8 +131,8 @@ public class Lumberjack extends RobotBase {
         }
         movement.add(getInfluenceFromInitialEnemyArchonLocations(true, .4f));
         movement.add(dodgeBullets(sensedBullets));
-        movement.add(repelFromMapEdges());
-        movement.add(repelFromPreviousPoint());
+        movement.add(repelFromMapEdges(2f));
+        movement.add(repelFromPreviousPoint(1f));
         outputInfluenceDebugging("Lumberjack total influence", movement);
         return movement;
     }

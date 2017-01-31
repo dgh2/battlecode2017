@@ -47,8 +47,8 @@ public class Tank extends RobotBase {
         movement.add(getInfluenceFromTreesWithBullets(sensedTrees));
 //        movement.add(getInfluenceFromTrees(sensedTrees));
         movement.add(dodgeBullets(sensedBullets));
-        movement.add(repelFromMapEdges());
-        movement.add(repelFromPreviousPoint());
+        movement.add(repelFromMapEdges(2f));
+        movement.add(repelFromPreviousPoint(2f));
         outputInfluenceDebugging("Tank total influence", movement);
         return movement;
     }

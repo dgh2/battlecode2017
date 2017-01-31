@@ -71,18 +71,18 @@ public class Gardener extends RobotBase {
             robotController.buildRobot(RobotType.SCOUT, dir); // maybe 3 turns to build a scout or two or three lol
         }
         //trees!! need those haha
-        if(robotController.getRoundNum() > 3 && speed < 1) { // we might have built a scout by now and we have stopped running away from things
+        if(robotController.getRoundNum() > 3 && speed < 0.5) { // we might have built a scout by now and we have stopped running away from things
             System.out.println("Trying to build a garden");
-            if (plantGarden1()){
-                Glock = true; //if planting was sucessful, lock us in this position. maybe later check if all trees r dead
-            }
+//            if (plantGarden1()){
+//                Glock = true; //if planting was sucessful, lock us in this position. maybe later check if all trees r dead
+//            }
 
             //plant trees, if
-            //formation = new Formation(robotController,new Direction( start , this.robotController.getLocation()), Formation.Form.C);
-//            formation.plant();
-//            if(formation.hasPlanted()) {
-//                Glock = true;
-//            }
+            formation = new Formation(robotController, dir, Formation.Form.C);
+            formation.plant();
+            if(formation.hasPlanted()) {
+                Glock = true;
+            }
 
 
         }
@@ -154,7 +154,7 @@ public class Gardener extends RobotBase {
 //        movement.add(getInfluenceFromTreesWithBullets(sensedTrees));
 //        movement.add(getInfluenceAwayFromTrees(sensedTrees));
         movement.add(dodgeBullets(sensedBullets));
-        movement.add(repelFromMapEdges(1f));
+        movement.add(repelFromMapEdges(2f));
         outputInfluenceDebugging("Gardener total influence", movement);
         return movement;
     }

@@ -15,6 +15,10 @@ public class Vector {
         this.dy = dy;
     }
 
+    public Vector(Direction direction) {
+        this(direction, 1);
+    }
+
     public Vector(Direction direction, float distance) {
         this(direction.getDeltaX(distance), direction.getDeltaY(distance));
     }
@@ -25,11 +29,35 @@ public class Vector {
         return this;
     }
 
-    public Vector scale(float scale) {
+    public Vector subtract(Vector vector) {
+        dx -= vector.dx;
+        dy -= vector.dy;
+        return this;
+    }
+
+    public Vector opposite() {
+        dx = -dx;
+        dy = -dy;
+        return this;
+    }
+
+    public Vector normalize(float maxRadius) {
         Direction direction = getDirection();
-        float scaledDistance = getDistance() * scale;
-        dx = direction.getDeltaX(scaledDistance);
-        dy = direction.getDeltaY(scaledDistance);
+        float normalizedDistance = getDistance() / maxRadius;
+        dx = direction.getDeltaX(normalizedDistance);
+        dx = direction.getDeltaX(normalizedDistance);
+        return this;
+    }
+
+    public Vector scale(float scale) {
+        dx *= scale;
+        dy *= scale;
+        return this;
+    }
+
+    public Vector inverseScale(float scale) {
+        dx /= scale;
+        dy /= scale;
         return this;
     }
 

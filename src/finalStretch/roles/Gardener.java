@@ -17,13 +17,15 @@ public class Gardener extends RobotBase {
 
     //variables for garden making
     private boolean Glock = false;
-    Maintainer maintainer;
+
+    Maintainer maintainer; //need this
     Formation formation;
+
 //    private boolean JustSpawned = true;
 
     public Gardener(RobotController robotController) {
         super(robotController);
-        maintainer = new Maintainer(robotController);
+        maintainer = new Maintainer(robotController); //need this
         formation = new Formation(robotController, Math.random() < .5 ? Direction.SOUTH : Direction.NORTH, Formation.Form.C);
     }
 
@@ -33,7 +35,7 @@ public class Gardener extends RobotBase {
     @Override
     public void run() throws GameActionException {
 
-        maintainer = new Maintainer(this.robotController);
+        maintainer = new Maintainer(this.robotController); //need this
         maintainer.maintain(); //josiah's maintain code
 
         //Handle movement
@@ -78,7 +80,7 @@ public class Gardener extends RobotBase {
 //            }
 
             //plant trees, if
-            formation = new Formation(robotController, dir, Formation.Form.C);
+            formation = new Formation(robotController, dir, Formation.Form.C); //need this
             formation.plant();
             if(formation.hasPlanted()) {
                 Glock = true;

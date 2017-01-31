@@ -51,8 +51,9 @@ public class Archon extends RobotBase {
                 else if (robotController.canHireGardener(Direction.SOUTH)) {
                     robotController.hireGardener(Direction.SOUTH);
                 }
-            } else if (robotController.canHireGardener(dir)) {
+             else if (robotController.canHireGardener(dir)) {
                 robotController.hireGardener(dir);
+            }
         }
 
 

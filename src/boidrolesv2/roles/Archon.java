@@ -47,22 +47,37 @@ public class Archon extends RobotBase {
                 else if (robotController.canHireGardener(Direction.SOUTH)) {
                     robotController.hireGardener(Direction.SOUTH);
                 }
-            } else if (robotController.canHireGardener(dir)) {
-                robotController.hireGardener(dir);
+             else if (robotController.canHireGardener(dir)) {
+                    robotController.hireGardener(dir);
+                }
         }
 
+        if(robotController.getRoundNum() > 45 && Math.random() < .4) {
+            if(robotController.canHireGardener(Direction.NORTH)) {
+                robotController.hireGardener(Direction.NORTH);
+            }
+            else if (robotController.canHireGardener(Direction.EAST)) {
+                robotController.hireGardener(Direction.EAST);
+            }
+            else if (robotController.canHireGardener(Direction.SOUTH)) {
+                robotController.hireGardener(Direction.SOUTH);
+            }
+            else if (robotController.canHireGardener(dir)) {
+                robotController.hireGardener(dir);
+            }
+        }
 
-        if(robotController.getRoundNum() > 150 && robotController.getTeamBullets() > 155f) {
-            // Randomly attempt to build a Gardener in this direction
-            if (Math.random() < .4 && robotController.getTeamBullets() > 500) {
-                if (robotController.canHireGardener(Direction.NORTH)) {
-                    robotController.hireGardener(Direction.NORTH);
-                } else if (robotController.canHireGardener(Direction.EAST)) {
-                    robotController.hireGardener(Direction.EAST);
-                } else if (robotController.canHireGardener(Direction.SOUTH)) {
-                    robotController.hireGardener(Direction.SOUTH);
-                }
-            } else if (robotController.canHireGardener(dir)) {
+        if(robotController.getRoundNum() > 500 && Math.random() < .4 && robotController.getTeamBullets() > 500f) {
+            if(robotController.canHireGardener(Direction.NORTH)) {
+                robotController.hireGardener(Direction.NORTH);
+            }
+            else if (robotController.canHireGardener(Direction.EAST)) {
+                robotController.hireGardener(Direction.EAST);
+            }
+            else if (robotController.canHireGardener(Direction.SOUTH)) {
+                robotController.hireGardener(Direction.SOUTH);
+            }
+            else if (robotController.canHireGardener(dir)) {
                 robotController.hireGardener(dir);
             }
         }

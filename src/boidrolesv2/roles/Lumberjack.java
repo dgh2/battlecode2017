@@ -151,7 +151,7 @@ public class Lumberjack extends RobotBase {
         movement.add(getInfluenceFromTreesWithBullets(sensedTrees));
 //        movement.add(getInfluenceFromTrees(sensedTrees));
         //todo: stay away from our own bullet trees
-        movement.add(dodgeBullets(sensedBullets));
+//        movement.add(dodgeBullets(sensedBullets));
         movement.add(repelFromMapEdges(1f));
         outputInfluenceDebugging("Lumberjack total influence", movement);
         return movement;

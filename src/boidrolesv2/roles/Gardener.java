@@ -3,7 +3,9 @@ package boidrolesv2.roles;
 import battlecode.common.*;
 import boidrolesv2.util.RobotBase;
 import boidrolesv2.util.Vector;
-import finalStretch.util.InformationStack;
+import boidrolesv2.gardening.Formation;
+import boidrolesv2.gardening.Maintainer;
+import boidrolesv2.util.InformationStack;
 
 import static rolesplayer.util.Util.randomDirection;
 
@@ -13,6 +15,8 @@ public class Gardener extends RobotBase {
     //variables for garden making
     private boolean Glock = false;
 //    private boolean JustSpawned = true;
+Maintainer maintainer; //need this
+    Formation formation;
 
     InformationStack stack; //need this
     MapLocation readEnemy;
@@ -20,6 +24,8 @@ public class Gardener extends RobotBase {
     public Gardener(RobotController robotController) {
         super(robotController);
         stack = new InformationStack(this.robotController); //need this
+        maintainer = new Maintainer(robotController); //need this
+        formation = new Formation(robotController, Math.random() < .5 ? Direction.SOUTH : Direction.NORTH, Formation.Form.C);
     }
 
 //    private TreeInfo[] neutralTrees;
@@ -27,7 +33,9 @@ public class Gardener extends RobotBase {
 
     @Override
     public void run() throws GameActionException {
-        maintain(); //TreeInfo[] trees = robotController.senseNearbyTrees(2f, robotController.getTeam());
+//        maintain(); //TreeInfo[] trees = robotController.senseNearbyTrees(2f, robotController.getTeam());
+        maintainer = new Maintainer(this.robotController); //need this
+        maintainer.maintain(); //josiah's maintain code
         //Handle movement
         if (!Glock) { // only perform movement when not in gardening mode
             Vector movement = calculateInfluence();
@@ -70,13 +78,23 @@ public class Gardener extends RobotBase {
         //trees!! need those haha
         if(robotController.getRoundNum() > 3 && speed < 0.5) { // we might have built a scout by now and we have stopped running away from things
             System.out.println("Trying to build a garden");
-            if (plantGarden1()){
-                Glock = true; //if planting was sucessful, lock us in this position. maybe later check if all trees r dead
+//            if (plantGarden1()){
+//                Glock = true; //if planting was sucessful, lock us in this position. maybe later check if all trees r dead
+//            }
+            //plant trees, if
+//            formation = new Formation(robotController, getDirectionToInitialEnemyArchonLocation(), Formation.Form.C); //need this
+            formation = new Formation(robotController, Direction.EAST, Formation.Form.C); //need this
+            formation.plant();
+            if(formation.hasPlanted()) {
+                Glock = true;
             }
         }
         //defence!?
         if(robotController.getRoundNum() > 10 && robotController.getRoundNum() <= 120 && robotController.canBuildRobot(RobotType.LUMBERJACK, dir) && robotController.isBuildReady()) { // 15 turns hoping to build a lumberjack
             robotController.buildRobot(RobotType.LUMBERJACK, dir);
+        }
+        if(Glock) {
+            formation.plant();
         }
 
 

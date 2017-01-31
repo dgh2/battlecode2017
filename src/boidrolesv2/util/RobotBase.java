@@ -203,6 +203,16 @@ public abstract class RobotBase {
         return movement;
     }
 
+    protected Direction getDirectionToInitialEnemyArchonLocation() throws GameActionException {
+        for (MapLocation archonLocation : robotController.getInitialArchonLocations(robotController.getTeam().opponent())) {
+            if(archonLocation != null) {
+                return robotController.getLocation().directionTo(archonLocation);
+            }
+        }
+        return Direction.SOUTH;
+
+    }
+
     protected Vector getInfluenceFromTreesWithBullets(TreeInfo[] trees) throws GameActionException {
         Vector movement = new Vector();
         float initialBytecodesLeft = Clock.getBytecodesLeft();
@@ -409,9 +419,9 @@ public abstract class RobotBase {
                 if (robotController.canFirePentadShot() || robotController.canFireTriadShot()) {
                     distance = robotController.getLocation().distanceTo(robot.getLocation());
                     angle = (float) Math.toDegrees(Math.atan(robot.getType().bodyRadius / distance));
-                    if (angle > 2 * GameConstants.PENTAD_SPREAD_DEGREES && robotController.canFirePentadShot()) {
+                    if (angle + 10F > 2 * GameConstants.PENTAD_SPREAD_DEGREES && robotController.canFirePentadShot()) {
                         robotController.firePentadShot(robotController.getLocation().directionTo(robot.location));
-                    } else if (angle > GameConstants.TRIAD_SPREAD_DEGREES && robotController.canFireTriadShot()) {
+                    } else if (angle + 5F > GameConstants.TRIAD_SPREAD_DEGREES && robotController.canFireTriadShot()) {
                         robotController.fireTriadShot(robotController.getLocation().directionTo(robot.location));
                     } else {
                         robotController.fireSingleShot(robotController.getLocation().directionTo(robot.location));

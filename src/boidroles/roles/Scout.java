@@ -1,18 +1,20 @@
 package boidroles.roles;
 
-import battlecode.common.Direction;
-import battlecode.common.GameActionException;
-import battlecode.common.RobotController;
-import battlecode.common.RobotInfo;
-import battlecode.common.RobotType;
+import battlecode.common.*;
 import boidroles.util.RobotBase;
 import boidroles.util.Vector;
+import finalStretch.util.InformationStack; //need this
+
 
 public class Scout extends RobotBase {
 //    private MapLocation previousLocation = null;
 
+    InformationStack stack; //need this
+    MapLocation readEnemy;
+
     public Scout(RobotController robotController) {
         super(robotController);
+        stack = new InformationStack(this.robotController); //need this
     }
 
     @Override
@@ -29,7 +31,12 @@ public class Scout extends RobotBase {
                 robotController.getLocation().translate(movement.dx, movement.dy), 255, 255, 255);
         tryMove(movement.getDirection(), movement.getDistance());
 
-        //Handle actions
+        //Handle
+        RobotInfo[] enemyRobots = this.robotController.senseNearbyRobots(-1,this.robotController.getTeam().opponent()); //need this
+        if(enemyRobots.length>0){
+            System.out.println("Found robot at "+ enemyRobots[0].getLocation()+ ".Broadcasting it");
+            stack.writeToStack(new MapLocation[]{enemyRobots[0].getLocation()}, 1f);
+        }
 
         // attack closest enemy except archons
         for (RobotInfo robot : sensedRobots) {

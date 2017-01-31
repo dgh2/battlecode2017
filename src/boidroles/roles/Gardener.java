@@ -8,7 +8,7 @@ import battlecode.common.GameActionException;
 import battlecode.common.RobotController;
 import battlecode.common.RobotInfo;
 import battlecode.common.RobotType;
-import battlecode.common.Team;
+import finalStretch.util.InformationStack; //need this
 
 import static rolesplayer.util.Util.randomDirection;
 
@@ -19,8 +19,12 @@ public class Gardener extends RobotBase {
     private boolean Glock = false;
 //    private boolean JustSpawned = true;
 
+    InformationStack stack; //need this
+    MapLocation readEnemy;
+
     public Gardener(RobotController robotController) {
         super(robotController);
+        stack = new InformationStack(this.robotController); //need this
     }
 
 //    private TreeInfo[] neutralTrees;
@@ -39,6 +43,11 @@ public class Gardener extends RobotBase {
         }
 
         //Handle actions
+        RobotInfo[] enemyRobots = this.robotController.senseNearbyRobots(-1,this.robotController.getTeam().opponent()); //need this
+        if(enemyRobots.length>0){
+            System.out.println("Found robot at "+ enemyRobots[0].getLocation()+ ".Broadcasting it");
+            stack.writeToStack(new MapLocation[]{enemyRobots[0].getLocation()}, 1f);
+        }
 
         // Generate a random direction
         Direction dir = randomDirection();

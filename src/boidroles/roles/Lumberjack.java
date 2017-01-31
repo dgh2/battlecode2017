@@ -1,15 +1,9 @@
 package boidroles.roles;
 
-import battlecode.common.BodyInfo;
-import battlecode.common.GameActionException;
-import battlecode.common.GameConstants;
-import battlecode.common.RobotController;
-import battlecode.common.RobotInfo;
-import battlecode.common.RobotType;
-import battlecode.common.Team;
-import battlecode.common.TreeInfo;
+import battlecode.common.*;
 import boidroles.util.RobotBase;
 import boidroles.util.Vector;
+import finalStretch.util.InformationStack; //need this
 
 public class Lumberjack extends RobotBase {
     public static final float STRIKE_RANGE = RobotType.LUMBERJACK.bodyRadius + GameConstants.LUMBERJACK_STRIKE_RADIUS;
@@ -19,8 +13,12 @@ public class Lumberjack extends RobotBase {
     private TreeInfo[] friendlyTrees;
     private TreeInfo[] neutralTrees;
 
+    InformationStack stack; //need this
+    MapLocation readEnemy;
+
     public Lumberjack(RobotController robotController) {
         super(robotController);
+        stack = new InformationStack(this.robotController); //need this
     }
 
     @Override
@@ -62,6 +60,11 @@ public class Lumberjack extends RobotBase {
         tryMove(movement.getDirection(), movement.getDistance());
 
         //Handle actions
+        RobotInfo[] enemyRobots = this.robotController.senseNearbyRobots(-1,this.robotController.getTeam().opponent()); //need this
+        if(enemyRobots.length>0){
+            System.out.println("Found robot at "+ enemyRobots[0].getLocation()+ ".Broadcasting it");
+            stack.writeToStack(new MapLocation[]{enemyRobots[0].getLocation()}, 1f);
+        }
         if (robotController.canStrike()
                 && enemyRobots.length > 0
                 && (enemyRobots.length + enemyTrees.length > friendlyRobots.length)) {
@@ -100,6 +103,15 @@ public class Lumberjack extends RobotBase {
     @Override
     protected Vector calculateInfluence() throws GameActionException {
         Vector movement = new Vector();
+        readEnemy = stack.readFromStack(); //need this
+        if(readEnemy != null) {
+//            System.out.println("Read robot at "+ readEnemy+ ".Rebroadcasting it");
+//            stack.writeToStack(new MapLocation[]{readEnemy}, 0.5f); //lower heuristic?
+        movement.add(new Vector(robotController.getLocation().directionTo(readEnemy),
+                    robotController.getLocation().distanceTo(readEnemy)))
+                    .normalize(robotController.getType().strideRadius)
+                    .scale(robotController.getType().strideRadius);
+        }
         for (RobotInfo robot : sensedRobots) { //todo: continue if id is equal to own id
             if (!robotController.getTeam().equals(robot.getTeam())) {
                 movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()),

@@ -1,16 +1,18 @@
 package boidroles.roles;
 
-import battlecode.common.GameActionException;
-import battlecode.common.RobotController;
-import battlecode.common.RobotInfo;
-import battlecode.common.RobotType;
+import battlecode.common.*;
 import boidroles.util.RobotBase;
 import boidroles.util.Vector;
+import finalStretch.util.InformationStack; //need this
 
 public class Tank extends RobotBase {
     public Tank(RobotController robotController) {
         super(robotController);
+        stack = new InformationStack(this.robotController); //need this
     }
+
+    InformationStack stack; //need this
+    MapLocation readEnemy;
 
     @Override
     public void run() throws GameActionException {
@@ -21,6 +23,11 @@ public class Tank extends RobotBase {
         tryMove(movement.getDirection(), movement.getDistance());
 
         //Handle actions
+        RobotInfo[] enemyRobots = this.robotController.senseNearbyRobots(-1,this.robotController.getTeam().opponent()); //need this
+        if(enemyRobots.length>0){
+            System.out.println("Found robot at "+ enemyRobots[0].getLocation()+ ".Broadcasting it");
+            stack.writeToStack(new MapLocation[]{enemyRobots[0].getLocation()}, 1f);
+        }
 
         attackClosestEnemy();
 //        if (!attackClosestEnemy()) {
@@ -31,6 +38,15 @@ public class Tank extends RobotBase {
     @Override
     protected Vector calculateInfluence() throws GameActionException {
         Vector movement = new Vector();
+        readEnemy = stack.readFromStack(); //need this
+        if(readEnemy != null) {
+//            System.out.println("Read robot at "+ readEnemy+ ".Rebroadcasting it");
+//            stack.writeToStack(new MapLocation[]{readEnemy}, 0.5f); //lower heuristic?
+            movement.add(new Vector(robotController.getLocation().directionTo(readEnemy),
+                    robotController.getLocation().distanceTo(readEnemy)))
+                    .normalize(robotController.getType().strideRadius)
+                    .scale(robotController.getType().strideRadius);
+        }
         for (RobotInfo robot : sensedRobots) {
             if (!robotController.getTeam().equals(robot.getTeam())) {
                 movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()),

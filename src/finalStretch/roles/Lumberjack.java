@@ -109,7 +109,7 @@ public class Lumberjack extends RobotBase {
             movement.add(new Vector(robotController.getLocation().directionTo(readEnemy),
                     robotController.getLocation().distanceTo(readEnemy)))
                     .normalize(robotController.getType().strideRadius)
-                    .scale(robotController.getType().strideRadius);
+                    .scale(robotController.getType().strideRadius * 1.3f);
         }
 //        for (RobotInfo robot : sensedRobots) {
 //            Vector attraction = new Vector(robotController.getLocation().directionTo(robot.getLocation()),

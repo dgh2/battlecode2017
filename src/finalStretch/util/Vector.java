@@ -1,4 +1,4 @@
-package finalEntry.util;
+package finalStretch.util;
 
 import battlecode.common.Direction;
 

@@ -8,6 +8,7 @@ import battlecode.common.RobotType;
 import battlecode.common.TreeInfo;
 import finalEntry.util.RobotBase;
 import finalEntry.util.Vector;
+import finalEntry.gardening.*;
 
 import static rolesplayer.util.Util.randomDirection;
 
@@ -16,6 +17,8 @@ public class Gardener extends RobotBase {
 
     //variables for garden making
     private boolean Glock = false;
+    Maintainer maintainer;
+    Formation formation;
 //    private boolean JustSpawned = true;
 
     public Gardener(RobotController robotController) {
@@ -27,7 +30,9 @@ public class Gardener extends RobotBase {
 
     @Override
     public void run() throws GameActionException {
-        maintain(); //TreeInfo[] trees = robotController.senseNearbyTrees(2f, robotController.getTeam());
+
+        maintainer.maintain(); //josiah's maintain code
+
         //Handle movement
         if (!Glock) { // only perform movement when not in gardening mode
             Vector movement = calculateInfluence();
@@ -65,15 +70,26 @@ public class Gardener extends RobotBase {
         //trees!! need those haha
         if(robotController.getRoundNum() > 3 && speed < 0.5) { // we might have built a scout by now and we have stopped running away from things
             System.out.println("Trying to build a garden");
-            if (plantGarden1()){
-                Glock = true; //if planting was sucessful, lock us in this position. maybe later check if all trees r dead
+//            if (plantGarden1()){
+//                Glock = true; //if planting was sucessful, lock us in this position. maybe later check if all trees r dead
+//            }
+
+            //plant trees, if
+            formation.plant();
+            if(formation.hasPlanted()) {
+                Glock = true;
             }
+
+
         }
         //defence!?
         if(robotController.getRoundNum() > 10 && robotController.getRoundNum() <= 120 && robotController.canBuildRobot(RobotType.LUMBERJACK, dir) && robotController.isBuildReady()) { // 15 turns hoping to build a lumberjack
             robotController.buildRobot(RobotType.LUMBERJACK, dir);
         }
 
+        if(Glock) { //make sure we continue planting the garden
+            formation.plant();
+        }
 
 //         Randomly attempt to build a Soldier or lumberjack in this direction
 //        if (robotController.canBuildRobot(RobotType.SCOUT, dir) && Math.random() < .1 && robotController.isBuildReady()) {

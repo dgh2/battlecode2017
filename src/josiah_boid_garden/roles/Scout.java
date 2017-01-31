@@ -71,7 +71,7 @@ public class Scout extends RobotBase {
     	RobotInfo[] robots = this.robotController.senseNearbyRobots();
     	RobotInfo[] enemyRobots = this.robotController.senseNearbyRobots(-1,this.robotController.getTeam().opponent());
     	
-    	AntiSocialResponse antiSocial = new AntiSocialResponse(actionController,15);
+    	AntiSocialResponse antiSocial = new AntiSocialResponse(actionController);
     	antiSocial.run(robots);
     	
     	attackTarget = stack.readFromStack();

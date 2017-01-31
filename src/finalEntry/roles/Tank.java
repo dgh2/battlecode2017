@@ -32,24 +32,14 @@ public class Tank extends RobotBase {
     protected Vector calculateInfluence() throws GameActionException {
         Vector movement = new Vector();
         for (RobotInfo robot : sensedRobots) {
+            Vector attraction = new Vector(robotController.getLocation().directionTo(robot.getLocation()),
+                    robotController.getLocation().distanceTo(robot.getLocation()))
+                    .normalize(robotController.getType().sensorRadius)
+                    .scale(robotController.getType().strideRadius);
             if (!robotController.getTeam().equals(robot.getTeam())) {
-                movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()),
-                        robotController.getType().strideRadius * 2f)
-                        .scale(getScaling(robot.getLocation())));
-                movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()).opposite(),
-                        robotController.getType().strideRadius)
-                        .scale(getInverseScaling(robot.getLocation())));
+                movement.add(attraction);
             } else {
-//                movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()),
-//                                robotController.getType().strideRadius)
-//                                .scale(getScaling(robot.getLocation())));
-                movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()).opposite(),
-                        robotController.getType().strideRadius * 2f)
-                        .scale(getScaling(robot.getLocation())));
-            }
-            if (RobotType.LUMBERJACK.equals(robot.getType())) {
-                movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()).opposite(),
-                        robotController.getType().strideRadius * 2f).scale(getInverseScaling(robot.getLocation())));
+                movement.add(attraction.opposite());
             }
             outputInfluenceDebugging("Tank robot influence", robot, movement);
         }

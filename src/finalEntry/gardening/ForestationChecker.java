@@ -1,6 +1,5 @@
-package josiah_boid_garden.gardening;
+package finalEntry.gardening;
 
-import battlecode.common.RobotController;
 import battlecode.common.TreeInfo;
 
 public class ForestationChecker {

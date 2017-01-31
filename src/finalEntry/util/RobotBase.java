@@ -151,8 +151,8 @@ public abstract class RobotBase {
         Vector movement = new Vector();
         Direction[] compass = {Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST};
         for (Direction dir : compass) {
-            if (!robotController.onTheMap(robotController.getLocation().add(dir, robotController.getType().sensorRadius))) {
-                movement.add(new Vector(dir).scale(robotController.getType().strideRadius));
+            if (!robotController.onTheMap(robotController.getLocation().add(dir, robotController.getType().sensorRadius*.95f))) {
+                movement.add(new Vector(dir).scale(robotController.getType().strideRadius).opposite().scale(50f));
             }
         }
         return movement;

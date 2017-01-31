@@ -136,8 +136,8 @@ public abstract class RobotBase {
         }
 
         if (robotController.getTeamBullets() > 500f) { //don't amass bullets once u have enough for a tank and some activity
-        	int donation = (int)(robotController.getTeamBullets() - 500f);
-        	donation = donation - (donation % robotController.getVictoryPointCost()) ;
+        	float donation = (robotController.getTeamBullets() - 500f);
+        	donation = donation - (donation % robotController.getVictoryPointCost());
             robotController.donate( donation );
         }
 

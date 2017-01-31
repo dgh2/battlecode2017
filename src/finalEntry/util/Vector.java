@@ -44,6 +44,11 @@ public class Vector {
     public Vector normalize(float maxRadius) {
         Direction direction = getDirection();
         float normalizedDistance = getDistance() / maxRadius;
+        if (normalizedDistance > 1) {
+            normalizedDistance = 1;
+        } else if (normalizedDistance < 0) {
+            normalizedDistance = 0;
+        }
         dx = direction.getDeltaX(normalizedDistance);
         dx = direction.getDeltaX(normalizedDistance);
         return this;

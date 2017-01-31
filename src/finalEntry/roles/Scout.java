@@ -1,6 +1,5 @@
 package finalEntry.roles;
 
-import battlecode.common.Direction;
 import battlecode.common.GameActionException;
 import battlecode.common.RobotController;
 import battlecode.common.RobotInfo;
@@ -50,31 +49,22 @@ public class Scout extends RobotBase {
     protected Vector calculateInfluence() throws GameActionException {
         Vector movement = new Vector();
         for (RobotInfo robot : sensedRobots) {
-            Direction robotDirection = robotController.getLocation().directionTo(robot.getLocation());
-            if (!robotController.getTeam().equals(robot.getTeam())) {
-                if (RobotType.GARDENER.equals(robot.getType())) {
-                    movement.add(new Vector(robotDirection,
-                            robotController.getType().strideRadius * 3f)
-                            .scale(getScaling(robot.getLocation())));
-                } else {
-                    movement.add(new Vector(robotDirection,
-                            robotController.getType().strideRadius)
-                            .scale(getScaling(robot.getLocation())));
-                }
-//                movement.add(new Vector(robotDirection.opposite(),
-//                        robotController.getType().strideRadius)
-//                        .scale(getInverseScaling(robot.getLocation())));
-            } else {
-//                movement.add(new Vector(robotDirection,
-//                        robotController.getType().strideRadius)
-//                        .scale(getScaling(robot.getLocation())));
-                movement.add(new Vector(robotDirection.opposite(),
-                        robotController.getType().strideRadius * 2f)
-                        .scale(getInverseScaling(robot.getLocation())));
-            }
+            Vector attraction = new Vector(robotController.getLocation().directionTo(robot.getLocation()),
+                    robotController.getLocation().distanceTo(robot.getLocation()))
+                    .normalize(robotController.getType().sensorRadius)
+                    .scale(robotController.getType().strideRadius);
             if (RobotType.LUMBERJACK.equals(robot.getType())) {
-                movement.add(new Vector(robotDirection.opposite(),
-                        robotController.getType().strideRadius * 2.5f).scale(getInverseScaling(robot.getLocation())));
+                movement.add(attraction.opposite());
+            } else if (!robotController.getTeam().equals(robot.getTeam())) {
+                if (RobotType.GARDENER.equals(robot.getType())) {
+                    movement.add(new Vector(attraction.getDirection(),
+                            Math.min(robotController.getType().strideRadius,
+                                    robotController.getLocation().distanceTo(robot.getLocation()))));
+                } else {
+                    movement.add(attraction.opposite());
+                }
+            } else {
+                movement.add(attraction.opposite().scale(.75f));
             }
             outputInfluenceDebugging("Robot influence", robot, movement);
         }

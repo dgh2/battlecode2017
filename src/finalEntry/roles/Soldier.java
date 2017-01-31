@@ -15,10 +15,12 @@ public class Soldier extends RobotBase {
     @Override
     public void run() throws GameActionException {
         //Handle movement
-        Vector movement = calculateInfluence();
-        robotController.setIndicatorLine(robotController.getLocation(),
-                robotController.getLocation().translate(movement.dx, movement.dy), 255, 255, 255);
-        tryMove(movement.getDirection(), movement.getDistance());
+//        boid.addForce();
+//        boid.addLinearAttraction();
+//        boid.addLinearRepulsion();
+//        boid.addPreferedDistance();
+//        boid.addSquaredAttraction();
+//        boid.addSquaredRepulsion();
 
         //Handle actions
 

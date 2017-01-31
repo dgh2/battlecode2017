@@ -6,6 +6,7 @@ import java.util.Random;
 import battlecode.common.GameActionException;
 import battlecode.common.MapLocation;
 import battlecode.common.RobotController;
+import battlecode.common.RobotInfo;
 import battlecode.common.RobotType;
 import josiah_boid_garden.UnitVector;
 import josiah_boid_garden.boid.AntiSocialResponse;
@@ -13,6 +14,7 @@ import josiah_boid_garden.boid.AvoidEdges;
 import josiah_boid_garden.boid.Boid;
 import josiah_boid_garden.boid.BulletResponse;
 import josiah_boid_garden.util.GlobalMap;
+import josiah_boid_garden.util.InformationStack;
 import josiah_boid_garden.util.RobotBase;
 import josiah_boid_garden.util.TeamMapArray;
 
@@ -30,6 +32,8 @@ public class Scout extends RobotBase {
 	
 	Random rand;
 	
+	InformationStack stack;
+	
 	int searchingness = 5;
 	
 	enum Dir{NORTH,WEST,EAST,SOUTH,NONE}
@@ -38,26 +42,53 @@ public class Scout extends RobotBase {
 	
 	MapLocation start ;
 	
+	MapLocation attackTarget=null;
+	
     public Scout(RobotController robotController) {
         super(robotController);
         rand = new Random();
         rand.setSeed(robotController.getRoundNum());
+        
         try{
-        map = new GlobalMap(new TeamMapArray(this.robotController));
+        	map = new GlobalMap(new TeamMapArray(this.robotController));
         } catch (Exception e){
         	System.out.println(e.getMessage());
         }
         
         start = robotController.getLocation();
+        
+        stack = new InformationStack(this.robotController);
     }
 
     @Override
     public void run() throws GameActionException {
     	
+    	this.robotController.broadcastFloat(42, 42f);
+    	System.out.println( this.robotController.readBroadcastFloat(42) );
+    	
     	Boid actionController = new Boid (this.robotController);
     	
-    	AntiSocialResponse antiSocial = new AntiSocialResponse(actionController);
-    	antiSocial.run(this.robotController.senseNearbyRobots());
+    	RobotInfo[] robots = this.robotController.senseNearbyRobots();
+    	RobotInfo[] enemyRobots = this.robotController.senseNearbyRobots(-1,this.robotController.getTeam().opponent());
+    	
+    	AntiSocialResponse antiSocial = new AntiSocialResponse(actionController,15);
+    	antiSocial.run(robots);
+    	
+    	attackTarget = stack.readFromStack();
+    	
+    	if(attackTarget!=null){
+    		actionController.addLinearAttraction(attackTarget, 100);
+    		this.robotController.setIndicatorDot(attackTarget, 255, 0, 0);
+    		System.out.println("Found target at " +attackTarget.x +","+attackTarget.y);
+    	}
+    	
+    	
+    	if(enemyRobots.length>0){
+    		System.out.println("Found robot at "+ enemyRobots[0].getLocation()+ ".Broadcasting it");
+    		stack.writeToStack(new MapLocation[]{enemyRobots[0].getLocation()}, 1f);
+    	}
+    	
+
 
     	BulletResponse bulletDodge = new BulletResponse(actionController);
     	bulletDodge.run(this.robotController.senseNearbyBullets());
@@ -218,9 +249,16 @@ public class Scout extends RobotBase {
 	    	
 	    } else {
 	    	System.out.println("Moving to location");
-	    	controller.addLinearAttraction(target, 10);
-	    	if(this.robotController.getLocation().distanceTo(target) < 2){
-	    		targetAcquired = false;
+	    	
+	    	if(attackTarget!=null){
+	    		controller.addLinearAttraction(attackTarget, 10);
+	    	} else{
+	    		controller.addLinearAttraction(target, 10);
+
+	    	
+	    		if(this.robotController.getLocation().distanceTo(target) < 2){
+	    			targetAcquired = false;
+	    		}
 	    	}
 	    }
     	

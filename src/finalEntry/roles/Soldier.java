@@ -26,7 +26,7 @@ public class Soldier extends RobotBase {
 
         if (!attackClosestEnemy()) {
             for (TreeInfo tree : sensedTrees) {
-                if (robotController.getTeam().equals(tree.getTeam())) {
+                if (robotController.getTeam().equals(tree.getTeam()) || !hasLineOfSight(tree)) {
                     continue;
                 }
                 if (robotController.canFirePentadShot() || robotController.canFireTriadShot()) {

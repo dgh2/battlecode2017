@@ -203,15 +203,7 @@ public abstract class RobotBase {
         return movement;
     }
 
-    protected Direction getDirectionToInitialEnemyArchonLocation() throws GameActionException {
-        for (MapLocation archonLocation : robotController.getInitialArchonLocations(robotController.getTeam().opponent())) {
-            if(archonLocation != null) {
-                return robotController.getLocation().directionTo(archonLocation);
-            }
-        }
-        return Direction.SOUTH;
 
-    }
 
     protected Vector getInfluenceFromTreesWithBullets(TreeInfo[] trees) throws GameActionException {
         Vector movement = new Vector();

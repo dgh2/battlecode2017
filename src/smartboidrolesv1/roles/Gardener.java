@@ -51,6 +51,12 @@ public class Gardener extends RobotBase {
 
         // Generate a random direction
         Direction dir = randomDirection();
+        Direction dir2 = null;
+        for (MapLocation archonLocation : robotController.getInitialArchonLocations(robotController.getTeam().opponent())) {
+            if(archonLocation != null) {
+                dir2 = robotController.getLocation().directionTo(archonLocation);
+            }
+        }
 
         //if (rc.canBuildRobot(RobotType.SCOUT, dir) && (rc.getRoundNum() <= 4 || Math.random() < .5) && rc.isBuildReady()) {
         //    rc.buildRobot(RobotType.SCOUT, dir);
@@ -75,12 +81,25 @@ public class Gardener extends RobotBase {
         //trees!! need those haha
         if(robotController.getRoundNum() > 3 && speed < 0.5) { // we might have built a scout by now and we have stopped running away from things
             System.out.println("Trying to build a garden");
-            if (plantGarden1()){
-                Glock = true; //if planting was sucessful, lock us in this position. maybe later check if all trees r dead
+
+
+            if(dir2 != null) {
+                if (dir2.equals(Direction.WEST, 90f)) { //plant to west if enemy is west of us
+                    if (plantGarden1()) {
+                        Glock = true; //if planting was sucessful, lock us in this position. maybe later check if all trees r dead
+                    }
+                } else {
+                    if (plantGarden2()) { //otherwise plant to the east
+                        Glock = true; //if planting was sucessful, lock us in this position. maybe later check if all trees r dead
+                    }
+                }
             }
         }
         //defence!?
         if(robotController.getRoundNum() > 10 && robotController.getRoundNum() <= 120 && robotController.canBuildRobot(RobotType.LUMBERJACK, dir) && robotController.isBuildReady()) { // 15 turns hoping to build a lumberjack
+            if (robotController.canBuildRobot(RobotType.SOLDIER, dir) && Math.random() < .15 && robotController.isBuildReady()) {
+                robotController.buildRobot(RobotType.SOLDIER, dir); //get some pew pew in here
+            }
             robotController.buildRobot(RobotType.LUMBERJACK, dir);
         }
 
@@ -107,6 +126,11 @@ public class Gardener extends RobotBase {
                 robotController.buildRobot(RobotType.LUMBERJACK, Direction.WEST);
             } else if (robotController.canBuildRobot(RobotType.TANK, Direction.WEST) && Math.random() < .6 && robotController.isBuildReady()) {
                 robotController.buildRobot(RobotType.TANK, Direction.WEST);
+            }
+            if (robotController.canBuildRobot(RobotType.LUMBERJACK, Direction.EAST) && Math.random() < .4 && robotController.isBuildReady()) {
+                robotController.buildRobot(RobotType.LUMBERJACK, Direction.EAST);
+            } else if (robotController.canBuildRobot(RobotType.TANK, Direction.EAST) && Math.random() < .6 && robotController.isBuildReady()) {
+                robotController.buildRobot(RobotType.TANK, Direction.EAST);
             }
         }
 
@@ -170,4 +194,3 @@ public class Gardener extends RobotBase {
         return movement;
     }
 }
-

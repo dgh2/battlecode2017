@@ -532,6 +532,22 @@ public abstract class RobotBase {
         //maybe NE and SE as well, leaving west open for building units
         return false;
     }
+    protected boolean plantGarden2() throws GameActionException {
+        if(robotController.canPlantTree(Direction.NORTH)) {
+            robotController.plantTree(Direction.NORTH);
+            return true;
+        }
+        else if (robotController.canPlantTree(Direction.WEST)) {
+            robotController.plantTree(Direction.WEST);
+            return true;
+        }
+        else if (robotController.canPlantTree(Direction.SOUTH)) {
+            robotController.plantTree(Direction.SOUTH);
+            return true;
+        }
+        //maybe NE and SE as well, leaving west open for building units
+        return false;
+    }
     protected void maintain() throws GameActionException {
         //todo: stop sensing! use sensed trees and break on first one farther away than this limit
         TreeInfo[] trees = robotController.senseNearbyTrees(2f, robotController.getTeam());

@@ -26,9 +26,9 @@ public class Util {
 
     /*
         https://en.wikipedia.org/wiki/Fast_inverse_square_root
-        The algorithm computes 1/√x by performing the following steps:
+        The algorithm computes 1/sqrt(x) by performing the following steps:
             1. Alias the argument x to an integer, as a way to compute an approximation of log2(x)
-            2. Use this approximation to compute an approximation of log2(1/√x)
+            2. Use this approximation to compute an approximation of log2(1/sqrt(x))
             3. Alias back to a float, as a way to compute an approximation of the base-2 exponential
             4. Refine the approximation using a single iteration of the Newton's method.
      */

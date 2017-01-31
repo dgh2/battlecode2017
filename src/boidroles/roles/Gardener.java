@@ -71,27 +71,29 @@ public class Gardener extends RobotBase {
             }
         }
         //defence!?
-        if(robotController.getRoundNum() > 10 && robotController.getRoundNum() <= 25 && robotController.canBuildRobot(RobotType.LUMBERJACK, dir) && robotController.isBuildReady()) { // 15 turns hoping to build a lumberjack
+        if(robotController.getRoundNum() > 10 && robotController.getRoundNum() <= 120 && robotController.canBuildRobot(RobotType.LUMBERJACK, dir) && robotController.isBuildReady()) { // 15 turns hoping to build a lumberjack
             robotController.buildRobot(RobotType.LUMBERJACK, dir);
         }
 
 
 //         Randomly attempt to build a Soldier or lumberjack in this direction
-        if (robotController.canBuildRobot(RobotType.SCOUT, dir) && Math.random() < .1 && robotController.isBuildReady()) {
-            robotController.buildRobot(RobotType.SCOUT, dir);
-        } else if (robotController.canPlantTree(dir) && Math.random() < .1 && robotController.isBuildReady()) {
-            robotController.plantTree(dir);
-        } else if (robotController.canBuildRobot(RobotType.SOLDIER, dir) && Math.random() < .15 && robotController.isBuildReady()) {
-            robotController.buildRobot(RobotType.SOLDIER, dir);
-        } else if (robotController.canBuildRobot(RobotType.LUMBERJACK, dir) && Math.random() < .15 && robotController.isBuildReady()) {
-            robotController.buildRobot(RobotType.LUMBERJACK, dir);
-        } else if (robotController.canBuildRobot(RobotType.TANK, dir) && Math.random() < .08 && robotController.isBuildReady()) {
+//        if (robotController.canBuildRobot(RobotType.SCOUT, dir) && Math.random() < .1 && robotController.isBuildReady()) {
+//            robotController.buildRobot(RobotType.SCOUT, dir);
+//        } else if (robotController.canPlantTree(dir) && Math.random() < .1 && robotController.isBuildReady()) {
+//            robotController.plantTree(dir);
+//        } else if (robotController.canBuildRobot(RobotType.SOLDIER, dir) && Math.random() < .15 && robotController.isBuildReady()) {
+//            robotController.buildRobot(RobotType.SOLDIER, dir);
+//        } else if (robotController.canBuildRobot(RobotType.LUMBERJACK, dir) && Math.random() < .15 && robotController.isBuildReady()) {
+//            robotController.buildRobot(RobotType.LUMBERJACK, dir);
+//        } else if (robotController.canBuildRobot(RobotType.TANK, dir) && Math.random() < .08 && robotController.isBuildReady()) {
+//            robotController.buildRobot(RobotType.TANK, dir);
+//        }
+        if (robotController.canBuildRobot(RobotType.TANK, dir) && Math.random() < .5 && robotController.isBuildReady()) {
             robotController.buildRobot(RobotType.TANK, dir);
         }
 
         //chop down forrest - if you see a neutral tree, make a lumberjack
-        TreeInfo[] neutralTrees = robotController.senseNearbyTrees(-1, Team.NEUTRAL);
-        if(neutralTrees.length > 0) {
+        if(sensedTrees.length > 0) {
             robotController.buildRobot(RobotType.LUMBERJACK, Direction.WEST);
         }
 
@@ -150,7 +152,7 @@ public class Gardener extends RobotBase {
 //        movement.add(getInfluenceFromTreesWithBullets(sensedTrees));
 //        movement.add(getInfluenceFromTrees(sensedTrees));
         movement.add(dodgeBullets(sensedBullets));
-        movement.add(repelFromMapEdges());
+        //movement.add(repelFromMapEdges());
         outputInfluenceDebugging("Gardener total influence", movement);
         return movement;
     }

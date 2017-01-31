@@ -45,7 +45,7 @@ public class Tank extends RobotBase {
 //                                .scale(getScaling(robot.getLocation())));
                 movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()).opposite(),
                         robotController.getType().strideRadius * 2f)
-                        .scale(getInverseScaling(robot.getLocation())));
+                        .scale(getScaling(robot.getLocation())));
             }
             if (RobotType.LUMBERJACK.equals(robot.getType())) {
                 movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()).opposite(),
@@ -53,9 +53,9 @@ public class Tank extends RobotBase {
             }
             outputInfluenceDebugging("Tank robot influence", robot, movement);
         }
-        movement.add(getInfluenceFromInitialEnemyArchonLocations(true, .2f));
+        movement.add(getInfluenceFromInitialEnemyArchonLocations(true, 1f));
         movement.add(getInfluenceFromTreesWithBullets(sensedTrees));
-        movement.add(getInfluenceFromTrees(sensedTrees));
+//        movement.add(getInfluenceFromTrees(sensedTrees));
         movement.add(dodgeBullets(sensedBullets));
         movement.add(repelFromMapEdges());
         outputInfluenceDebugging("Tank total influence", movement);

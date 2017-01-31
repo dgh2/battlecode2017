@@ -1,22 +1,7 @@
-package finalStretch.util;
+package boidrolesv2.util;
 
-import battlecode.common.BodyInfo;
-import battlecode.common.BulletInfo;
-import battlecode.common.Clock;
-import battlecode.common.Direction;
-import battlecode.common.GameActionException;
-import battlecode.common.GameConstants;
-import battlecode.common.MapLocation;
-import battlecode.common.RobotController;
-import battlecode.common.RobotInfo;
-import battlecode.common.RobotType;
-import battlecode.common.TreeInfo;
-import finalStretch.roles.Archon;
-import finalStretch.roles.Gardener;
-import finalStretch.roles.Lumberjack;
-import finalStretch.roles.Scout;
-import finalStretch.roles.Soldier;
-import finalStretch.roles.Tank;
+import battlecode.common.*;
+import boidrolesv2.roles.*;
 
 //import static smartboidrolesv1.util.Util.invSqrt;
 
@@ -31,7 +16,7 @@ public abstract class RobotBase {
     private final float treesWithBulletsInfluenceTimeout;
     private final float treeInfluenceTimeout;
     private final float shakeTreesTimeout;
-    private MapLocation previousLocation = null;
+    private final float bulletStockpileLimit = 500f;
 
     protected RobotBase(RobotController robotController) {
         if (robotController == null || robotController.getType() == null) {
@@ -126,7 +111,6 @@ public abstract class RobotBase {
 
     public void runOnce() throws GameActionException {
         //System.out.println("I am!");
-        previousLocation = robotController.getLocation().add(Util.randomDirection(), robotController.getType().strideRadius);
     }
 
     public void beforeRun() throws GameActionException {
@@ -156,12 +140,6 @@ public abstract class RobotBase {
             }
         }
         return movement;
-    }
-
-    protected Vector repelFromPreviousPoint(float scale) throws GameActionException {
-        return new Vector();
-//        return new Vector(robotController.getLocation().directionTo(previousLocation).opposite(),
-//                robotController.getType().strideRadius * scale);
     }
 
     protected Vector dodgeBullets(BulletInfo[] bullets) throws GameActionException {
@@ -218,53 +196,45 @@ public abstract class RobotBase {
     protected Vector getInfluenceFromInitialEnemyArchonLocations(boolean attract, float scale) throws GameActionException {
         Vector movement = new Vector();
         for (MapLocation archonLocation : robotController.getInitialArchonLocations(robotController.getTeam().opponent())) {
-            Vector attraction = new Vector(robotController.getLocation().directionTo(archonLocation),
-                    robotController.getLocation().distanceTo(archonLocation))
-                    .normalize(robotController.getType().sensorRadius)
-                    .scale(robotController.getType().strideRadius * scale);
-            movement.add(attract ? attraction : attraction.opposite());
+            Direction direction = robotController.getLocation().directionTo(archonLocation);
+            movement.add(new Vector(attract ? direction : direction.opposite(),
+                    robotController.getType().strideRadius).scale(scale));
         }
         return movement;
     }
 
-    protected Vector getInfluenceFromTreesWithBullets(TreeInfo[] trees, float scale) throws GameActionException {
+    protected Vector getInfluenceFromTreesWithBullets(TreeInfo[] trees) throws GameActionException {
         Vector movement = new Vector();
         float initialBytecodesLeft = Clock.getBytecodesLeft();
         for (TreeInfo tree : trees) {
             if (initialBytecodesLeft - Clock.getBytecodesLeft() >= treesWithBulletsInfluenceTimeout) {
                 break;
             }
-            if (!RobotType.SCOUT.equals(robotController.getType()) && !hasLineOfSight(tree)) {
-                continue;
-            }
-            if (tree.getContainedBullets() > 0) {
-                Vector attraction = new Vector(robotController.getLocation().directionTo(tree.getLocation()),
-                        robotController.getLocation().distanceTo(tree.getLocation()))
-                        .normalize(robotController.getType().sensorRadius)
-                        .scale(robotController.getType().strideRadius * scale);
-                movement.add(attraction);
+            if (tree.getContainedBullets() > 0 && (RobotType.SCOUT.equals(robotController.getType()) || hasLineOfSight(tree))) {
+                movement.add(new Vector(robotController.getLocation().directionTo(tree.getLocation()),
+                                robotController.getType().strideRadius/* * 1.5f*/)
+//                        .scale(getScaling(tree.getLocation())));
+                );
             }
         }
         return movement;
     }
 
-    protected Vector getInfluenceAwayFromTrees(TreeInfo[] trees, float scale) throws GameActionException {
+    protected Vector getInfluenceFromTrees(TreeInfo[] trees) throws GameActionException {
         Vector movement = new Vector();
         float initialBytecodesLeft = Clock.getBytecodesLeft();
         for (TreeInfo tree : trees) {
             if (initialBytecodesLeft - Clock.getBytecodesLeft() >= treeInfluenceTimeout) {
                 break;
             }
-            if (!hasLineOfSight(tree)) {
-                continue;
+            if (hasLineOfSight(tree)) { //commenting this out solved issue of maxing out bytecode use
+                movement.add(new Vector(robotController.getLocation().directionTo(tree.getLocation()).opposite(),
+                        robotController.getType().strideRadius)
+//                        .scale(getInverseScaling(tree.getLocation()))
+                );
             }
-            Vector attraction = new Vector(robotController.getLocation().directionTo(tree.getLocation()),
-                    robotController.getLocation().distanceTo(tree.getLocation()))
-                    .normalize(robotController.getType().sensorRadius)
-                    .scale(robotController.getType().strideRadius);
-            movement.add(attraction);
         }
-        return movement.opposite().scale(scale);
+        return movement;
     }
 
     public void afterRun() throws GameActionException {
@@ -286,8 +256,7 @@ public abstract class RobotBase {
             }
         }
 
-        previousLocation = robotController.getLocation();
-//        System.out.println("We're done here!");
+        System.out.println("We're done here!");
     }
 //
 //    private float getAllVP() { //if u donate all bullets, how many victory points do we get?
@@ -441,14 +410,14 @@ public abstract class RobotBase {
                     distance = robotController.getLocation().distanceTo(robot.getLocation());
                     angle = (float) Math.toDegrees(Math.atan(robot.getType().bodyRadius / distance));
                     if (angle > 2 * GameConstants.PENTAD_SPREAD_DEGREES && robotController.canFirePentadShot()) {
-                        robotController.firePentadShot(robotController.getLocation().directionTo(robot.getLocation()));
+                        robotController.firePentadShot(robotController.getLocation().directionTo(robot.location));
                     } else if (angle > GameConstants.TRIAD_SPREAD_DEGREES && robotController.canFireTriadShot()) {
-                        robotController.fireTriadShot(robotController.getLocation().directionTo(robot.getLocation()));
+                        robotController.fireTriadShot(robotController.getLocation().directionTo(robot.location));
                     } else {
-                        robotController.fireSingleShot(robotController.getLocation().directionTo(robot.getLocation()));
+                        robotController.fireSingleShot(robotController.getLocation().directionTo(robot.location));
                     }
                 } else if (robotController.canFireSingleShot()) {
-                    robotController.fireSingleShot(robotController.getLocation().directionTo(robot.getLocation()));
+                    robotController.fireSingleShot(robotController.getLocation().directionTo(robot.location));
                 }
                 return true;
             }
@@ -520,15 +489,15 @@ public abstract class RobotBase {
     }
 
     protected void outputInfluenceDebugging(String title, BodyInfo target, Vector movement) throws GameActionException {
-        String from = target == null ? "" : " from (" + target.getLocation().x + "," + target.getLocation().y + ") ";
-        System.out.println(title + from + " on (" + robotController.getLocation().x + "," + robotController.getLocation().y + "): ("
-                + movement.dx + "," + movement.dy + ")");
+//        String from = target == null ? "" : " from (" + target.getLocation().x + "," + target.getLocation().y + ") ";
+//        System.out.println(title + from + " on (" + robotController.getLocation().x + "," + robotController.getLocation().y + "): ("
+//                + movement.dx + "," + movement.dy + ")");
     }
 
     public void debugBytecodeUsed(String title) throws GameActionException {
-        System.out.println(title + ": "
-                + (100f * Clock.getBytecodesLeft() / Clock.getBytecodeNum()) + "% ("
-                + (Clock.getBytecodeNum() - Clock.getBytecodesLeft()) + ") of Bytecode used.");
+//        System.out.println(title + ": "
+//                + (100f * Clock.getBytecodesLeft() / Clock.getBytecodeNum()) + "% ("
+//                + (Clock.getBytecodeNum() - Clock.getBytecodesLeft()) + ") of Bytecode used.");
     }
 
     //try to build trees at certain locations relative to gardener

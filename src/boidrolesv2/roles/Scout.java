@@ -1,9 +1,9 @@
-package boidroles.roles;
+package boidrolesv2.roles;
 
 import battlecode.common.*;
-import boidroles.util.RobotBase;
-import boidroles.util.Vector;
-import finalStretch.util.InformationStack; //need this
+import boidrolesv2.util.RobotBase;
+import boidrolesv2.util.Vector;
+import boidrolesv2.util.InformationStack;
 
 
 public class Scout extends RobotBase {

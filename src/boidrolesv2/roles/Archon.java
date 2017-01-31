@@ -1,14 +1,10 @@
-package boidroles.roles;
+package boidrolesv2.roles;
 
-import battlecode.common.Direction;
-import battlecode.common.GameActionException;
-import battlecode.common.RobotController;
-import battlecode.common.RobotInfo;
-import battlecode.common.RobotType;
-import boidroles.util.RobotBase;
-import boidroles.util.Vector;
+import battlecode.common.*;
+import boidrolesv2.util.RobotBase;
+import boidrolesv2.util.Vector;
 
-import static boidroles.util.Util.randomDirection;
+import static smartboidrolesv1.util.Util.randomDirection;
 
 public class Archon extends RobotBase {
     public Archon(RobotController robotController) {

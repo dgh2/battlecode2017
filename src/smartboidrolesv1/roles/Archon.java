@@ -1,12 +1,12 @@
-package finalStretch.roles;
+package smartboidrolesv1.roles;
 
 import battlecode.common.Direction;
 import battlecode.common.GameActionException;
 import battlecode.common.RobotController;
 import battlecode.common.RobotInfo;
 import battlecode.common.RobotType;
-import finalStretch.util.RobotBase;
-import finalStretch.util.Vector;
+import smartboidrolesv1.util.RobotBase;
+import smartboidrolesv1.util.Vector;
 
 import static smartboidrolesv1.util.Util.randomDirection;
 
@@ -56,9 +56,9 @@ public class Archon extends RobotBase {
         }
 
 
-        if(robotController.getRoundNum() > 150) {
+        if(robotController.getRoundNum() > 150 && robotController.getTeamBullets() > 155f) {
             // Randomly attempt to build a Gardener in this direction
-            if (Math.random() < .2 && robotController.getTeamBullets() > 500f) {
+            if (Math.random() < .4 && robotController.getTeamBullets() > 500) {
                 if (robotController.canHireGardener(Direction.NORTH)) {
                     robotController.hireGardener(Direction.NORTH);
                 } else if (robotController.canHireGardener(Direction.EAST)) {
@@ -77,23 +77,29 @@ public class Archon extends RobotBase {
     protected Vector calculateInfluence() throws GameActionException {
         Vector movement = new Vector();
         for (RobotInfo robot : sensedRobots) {
-            Vector attraction = new Vector(robotController.getLocation().directionTo(robot.getLocation()),
-                    robotController.getLocation().distanceTo(robot.getLocation()))
-                    .normalize(robotController.getType().sensorRadius)
-                    .scale(robotController.getType().strideRadius);
+            if (!robotController.getTeam().equals(robot.getTeam())) {
+                movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()).opposite(),
+                        robotController.getType().strideRadius));
+            }
+//            else {
+//                movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()),
+//                        robotController.getType().strideRadius)
+//                        .scale(getScaling(robot.getLocation())));
+//                movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()).opposite(),
+//                        robotController.getType().strideRadius)
+//                        .scale(getInverseScaling(robot.getLocation())));
+//            }
             if (RobotType.LUMBERJACK.equals(robot.getType())) {
-                movement.add(attraction.opposite().scale(1.5f));
-            } else if (!robotController.getTeam().equals(robot.getTeam())) {
-                movement.add(attraction.opposite().scale(1.25f));
+                movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()).opposite(),
+                        robotController.getType().strideRadius * 2f).scale(getInverseScaling(robot.getLocation())));
             }
             outputInfluenceDebugging("Robot influence", robot, movement);
         }
-        movement.add(getInfluenceFromInitialEnemyArchonLocations(true, 0.25f));
-        movement.add(getInfluenceFromTreesWithBullets(sensedTrees, 2f));
-        movement.add(getInfluenceAwayFromTrees(sensedTrees, .5f));
+        movement.add(getInfluenceFromInitialEnemyArchonLocations(true, 0.5f));
+        movement.add(getInfluenceFromTreesWithBullets(sensedTrees));
+        movement.add(getInfluenceFromTrees(sensedTrees));
         movement.add(dodgeBullets(sensedBullets));
-        movement.add(repelFromMapEdges(3f));
-        movement.add(repelFromPreviousPoint(1f));
+        movement.add(repelFromMapEdges(1f));
         outputInfluenceDebugging("Total influence", movement);
         return movement;
     }

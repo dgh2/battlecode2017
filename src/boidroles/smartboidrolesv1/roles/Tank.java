@@ -1,12 +1,12 @@
-package boidroles.roles;
+package boidroles.smartboidrolesv1.roles;
 
 import battlecode.common.*;
-import boidroles.util.RobotBase;
-import boidroles.util.Vector;
-import finalStretch.util.InformationStack; //need this
+import boidroles.smartboidrolesv1.util.RobotBase;
+import boidroles.smartboidrolesv1.util.Vector;
+import finalStretch.util.InformationStack;
 
-public class Soldier extends RobotBase {
-    public Soldier(RobotController robotController) {
+public class Tank extends RobotBase {
+    public Tank(RobotController robotController) {
         super(robotController);
         stack = new InformationStack(this.robotController); //need this
     }
@@ -50,31 +50,31 @@ public class Soldier extends RobotBase {
         for (RobotInfo robot : sensedRobots) {
             if (!robotController.getTeam().equals(robot.getTeam())) {
                 movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()),
-                        robotController.getType().strideRadius)
+                        robotController.getType().strideRadius * 2f)
                         .scale(getScaling(robot.getLocation())));
-//                movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()).opposite(),
-//                        robotController.getType().strideRadius)
-//                        .scale(getInverseScaling(robot.getLocation())));
-            } else {
-//                movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()),
-//                        robotController.getType().strideRadius)
-//                        .scale(getScaling(robot.getLocation())));
                 movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()).opposite(),
                         robotController.getType().strideRadius)
                         .scale(getInverseScaling(robot.getLocation())));
+            } else {
+//                movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()),
+//                                robotController.getType().strideRadius)
+//                                .scale(getScaling(robot.getLocation())));
+                movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()).opposite(),
+                        robotController.getType().strideRadius * 2f)
+                        .scale(getScaling(robot.getLocation())));
             }
             if (RobotType.LUMBERJACK.equals(robot.getType())) {
                 movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()).opposite(),
                         robotController.getType().strideRadius * 2f).scale(getInverseScaling(robot.getLocation())));
             }
-            outputInfluenceDebugging("Soldier robot influence", robot, movement);
+            outputInfluenceDebugging("Tank robot influence", robot, movement);
         }
-        movement.add(getInfluenceFromInitialEnemyArchonLocations(true, .2f));
+        movement.add(getInfluenceFromInitialEnemyArchonLocations(true, 1f));
         movement.add(getInfluenceFromTreesWithBullets(sensedTrees));
-        movement.add(getInfluenceFromTrees(sensedTrees));
+//        movement.add(getInfluenceFromTrees(sensedTrees));
         movement.add(dodgeBullets(sensedBullets));
         movement.add(repelFromMapEdges(1f));
-        outputInfluenceDebugging("Soldier total influence", movement);
+        outputInfluenceDebugging("Tank total influence", movement);
         return movement;
     }
 }

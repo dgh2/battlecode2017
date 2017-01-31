@@ -1,4 +1,4 @@
-package boidroles.util;
+package boidrolesv2.util;
 
 import battlecode.common.GameActionException;
 import battlecode.common.MapLocation;

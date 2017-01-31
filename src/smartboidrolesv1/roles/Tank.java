@@ -1,8 +1,8 @@
-package boidroles.roles;
+package smartboidrolesv1.roles;
 
 import battlecode.common.*;
-import boidroles.util.RobotBase;
-import boidroles.util.Vector;
+import smartboidrolesv1.util.RobotBase;
+import smartboidrolesv1.util.Vector;
 import finalStretch.util.InformationStack; //need this
 
 public class Tank extends RobotBase {

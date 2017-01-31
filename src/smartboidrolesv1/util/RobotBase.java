@@ -1,4 +1,4 @@
-package boidroles.util;
+package smartboidrolesv1.util;
 
 import battlecode.common.BodyInfo;
 import battlecode.common.BulletInfo;
@@ -11,14 +11,14 @@ import battlecode.common.RobotController;
 import battlecode.common.RobotInfo;
 import battlecode.common.RobotType;
 import battlecode.common.TreeInfo;
-import boidroles.roles.Archon;
-import boidroles.roles.Gardener;
-import boidroles.roles.Lumberjack;
-import boidroles.roles.Scout;
-import boidroles.roles.Soldier;
-import boidroles.roles.Tank;
+import smartboidrolesv1.roles.Archon;
+import smartboidrolesv1.roles.Gardener;
+import smartboidrolesv1.roles.Lumberjack;
+import smartboidrolesv1.roles.Scout;
+import smartboidrolesv1.roles.Soldier;
+import smartboidrolesv1.roles.Tank;
 
-//import static boidroles.util.Util.invSqrt;
+//import static smartboidrolesv1.util.Util.invSqrt;
 
 public abstract class RobotBase {
     protected RobotController robotController;

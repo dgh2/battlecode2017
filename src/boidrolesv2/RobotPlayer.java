@@ -1,9 +1,9 @@
-package boidroles;
+package boidrolesv2;
 
 import battlecode.common.Clock;
 import battlecode.common.GameActionException;
 import battlecode.common.RobotController;
-import boidroles.util.RobotBase;
+import boidrolesv2.util.RobotBase;
 
 @SuppressWarnings("unused")
 public strictfp class RobotPlayer {

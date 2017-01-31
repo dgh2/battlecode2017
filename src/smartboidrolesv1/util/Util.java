@@ -1,4 +1,4 @@
-package boidroles.util;
+package smartboidrolesv1.util;
 
 import battlecode.common.BodyInfo;
 import battlecode.common.Direction;

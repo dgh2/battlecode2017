@@ -1,9 +1,9 @@
-package boidroles.roles;
+package boidroles.smartboidrolesv1.roles;
 
 import battlecode.common.*;
-import boidroles.util.RobotBase;
-import boidroles.util.Vector;
-import finalStretch.util.InformationStack; //need this
+import boidroles.smartboidrolesv1.util.RobotBase;
+import boidroles.smartboidrolesv1.util.Vector;
+import finalStretch.util.InformationStack;
 
 public class Lumberjack extends RobotBase {
     public static final float STRIKE_RANGE = RobotType.LUMBERJACK.bodyRadius + GameConstants.LUMBERJACK_STRIKE_RADIUS;

@@ -1,14 +1,9 @@
-package boidroles.roles;
+package boidrolesv2.roles;
 
 import battlecode.common.*;
-import boidroles.util.RobotBase;
-import boidroles.util.Vector;
-import battlecode.common.TreeInfo;
-import battlecode.common.GameActionException;
-import battlecode.common.RobotController;
-import battlecode.common.RobotInfo;
-import battlecode.common.RobotType;
-import finalStretch.util.InformationStack; //need this
+import boidrolesv2.util.RobotBase;
+import boidrolesv2.util.Vector;
+import finalStretch.util.InformationStack;
 
 import static rolesplayer.util.Util.randomDirection;
 

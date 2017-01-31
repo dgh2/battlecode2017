@@ -1,4 +1,4 @@
-package finalEntry.roles;
+package finalStretch.roles;
 
 import battlecode.common.Direction;
 import battlecode.common.GameActionException;
@@ -6,9 +6,9 @@ import battlecode.common.RobotController;
 import battlecode.common.RobotInfo;
 import battlecode.common.RobotType;
 import battlecode.common.TreeInfo;
-import finalEntry.util.RobotBase;
-import finalEntry.util.Vector;
-import finalEntry.gardening.*;
+import finalStretch.util.RobotBase;
+import finalStretch.util.Vector;
+import finalStretch.gardening.*;
 
 import static rolesplayer.util.Util.randomDirection;
 

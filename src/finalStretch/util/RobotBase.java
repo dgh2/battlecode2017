@@ -1,4 +1,4 @@
-package finalEntry.util;
+package finalStretch.util;
 
 import battlecode.common.BodyInfo;
 import battlecode.common.BulletInfo;
@@ -11,12 +11,12 @@ import battlecode.common.RobotController;
 import battlecode.common.RobotInfo;
 import battlecode.common.RobotType;
 import battlecode.common.TreeInfo;
-import finalEntry.roles.Archon;
-import finalEntry.roles.Gardener;
-import finalEntry.roles.Lumberjack;
-import finalEntry.roles.Scout;
-import finalEntry.roles.Soldier;
-import finalEntry.roles.Tank;
+import finalStretch.roles.Archon;
+import finalStretch.roles.Gardener;
+import finalStretch.roles.Lumberjack;
+import finalStretch.roles.Scout;
+import finalStretch.roles.Soldier;
+import finalStretch.roles.Tank;
 
 //import static boidroles.util.Util.invSqrt;
 

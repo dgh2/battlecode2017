@@ -1,4 +1,4 @@
-package finalEntry.gardening;
+package finalStretch.gardening;
 
 import battlecode.common.Direction;
 import battlecode.common.GameActionException;

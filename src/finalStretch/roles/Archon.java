@@ -1,12 +1,12 @@
-package finalEntry.roles;
+package finalStretch.roles;
 
 import battlecode.common.Direction;
 import battlecode.common.GameActionException;
 import battlecode.common.RobotController;
 import battlecode.common.RobotInfo;
 import battlecode.common.RobotType;
-import finalEntry.util.RobotBase;
-import finalEntry.util.Vector;
+import finalStretch.util.RobotBase;
+import finalStretch.util.Vector;
 
 import static boidroles.util.Util.randomDirection;
 

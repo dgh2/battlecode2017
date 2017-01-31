@@ -1,9 +1,9 @@
-package finalEntry;
+package finalStretch;
 
 import battlecode.common.Clock;
 import battlecode.common.GameActionException;
 import battlecode.common.RobotController;
-import finalEntry.util.RobotBase;
+import finalStretch.util.RobotBase;
 
 @SuppressWarnings("unused")
 public strictfp class RobotPlayer {

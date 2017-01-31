@@ -1,4 +1,4 @@
-package finalEntry.roles;
+package finalStretch.roles;
 
 import battlecode.common.BodyInfo;
 import battlecode.common.GameActionException;
@@ -8,8 +8,8 @@ import battlecode.common.RobotInfo;
 import battlecode.common.RobotType;
 import battlecode.common.Team;
 import battlecode.common.TreeInfo;
-import finalEntry.util.RobotBase;
-import finalEntry.util.Vector;
+import finalStretch.util.RobotBase;
+import finalStretch.util.Vector;
 
 public class Lumberjack extends RobotBase {
     public static final float STRIKE_RANGE = RobotType.LUMBERJACK.bodyRadius + GameConstants.LUMBERJACK_STRIKE_RADIUS;

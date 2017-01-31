@@ -146,15 +146,14 @@ public abstract class RobotBase {
 
     protected abstract Vector calculateInfluence() throws GameActionException;
 
-    protected Vector repelFromMapEdges() throws GameActionException {
+    protected Vector repelFromMapEdges(float scale) throws GameActionException {
         Vector movement = new Vector();
-        //todo: fix this, maybe the issue is scaling since things aren't normalized?
-//        Direction[] compass = {Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST};
-//        for (Direction dir : compass) {
-//            if (!robotController.onTheMap(robotController.getLocation().add(dir, robotController.getType().sensorRadius*.95f))) {
-//                movement = movement.add(new Vector(dir.opposite(), robotController.getType().strideRadius*5f));
-//            }
-//        }
+        Direction[] compass = {Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST};
+        for (Direction dir : compass) {
+            if (!robotController.onTheMap(robotController.getLocation().add(dir, robotController.getType().sensorRadius*.95f))) {
+                movement.add(new Vector(dir).scale(robotController.getType().strideRadius * scale).opposite());
+            }
+        }
         return movement;
     }
 

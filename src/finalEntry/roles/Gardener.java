@@ -152,7 +152,7 @@ public class Gardener extends RobotBase {
         }
         movement.add(getInfluenceFromInitialEnemyArchonLocations(false, .05f));
 //        movement.add(getInfluenceFromTreesWithBullets(sensedTrees));
-//        movement.add(getInfluenceFromTrees(sensedTrees));
+//        movement.add(getInfluenceAwayFromTrees(sensedTrees));
         movement.add(dodgeBullets(sensedBullets));
         movement.add(repelFromMapEdges(1f));
         outputInfluenceDebugging("Gardener total influence", movement);

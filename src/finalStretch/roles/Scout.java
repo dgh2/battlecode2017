@@ -57,10 +57,10 @@ public class Scout extends RobotBase {
     protected Vector calculateInfluence() throws GameActionException {
         Vector movement = new Vector();
         readEnemy = stack.readFromStack();
-        movement.add(new Vector(robotController.getLocation().directionTo(readEnemy),
-                    robotController.getLocation().distanceTo(readEnemy)))
-                    .normalize(robotController.getType().strideRadius * 4f)
-                    .scale(robotController.getType().strideRadius * 4f);
+//        movement.add(new Vector(robotController.getLocation().directionTo(readEnemy),
+//                    robotController.getLocation().distanceTo(readEnemy)))
+//                    .normalize(robotController.getType().strideRadius)
+//                    .scale(robotController.getType().strideRadius);
         for (RobotInfo robot : sensedRobots) {
             Vector attraction = new Vector(robotController.getLocation().directionTo(robot.getLocation()),
                     robotController.getLocation().distanceTo(robot.getLocation()))
@@ -96,11 +96,11 @@ public class Scout extends RobotBase {
 //                    .scale(1f));
 //        }
         movement.add(getInfluenceFromInitialEnemyArchonLocations(true, 0.5f));
-        movement.add(getInfluenceFromTreesWithBullets(sensedTrees, 3f));
-        movement.add(dodgeBullets(sensedBullets));
-        movement.add(repelFromMapEdges(2f));
-        movement.add(repelFromPreviousPoint(3f));
-        outputInfluenceDebugging("Total influence", movement);
+//        movement.add(getInfluenceFromTreesWithBullets(sensedTrees, 3f));
+//        movement.add(dodgeBullets(sensedBullets));
+//        movement.add(repelFromMapEdges(2f));
+////        movement.add(repelFromPreviousPoint(3f));
+//        outputInfluenceDebugging("Total influence", movement);
         return movement;
     }
 }

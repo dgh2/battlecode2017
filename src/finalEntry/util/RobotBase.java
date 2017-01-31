@@ -126,6 +126,7 @@ public abstract class RobotBase {
 
     public void runOnce() throws GameActionException {
         //System.out.println("I am!");
+        previousLocation = robotController.getLocation().add(Util.randomDirection(), robotController.getType().strideRadius);
     }
 
     public void beforeRun() throws GameActionException {
@@ -133,7 +134,6 @@ public abstract class RobotBase {
         sensedTrees = robotController.senseNearbyTrees();
         sensedBullets = robotController.senseNearbyBullets();
         //System.out.println("I'm a bot!");
-        previousLocation = robotController.getLocation();
         detectArchons();
 
 //                Vector requiredmovement = new Vector();
@@ -147,22 +147,21 @@ public abstract class RobotBase {
 
     protected abstract Vector calculateInfluence() throws GameActionException;
 
-    protected Vector repelFromMapEdges() throws GameActionException {
+    protected Vector repelFromMapEdges(float scale) throws GameActionException {
         Vector movement = new Vector();
         Direction[] compass = {Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST};
         for (Direction dir : compass) {
             if (!robotController.onTheMap(robotController.getLocation().add(dir, robotController.getType().sensorRadius*.95f))) {
-                movement.add(new Vector(dir).scale(robotController.getType().strideRadius).opposite().scale(50f));
+                movement.add(new Vector(dir).scale(robotController.getType().strideRadius * scale).opposite());
             }
         }
         return movement;
     }
 
-    protected Vector repelFromPreviousPoint() throws GameActionException {
+    protected Vector repelFromPreviousPoint(float scale) throws GameActionException {
         Vector movement = new Vector();
-//        if (!robotController.onTheMap(robotController.getLocation().add(dir, robotController.getType().sensorRadius))) {
-//            movement.add(new Vector(dir).scale(robotController.getType().strideRadius));
-//        }
+        movement.add(new Vector(robotController.getLocation().directionTo(previousLocation).opposite(),
+                robotController.getType().strideRadius * scale));
         return movement;
     }
 
@@ -284,7 +283,8 @@ public abstract class RobotBase {
             }
         }
 
-        System.out.println("We're done here!");
+        previousLocation = robotController.getLocation();
+//        System.out.println("We're done here!");
     }
 //
 //    private float getAllVP() { //if u donate all bullets, how many victory points do we get?

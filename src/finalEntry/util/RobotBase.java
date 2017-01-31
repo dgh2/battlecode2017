@@ -17,7 +17,6 @@ import finalEntry.roles.Lumberjack;
 import finalEntry.roles.Scout;
 import finalEntry.roles.Soldier;
 import finalEntry.roles.Tank;
-import josiah_boid_garden.boid.Boid;
 
 //import static boidroles.util.Util.invSqrt;
 
@@ -32,7 +31,7 @@ public abstract class RobotBase {
     private final float treesWithBulletsInfluenceTimeout;
     private final float treeInfluenceTimeout;
     private final float shakeTreesTimeout;
-    protected final Boid boid;
+    private MapLocation previousLocation = null;
 
     protected RobotBase(RobotController robotController) {
         if (robotController == null || robotController.getType() == null) {
@@ -43,7 +42,6 @@ public abstract class RobotBase {
         this.treesWithBulletsInfluenceTimeout = robotController.getType().bytecodeLimit * .2f;
         this.treeInfluenceTimeout = robotController.getType().bytecodeLimit * .1f;
         this.shakeTreesTimeout = 100;
-        this.boid = new Boid(this.robotController);
     }
 
     public static RobotBase createForController(RobotController robotController) {
@@ -135,6 +133,7 @@ public abstract class RobotBase {
         sensedTrees = robotController.senseNearbyTrees();
         sensedBullets = robotController.senseNearbyBullets();
         //System.out.println("I'm a bot!");
+        previousLocation = robotController.getLocation();
         detectArchons();
 
 //                Vector requiredmovement = new Vector();
@@ -156,6 +155,14 @@ public abstract class RobotBase {
                 movement.add(new Vector(dir).scale(robotController.getType().strideRadius));
             }
         }
+        return movement;
+    }
+
+    protected Vector repelFromPreviousPoint() throws GameActionException {
+        Vector movement = new Vector();
+//        if (!robotController.onTheMap(robotController.getLocation().add(dir, robotController.getType().sensorRadius))) {
+//            movement.add(new Vector(dir).scale(robotController.getType().strideRadius));
+//        }
         return movement;
     }
 
@@ -252,10 +259,10 @@ public abstract class RobotBase {
                         robotController.getLocation().distanceTo(tree.getLocation()))
                         .normalize(robotController.getType().sensorRadius)
                         .scale(robotController.getType().strideRadius);
-                movement.add(attraction.opposite());
+                movement.add(attraction);
             }
         }
-        return movement;
+        return movement.opposite().scale(.25f);
     }
 
     public void afterRun() throws GameActionException {

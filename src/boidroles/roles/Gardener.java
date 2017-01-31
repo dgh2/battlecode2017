@@ -93,12 +93,12 @@ public class Gardener extends RobotBase {
         }
 
         //chop down forrest - if you see a neutral tree, make a lumberjack
-        if(sensedTrees.length > 0) { //not sure what this does
+        if(sensedTrees.length > 0) {
             if (robotController.canBuildRobot(RobotType.LUMBERJACK, Direction.WEST) && Math.random() < .4 && robotController.isBuildReady()) {
-            robotController.buildRobot(RobotType.LUMBERJACK, Direction.WEST);
-        } else if (robotController.canBuildRobot(RobotType.TANK, Direction.WEST) && Math.random() < .6 && robotController.isBuildReady()) {
-            robotController.buildRobot(RobotType.TANK, Direction.WEST);
-        }
+                robotController.buildRobot(RobotType.LUMBERJACK, Direction.WEST);
+            } else if (robotController.canBuildRobot(RobotType.TANK, Direction.WEST) && Math.random() < .6 && robotController.isBuildReady()) {
+                robotController.buildRobot(RobotType.TANK, Direction.WEST);
+            }
         }
 
 //        for (TreeInfo tree : sensedTrees) {

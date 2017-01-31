@@ -59,9 +59,9 @@ public class Scout extends RobotBase {
                 if (RobotType.GARDENER.equals(robot.getType())) {
                     movement.add(new Vector(attraction.getDirection(),
                             Math.min(robotController.getType().strideRadius,
-                                    robotController.getLocation().distanceTo(robot.getLocation()))));
+                                    robotController.getLocation().distanceTo(robot.getLocation()))).scale(50f));
                 } else {
-                    movement.add(attraction.opposite());
+                    movement.add(attraction.opposite().scale(.75f));
                 }
             } else {
                 movement.add(attraction.opposite().scale(.75f));
@@ -87,6 +87,7 @@ public class Scout extends RobotBase {
 //        movement.add(getInfluenceFromTrees(sensedTrees));
         movement.add(dodgeBullets(sensedBullets));
         movement.add(repelFromMapEdges());
+        movement.add(repelFromPreviousPoint());
         outputInfluenceDebugging("Total influence", movement);
         return movement;
     }

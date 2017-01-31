@@ -15,12 +15,10 @@ public class Soldier extends RobotBase {
     @Override
     public void run() throws GameActionException {
         //Handle movement
-//        boid.addForce();
-//        boid.addLinearAttraction();
-//        boid.addLinearRepulsion();
-//        boid.addPreferedDistance();
-//        boid.addSquaredAttraction();
-//        boid.addSquaredRepulsion();
+        Vector movement = calculateInfluence();
+        robotController.setIndicatorLine(robotController.getLocation(),
+                robotController.getLocation().translate(movement.dx, movement.dy), 255, 255, 255);
+        tryMove(movement.getDirection(), movement.getDistance());
 
         //Handle actions
 
@@ -60,6 +58,7 @@ public class Soldier extends RobotBase {
         movement.add(getInfluenceFromTrees(sensedTrees));
         movement.add(dodgeBullets(sensedBullets));
         movement.add(repelFromMapEdges());
+        movement.add(repelFromPreviousPoint());
         outputInfluenceDebugging("Soldier total influence", movement);
         return movement;
     }

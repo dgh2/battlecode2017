@@ -77,21 +77,23 @@ public class Archon extends RobotBase {
     protected Vector calculateInfluence() throws GameActionException {
         Vector movement = new Vector();
         for (RobotInfo robot : sensedRobots) {
-            if (RobotType.LUMBERJACK.equals(robot.getType())
-                    || !robotController.getTeam().equals(robot.getTeam())) {
-                Vector attraction = new Vector(robotController.getLocation().directionTo(robot.getLocation()),
-                        robotController.getLocation().distanceTo(robot.getLocation()))
-                        .normalize(robotController.getType().sensorRadius)
-                        .scale(robotController.getType().strideRadius);
-                movement.add(attraction.opposite());
+            Vector attraction = new Vector(robotController.getLocation().directionTo(robot.getLocation()),
+                    robotController.getLocation().distanceTo(robot.getLocation()))
+                    .normalize(robotController.getType().sensorRadius)
+                    .scale(robotController.getType().strideRadius);
+            if (RobotType.LUMBERJACK.equals(robot.getType())) {
+                movement.add(attraction.opposite().scale(1.5f));
+            } else if (!robotController.getTeam().equals(robot.getTeam())) {
+                movement.add(attraction.opposite().scale(1.25f));
             }
             outputInfluenceDebugging("Robot influence", robot, movement);
         }
-        movement.add(getInfluenceFromInitialEnemyArchonLocations(true, 0.5f));
+        movement.add(getInfluenceFromInitialEnemyArchonLocations(true, 0.25f));
         movement.add(getInfluenceFromTreesWithBullets(sensedTrees));
         movement.add(getInfluenceFromTrees(sensedTrees));
         movement.add(dodgeBullets(sensedBullets));
         movement.add(repelFromMapEdges());
+        movement.add(repelFromPreviousPoint());
         outputInfluenceDebugging("Total influence", movement);
         return movement;
     }

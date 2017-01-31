@@ -107,12 +107,12 @@ public class Lumberjack extends RobotBase {
                 if (RobotType.LUMBERJACK.equals(robot.getType())) {
                     movement.add(attraction.opposite().scale(.75f));
                 } else {
-                    movement.add(attraction.opposite());
+                    movement.add(attraction.opposite().scale(.5f));
                 }
             } else {
                 movement.add(new Vector(attraction.getDirection(),
                         Math.min(robotController.getLocation().distanceTo(robot.getLocation()),
-                                robotController.getType().strideRadius)));
+                                robotController.getType().strideRadius)).scale(1.25f));
             }
             outputInfluenceDebugging("Lumberjack robot influence", robot, movement);
         }
@@ -123,7 +123,7 @@ public class Lumberjack extends RobotBase {
                     .scale(robotController.getType().strideRadius);
             if (tree.getContainedRobot() != null
                     || !robotController.getTeam().equals(tree.getTeam())) {
-                movement.add(attraction);
+                movement.add(attraction.scale(1.25f));
             } else {
                 movement.add(attraction.opposite()).scale(.5f);
             }
@@ -132,6 +132,7 @@ public class Lumberjack extends RobotBase {
         movement.add(getInfluenceFromInitialEnemyArchonLocations(true, .4f));
         movement.add(dodgeBullets(sensedBullets));
         movement.add(repelFromMapEdges());
+        movement.add(repelFromPreviousPoint());
         outputInfluenceDebugging("Lumberjack total influence", movement);
         return movement;
     }

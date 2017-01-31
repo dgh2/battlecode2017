@@ -133,7 +133,7 @@ public class Gardener extends RobotBase {
                     robotController.getLocation().distanceTo(robot.getLocation()))
                     .normalize(robotController.getType().sensorRadius)
                     .scale(robotController.getType().strideRadius);
-            movement.add(attraction.opposite());
+            movement.add(attraction.opposite().scale(1.25f));
             outputInfluenceDebugging("Gardener robot influence", robot, movement);
         }
         for (TreeInfo tree : sensedTrees) {
@@ -142,7 +142,7 @@ public class Gardener extends RobotBase {
                         robotController.getLocation().distanceTo(tree.getLocation()))
                         .normalize(robotController.getType().sensorRadius)
                         .scale(robotController.getType().strideRadius);
-                movement.add(attraction.scale(tree.getHealth() / tree.getMaxHealth()));
+                movement.add(attraction.scale(1.25f).scale(tree.getHealth() / tree.getMaxHealth()));
                 outputInfluenceDebugging("Gardener robot + tree influence", tree, movement);
             }
         }

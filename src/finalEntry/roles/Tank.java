@@ -37,9 +37,9 @@ public class Tank extends RobotBase {
                     .normalize(robotController.getType().sensorRadius)
                     .scale(robotController.getType().strideRadius);
             if (!robotController.getTeam().equals(robot.getTeam())) {
-                movement.add(attraction);
+                movement.add(attraction.scale(1.25f));
             } else {
-                movement.add(attraction.opposite());
+                movement.add(attraction.opposite().scale(.75f));
             }
             outputInfluenceDebugging("Tank robot influence", robot, movement);
         }
@@ -48,6 +48,7 @@ public class Tank extends RobotBase {
 //        movement.add(getInfluenceFromTrees(sensedTrees));
         movement.add(dodgeBullets(sensedBullets));
         movement.add(repelFromMapEdges());
+        movement.add(repelFromPreviousPoint());
         outputInfluenceDebugging("Tank total influence", movement);
         return movement;
     }

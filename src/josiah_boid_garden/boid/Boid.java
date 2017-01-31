@@ -71,11 +71,11 @@ public class Boid{
 		
 	}
 	
-	public void applyConstantRotationalForce(MapLocation loc, Dir direction , int magnitude){
+	public void applyConstantRotationalForce(MapLocation loc, boolean counterClockwise , int magnitude){
 		
 		Direction dir = new Direction (rc.getLocation() , loc);
 		
-		if(direction == Dir.LEFT){
+		if(counterClockwise){
 			dir = dir.rotateLeftDegrees(90);
 		} else {
 			dir = dir.rotateRightDegrees(90);
@@ -83,12 +83,10 @@ public class Boid{
 		
 		UnitVector moveDir = new UnitVector(dir);
 		
-		//rc.setIndicatorLine(rc.getLocation(), rc.getLocation().translate(moveDir.dx, moveDir.dy), 0, 255, 0);
-		
 		this.addForce(moveDir, magnitude);
 	}
 	
-	public void apply(){
+	public boolean apply(){
 	try {
 			
 			float strideLength = getAdjustedMagnitude();
@@ -97,6 +95,7 @@ public class Boid{
 				//try to move to the place you can
 				if(rc.canMove(strideDirection, strideLength)){
 						rc.move(strideDirection, strideLength);
+						return true;
 					//if you can't, at least try to move in that general direction
 				} else if (rc.canMove(strideDirection)){
 					rc.move(strideDirection);
@@ -106,7 +105,7 @@ public class Boid{
 			e.printStackTrace();
 		}
 		
-		
+		return false;
 	}
 	
 	public enum Dir{LEFT,RIGHT}

@@ -1,26 +1,35 @@
 package josiah_boid_garden.boid;
 
-import battlecode.common.RobotController;
 import battlecode.common.RobotInfo;
 
-public abstract class RobotResponse{
+public class RobotResponse{
 	
 	Boid base;
-	
-	RobotResponse (Boid base){
+	int power;
+	public RobotResponse (Boid base , int power){
 		this.base = base;
+		this.power = power;
 	}
 	
-	public void run( RobotInfo[] robots ){
+	public void runAway( RobotInfo[] robots ){
 		
 		for(int i = 0 ; i<robots.length ; i++){
 			
-			respond ( base , robots[i]) ;
+			base.addSquaredRepulsion(robots[i].getLocation(), power);
 			
 		}
 		
 	}
 	
-	protected abstract void respond ( Boid controller , RobotInfo robot);
+	public void runToward( RobotInfo[] robots ){
+		
+		for(int i = 0 ; i<robots.length ; i++){
+			
+			base.addLinearAttraction(robots[i].getLocation(), power);
+			
+		}
+		
+	}
+	
 
 }

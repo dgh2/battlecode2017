@@ -31,6 +31,7 @@ public class Gardener extends RobotBase {
     @Override
     public void run() throws GameActionException {
 
+        maintainer = new Maintainer(this.robotController);
         maintainer.maintain(); //josiah's maintain code
 
         //Handle movement
@@ -68,17 +69,18 @@ public class Gardener extends RobotBase {
             robotController.buildRobot(RobotType.SCOUT, dir); // maybe 3 turns to build a scout or two or three lol
         }
         //trees!! need those haha
-        if(robotController.getRoundNum() > 3 && speed < 0.5) { // we might have built a scout by now and we have stopped running away from things
+        if(robotController.getRoundNum() > 3 && speed < 1) { // we might have built a scout by now and we have stopped running away from things
             System.out.println("Trying to build a garden");
-//            if (plantGarden1()){
-//                Glock = true; //if planting was sucessful, lock us in this position. maybe later check if all trees r dead
-//            }
+            if (plantGarden1()){
+                Glock = true; //if planting was sucessful, lock us in this position. maybe later check if all trees r dead
+            }
 
             //plant trees, if
-            formation.plant();
-            if(formation.hasPlanted()) {
-                Glock = true;
-            }
+            //formation = new Formation(robotController,new Direction( start , this.robotController.getLocation()), Formation.Form.C);
+//            formation.plant();
+//            if(formation.hasPlanted()) {
+//                Glock = true;
+//            }
 
 
         }
@@ -87,9 +89,9 @@ public class Gardener extends RobotBase {
             robotController.buildRobot(RobotType.LUMBERJACK, dir);
         }
 
-        if(Glock) { //make sure we continue planting the garden
-            formation.plant();
-        }
+//        if(Glock) { //make sure we continue planting the garden
+//            formation.plant();
+//        }
 
 //         Randomly attempt to build a Soldier or lumberjack in this direction
 //        if (robotController.canBuildRobot(RobotType.SCOUT, dir) && Math.random() < .1 && robotController.isBuildReady()) {

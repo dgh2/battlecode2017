@@ -16,6 +16,11 @@ public class AntiSocialResponse{
 		this.base = base;
 	}
 	
+	public AntiSocialResponse (Boid base , int antiSocialPower){
+		this.base = base;
+		this.antiSocialPower = antiSocialPower;
+	}
+	
 	public void run( RobotInfo[] robots ){
 		
 		int startBytes = Clock.getBytecodeNum();

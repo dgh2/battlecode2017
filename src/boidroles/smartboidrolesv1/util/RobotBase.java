@@ -409,9 +409,9 @@ public abstract class RobotBase {
                 if (robotController.canFirePentadShot() || robotController.canFireTriadShot()) {
                     distance = robotController.getLocation().distanceTo(robot.getLocation());
                     angle = (float) Math.toDegrees(Math.atan(robot.getType().bodyRadius / distance));
-                    if (angle > 2 * GameConstants.PENTAD_SPREAD_DEGREES && robotController.canFirePentadShot()) {
+                    if (angle+15f > 2 * GameConstants.PENTAD_SPREAD_DEGREES && robotController.canFirePentadShot()) {
                         robotController.firePentadShot(robotController.getLocation().directionTo(robot.location));
-                    } else if (angle > GameConstants.TRIAD_SPREAD_DEGREES && robotController.canFireTriadShot()) {
+                    } else if (angle +10f > GameConstants.TRIAD_SPREAD_DEGREES && robotController.canFireTriadShot()) {
                         robotController.fireTriadShot(robotController.getLocation().directionTo(robot.location));
                     } else {
                         robotController.fireSingleShot(robotController.getLocation().directionTo(robot.location));

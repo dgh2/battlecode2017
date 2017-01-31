@@ -23,6 +23,8 @@ public class Gardener extends RobotBase {
 
     public Gardener(RobotController robotController) {
         super(robotController);
+        maintainer = new Maintainer(robotController);
+        formation = new Formation(robotController, Math.random() < .5 ? Direction.SOUTH : Direction.NORTH, Formation.Form.C);
     }
 
 //    private TreeInfo[] neutralTrees;

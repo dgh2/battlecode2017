@@ -18,6 +18,8 @@ public class Gardener extends RobotBase {
 	MapLocation start;
 	Formation formation;
 	
+	private final int attackRound = 150; // round we start building attack units
+	
 	boolean searching = true;
 	
     public Gardener(RobotController robotController) {
@@ -45,12 +47,13 @@ public class Gardener extends RobotBase {
 	        	  maintainer = new Maintainer(this.robotController);
 	          }
 	          controller.apply();
+	          
 	    } else {
 	    	
 	    	formation.plant();
 	    	maintainer.maintain();
 	          // Randomly attempt to build a Soldier or lumberjack in this direction
-	          if (robotController.canBuildRobot(RobotType.SCOUT,formation.getBuildDirection()) && Math.random() < .5 && robotController.isBuildReady()) {
+	          if (robotController.canBuildRobot(RobotType.SCOUT,formation.getBuildDirection()) && Math.random() < .5 && robotController.isBuildReady() && this.robotController.getRoundNum() > attackRound) {
 	              robotController.buildRobot(RobotType.SCOUT, formation.getBuildDirection());
 	          } else if (robotController.canBuildRobot(RobotType.LUMBERJACK, formation.getBuildDirection()) && robotController.isBuildReady()) {
 	              robotController.buildRobot(RobotType.LUMBERJACK, formation.getBuildDirection());

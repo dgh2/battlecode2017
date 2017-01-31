@@ -36,6 +36,13 @@ public class GlobalMap {
 	private static final int topIndex = bottomIndex + 1;
 	
 	private static final int MapArrayOffset =topIndex+1 ;
+	
+	public GlobalMap (RobotController robotController){
+		
+		mapArray = new TeamMapArray(robotController);
+		
+	}
+	
 	public GlobalMap(MapArray rc){
 		widthAcquired=false;
 		heightAcquired=false;

@@ -2,11 +2,15 @@ package josiah_boid_garden.roles;
 
 import battlecode.common.Direction;
 import battlecode.common.GameActionException;
+import battlecode.common.MapLocation;
 import battlecode.common.RobotController;
 import battlecode.common.RobotInfo;
 import battlecode.common.RobotType;
 import battlecode.common.TreeInfo;
+import josiah_boid_garden.boid.Boid;
+import josiah_boid_garden.boid.RobotResponse;
 import josiah_boid_garden.gardening.ForestationChecker;
+import josiah_boid_garden.util.GlobalMap;
 import josiah_boid_garden.util.RobotBase;
 import josiah_boid_garden.util.Util;
 
@@ -16,6 +20,9 @@ public class Archon extends RobotBase {
 	private final int MAXTRIES = 32;
 	
 	int nextGardenerTurn = 0;
+	int gardenerPeriodicity = 25;
+	
+	GlobalMap map;
 	
 	float forestation = 0;
 	
@@ -24,14 +31,14 @@ public class Archon extends RobotBase {
 	
 	public Archon(RobotController robotController) {
         super(robotController);
-        
+        map = new GlobalMap(this.robotController);
     }
 
     @Override
     public void run() throws GameActionException {
  
         try {
-	        
+
 
 	        robots = this.robotController.senseNearbyRobots();
 	        trees = this.robotController.senseNearbyTrees();
@@ -41,10 +48,27 @@ public class Archon extends RobotBase {
 	        	this.buildAGardener();
 	        }
 	        
+	        Boid controller = new Boid (this.robotController);
+	        
+	        RobotResponse RR = new RobotResponse(controller , 45);
+	        
+	        
 	        //run away from bad guys
 	        RobotInfo[] enemyRobots = robotController.senseNearbyRobots( -1, robotController.getTeam().opponent() );
-	        runAway(enemyRobots);
+	        RR.runAway(robots);
+	        
+	        RobotInfo[] allyRobots = robotController.senseNearbyRobots( -1 , robotController.getTeam()); 
+        	RR.runAway(allyRobots);
         	
+	        if(map.check()){
+	        	controller.applyConstantRotationalForce(
+	        			new MapLocation(map.getXOffset() + map.getWidth()/2 , map.getYOffset() + map.getWidth()/2),
+	        			true,
+	        			3);
+	        	
+	        }
+        	
+        	controller.apply();
         } catch (Exception e){
         	System.out.println(e.getMessage());
         }
@@ -58,21 +82,20 @@ public class Archon extends RobotBase {
     boolean shouldIBuildAGardener(){
     	if(this.robotController.getRoundNum() > nextGardenerTurn){
     		
-    		
-    		
     		if(forestation < 0.2){
-    			nextGardenerTurn += 120;
+    			nextGardenerTurn += gardenerPeriodicity;
     			System.out.println(" Clear land. Less than 20% forestation");
     		} else if (forestation < 0.5){
-    			nextGardenerTurn += 200;
+    			nextGardenerTurn += gardenerPeriodicity * 2;
     			System.out.println(" Moderatly forested. Less than 50%-70% forestation");
     		} else if (forestation < 0.7 ){
     			System.out.println(" Heavily forested. 70%-90% forestation");
-    			nextGardenerTurn += 300;
+    			nextGardenerTurn += gardenerPeriodicity*3;
     		} else {
     			System.out.println("Severly forested land. 90%+ forest");
-    			nextGardenerTurn += 1000;
+    			nextGardenerTurn += gardenerPeriodicity * 4;
     		}
+    		gardenerPeriodicity /= 2;
     		
     		return true;
     	} else {

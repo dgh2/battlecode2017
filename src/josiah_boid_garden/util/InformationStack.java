@@ -3,6 +3,7 @@ package josiah_boid_garden.util;
 import battlecode.common.GameActionException;
 import battlecode.common.MapLocation;
 import battlecode.common.RobotController;
+import battlecode.common.RobotType;
 
 public class InformationStack {
 	
@@ -17,16 +18,50 @@ public class InformationStack {
 	
 	RobotController rc;
 	
+	
+	
 	public InformationStack(RobotController rc){
 		this(rc,500,100);
 	}
 	
+	public InformationStack(RobotController rc , RobotType listeningType){
+		int so = 50;
+		switch(listeningType){
+		case TANK:
+			so=1050;
+			break;
+		case SOLDIER:
+			so=1150;
+			break;
+		case ARCHON:
+			so=1250;
+			break;
+		case LUMBERJACK:
+			so=1350;
+			break;
+		case SCOUT:
+			so=1450;
+			break;
+		case GARDENER:
+			so=1550;
+			break;
+		default:
+		}
+		this.rc=rc;
+		init(so,32);
+
+	}
+	
 	InformationStack(RobotController rc , int stackOffset ){
-		this(rc,stackOffset,100);
+		this(rc,stackOffset,32);
 	}
 	
 	InformationStack(RobotController rc , int stackOffset, int maxStackSize ){
 		this.rc = rc;
+		init(stackOffset,maxStackSize);
+	}
+	
+	private void init(int stackOffset , int maxStackSize){
 		this.stackOffset = stackOffset;
 		this.maxStackSize = maxStackSize;
 		dataStart = stackOffset+1;

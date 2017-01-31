@@ -88,6 +88,8 @@ public class Scout extends RobotBase {
     	} else {
     		System.out.println("Map returned : " + index);
     	}
+    	
+    	this.attackClosestEnemy();
     }
     
     public void scoutEdges(Boid controller){

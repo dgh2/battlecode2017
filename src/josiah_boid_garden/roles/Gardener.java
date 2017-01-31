@@ -35,10 +35,9 @@ public class Gardener extends RobotBase {
 	    		Direction dir = new Direction( start , this.robotController.getLocation());
 	  
 	          // Randomly attempt to build a Soldier or lumberjack in this direction
-	          if (robotController.canBuildRobot(RobotType.SCOUT, dir) && (robotController.getRoundNum() <= 50 || Math.random() < .5) && robotController.isBuildReady()) {
+	          if (robotController.canBuildRobot(RobotType.SCOUT, dir) && (robotController.getRoundNum() <= 50 && Math.random() < .5) && robotController.isBuildReady()) {
 	              robotController.buildRobot(RobotType.SCOUT, dir);
-	          }
-	          
+	          } 
 	          
 	          if(controller.getMagnitude() < 0.05*RobotType.GARDENER.strideRadius){
 	        	  searching = false;
@@ -51,9 +50,11 @@ public class Gardener extends RobotBase {
 	    	formation.plant();
 	    	maintainer.maintain();
 	          // Randomly attempt to build a Soldier or lumberjack in this direction
-	          if (robotController.canBuildRobot(RobotType.SCOUT,formation.getBuildDirection()) && (robotController.getRoundNum() <= 50 || Math.random() < .5) && robotController.isBuildReady()) {
+	          if (robotController.canBuildRobot(RobotType.SCOUT,formation.getBuildDirection()) && Math.random() < .5 && robotController.isBuildReady()) {
 	              robotController.buildRobot(RobotType.SCOUT, formation.getBuildDirection());
-	          }
+	          } else if (robotController.canBuildRobot(RobotType.LUMBERJACK, formation.getBuildDirection()) && robotController.isBuildReady()) {
+	              robotController.buildRobot(RobotType.LUMBERJACK, formation.getBuildDirection());
+	          } 
 	    	
 	    }
     	

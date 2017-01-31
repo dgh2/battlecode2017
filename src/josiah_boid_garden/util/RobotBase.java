@@ -136,7 +136,9 @@ public abstract class RobotBase {
         }
 
         if (robotController.getTeamBullets() > 500f) { //don't amass bullets once u have enough for a tank and some activity
-            robotController.donate(robotController.getTeamBullets() - 500f);
+        	int donation = (int)(robotController.getTeamBullets() - 500f);
+        	donation = donation - (donation % robotController.getVictoryPointCost()) ;
+            robotController.donate( donation );
         }
 
 
@@ -264,7 +266,12 @@ public abstract class RobotBase {
         if (enemies.length > 0) {
             for (RobotInfo enemy : enemies) {
                 if (robotController.canFireSingleShot() && hasLineOfSight(enemy.location)) {
-                    robotController.fireSingleShot(robotController.getLocation().directionTo(enemy.location));
+                    robotController.fireSingleShot(robotController.getLocation().directionTo( 
+                    		enemy.location.translate(
+                    				(float)(Math.random() * enemy.getType().bodyRadius*2-enemy.getType().bodyRadius),
+                    				(float)(Math.random() * enemy.getType().bodyRadius*2-enemy.getType().bodyRadius)
+                    				)
+                    		));
                     return true;
                 }
             }

@@ -9,21 +9,27 @@ public class MoveAwayFromTreeBehavior {
 	
 	Boid controller;
 	
-	float antiTreeValue;
+	int antiTreeValue;
 	
-	public MoveAwayFromTreeBehavior(Boid controller , float antiTreeValue){
+	 boolean counterClockWise;
+	
+	public MoveAwayFromTreeBehavior(Boid controller , int antiTreeValue , boolean counterClockWise){
 		this.controller = controller;
 		this.antiTreeValue = antiTreeValue;
+		this.counterClockWise = counterClockWise;
 	}
 	
-	public void run(TreeInfo[] trees){
+	public void runAway(TreeInfo[] trees){
 		for(int i = 0; i<trees.length;i++){
-			if(trees[i].getTeam()==controller.getRobotController().getTeam()){
-				
-				controller.addForce(new UnitVector(trees[i].location,controller.getRobotController().getLocation()),
-						(int) (antiTreeValue/(controller.getRobotController().getLocation().distanceSquaredTo(trees[i].location) + 1)));
-				
-			}
+				controller.addSquaredRepulsion(trees[i].location, antiTreeValue);
+				controller.applyConstantRotationalForce(trees[i].location, counterClockWise, antiTreeValue);
+		}
+	}
+	
+	public void runToward(TreeInfo[] trees){
+		for(int i = 0; i<trees.length;i++){
+				controller.addSquaredAttraction(trees[i].location, antiTreeValue);
+				controller.applyConstantRotationalForce(trees[i].location, counterClockWise, antiTreeValue);
 		}
 	}
 	

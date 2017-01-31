@@ -32,7 +32,7 @@ public abstract class RobotBase {
     private final float treesWithBulletsInfluenceTimeout;
     private final float treeInfluenceTimeout;
     private final float shakeTreesTimeout;
-    private final Boid boid;
+    protected final Boid boid;
 
     protected RobotBase(RobotController robotController) {
         if (robotController == null || robotController.getType() == null) {
@@ -150,13 +150,12 @@ public abstract class RobotBase {
 
     protected Vector repelFromMapEdges() throws GameActionException {
         Vector movement = new Vector();
-        //todo: fix this, maybe the issue is scaling since things aren't normalized?
-//        Direction[] compass = {Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST};
-//        for (Direction dir : compass) {
-//            if (!robotController.onTheMap(robotController.getLocation().add(dir, robotController.getType().sensorRadius*.95f))) {
-//                movement = movement.add(new Vector(dir.opposite(), robotController.getType().strideRadius*5f));
-//            }
-//        }
+        Direction[] compass = {Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST};
+        for (Direction dir : compass) {
+            if (!robotController.onTheMap(robotController.getLocation().add(dir, robotController.getType().sensorRadius))) {
+                movement.add(new Vector(dir).scale(robotController.getType().strideRadius));
+            }
+        }
         return movement;
     }
 
@@ -214,9 +213,11 @@ public abstract class RobotBase {
     protected Vector getInfluenceFromInitialEnemyArchonLocations(boolean attract, float scale) throws GameActionException {
         Vector movement = new Vector();
         for (MapLocation archonLocation : robotController.getInitialArchonLocations(robotController.getTeam().opponent())) {
-            Direction direction = robotController.getLocation().directionTo(archonLocation);
-            movement.add(new Vector(attract ? direction : direction.opposite(),
-                    robotController.getType().strideRadius).scale(scale));
+            Vector attraction = new Vector(robotController.getLocation().directionTo(archonLocation),
+                    robotController.getLocation().distanceTo(archonLocation))
+                    .normalize(robotController.getType().sensorRadius)
+                    .scale(robotController.getType().strideRadius * scale);
+            movement.add(attract ? attraction : attraction.opposite());
         }
         return movement;
     }
@@ -229,10 +230,11 @@ public abstract class RobotBase {
                 break;
             }
             if (tree.getContainedBullets() > 0 && (RobotType.SCOUT.equals(robotController.getType()) || hasLineOfSight(tree))) {
-                movement.add(new Vector(robotController.getLocation().directionTo(tree.getLocation()),
-                                robotController.getType().strideRadius/* * 1.5f*/)
-//                        .scale(getScaling(tree.getLocation())));
-                );
+                Vector attraction = new Vector(robotController.getLocation().directionTo(tree.getLocation()),
+                        robotController.getLocation().distanceTo(tree.getLocation()))
+                        .normalize(robotController.getType().sensorRadius)
+                        .scale(robotController.getType().strideRadius);
+                movement.add(attraction);
             }
         }
         return movement;
@@ -246,10 +248,11 @@ public abstract class RobotBase {
                 break;
             }
             if (hasLineOfSight(tree)) { //commenting this out solved issue of maxing out bytecode use
-                movement.add(new Vector(robotController.getLocation().directionTo(tree.getLocation()).opposite(),
-                        robotController.getType().strideRadius)
-//                        .scale(getInverseScaling(tree.getLocation()))
-                );
+                Vector attraction = new Vector(robotController.getLocation().directionTo(tree.getLocation()),
+                        robotController.getLocation().distanceTo(tree.getLocation()))
+                        .normalize(robotController.getType().sensorRadius)
+                        .scale(robotController.getType().strideRadius);
+                movement.add(attraction.opposite());
             }
         }
         return movement;
@@ -507,15 +510,15 @@ public abstract class RobotBase {
     }
 
     protected void outputInfluenceDebugging(String title, BodyInfo target, Vector movement) throws GameActionException {
-//        String from = target == null ? "" : " from (" + target.getLocation().x + "," + target.getLocation().y + ") ";
-//        System.out.println(title + from + " on (" + robotController.getLocation().x + "," + robotController.getLocation().y + "): ("
-//                + movement.dx + "," + movement.dy + ")");
+        String from = target == null ? "" : " from (" + target.getLocation().x + "," + target.getLocation().y + ") ";
+        System.out.println(title + from + " on (" + robotController.getLocation().x + "," + robotController.getLocation().y + "): ("
+                + movement.dx + "," + movement.dy + ")");
     }
 
     public void debugBytecodeUsed(String title) throws GameActionException {
-//        System.out.println(title + ": "
-//                + (100f * Clock.getBytecodesLeft() / Clock.getBytecodeNum()) + "% ("
-//                + (Clock.getBytecodeNum() - Clock.getBytecodesLeft()) + ") of Bytecode used.");
+        System.out.println(title + ": "
+                + (100f * Clock.getBytecodesLeft() / Clock.getBytecodeNum()) + "% ("
+                + (Clock.getBytecodeNum() - Clock.getBytecodesLeft()) + ") of Bytecode used.");
     }
 
     //try to build trees at certain locations relative to gardener

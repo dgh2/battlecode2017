@@ -129,37 +129,20 @@ public class Gardener extends RobotBase {
     protected Vector calculateInfluence() throws GameActionException {
         Vector movement = new Vector();
         for (RobotInfo robot : sensedRobots) {
-            if (RobotType.ARCHON.equals(robot.getType())) {
-                movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()).opposite(),
-                        robotController.getType().strideRadius * 2f).scale(getInverseScaling(robot.getLocation())));
-            }
-            if (!robotController.getTeam().equals(robot.getTeam())) {
-//                movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()),
-//                        robotController.getType().strideRadius)
-//                        .scale(getScaling(robot.getLocation())));
-                movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()).opposite(),
-                        robotController.getType().strideRadius)
-                        .scale(getScaling(robot.getLocation())));
-            } else {
-//                if (!robotController.getType().equals(robot.getType())) {
-//                    movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()),
-//                            robotController.getType().strideRadius)
-//                            .scale(getScaling(robot.getLocation())));
-//                }
-                movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()).opposite(),
-                        robotController.getType().strideRadius * 3f)
-                        .scale(getInverseScaling(robot.getLocation())));
-            }
-            if (RobotType.LUMBERJACK.equals(robot.getType())) {
-                movement.add(new Vector(robotController.getLocation().directionTo(robot.getLocation()).opposite(),
-                        robotController.getType().strideRadius * 2f).scale(getInverseScaling(robot.getLocation())));
-            }
+            Vector attraction = new Vector(robotController.getLocation().directionTo(robot.getLocation()),
+                    robotController.getLocation().distanceTo(robot.getLocation()))
+                    .normalize(robotController.getType().sensorRadius)
+                    .scale(robotController.getType().strideRadius);
+            movement.add(attraction.opposite());
             outputInfluenceDebugging("Gardener robot influence", robot, movement);
         }
         for (TreeInfo tree : sensedTrees) {
             if (robotController.getTeam().equals(tree.getTeam()) && tree.getHealth() < tree.getMaxHealth()) {
-                movement.add(new Vector(robotController.getLocation().directionTo(tree.getLocation()),
-                        robotController.getType().strideRadius).scale(tree.getHealth() / tree.getMaxHealth()));
+                Vector attraction = new Vector(robotController.getLocation().directionTo(tree.getLocation()),
+                        robotController.getLocation().distanceTo(tree.getLocation()))
+                        .normalize(robotController.getType().sensorRadius)
+                        .scale(robotController.getType().strideRadius);
+                movement.add(attraction.scale(tree.getHealth() / tree.getMaxHealth()));
                 outputInfluenceDebugging("Gardener robot + tree influence", tree, movement);
             }
         }

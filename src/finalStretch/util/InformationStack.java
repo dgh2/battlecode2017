@@ -1,4 +1,4 @@
-package josiah_boid_garden.util;
+package finalStretch.util;
 
 import battlecode.common.GameActionException;
 import battlecode.common.MapLocation;
@@ -113,8 +113,11 @@ public class InformationStack {
 	}
 	
 	public MapLocation readFromStack(){
+		
 		MapLocation max = null;
+		
 		try{
+			
 			int stackSize = this.rc.readBroadcastInt(stackOffset);
 			System.out.println("Stack size ="+stackSize);
 			
@@ -129,15 +132,22 @@ public class InformationStack {
 					
 					maxIndex = index;
 					maxValue = stackItem;
+					
 				}
+				
+				
 			}
+			
 			if(maxIndex!=-1){
 				max = new MapLocation(rc.readBroadcastFloat(maxIndex+1) , rc.readBroadcastFloat(maxIndex+2));
 				removeIndex(maxIndex);
 			}
+			
+			
 		} catch (Exception e){
 			
 		}
+		
 		return max;
 	}
 

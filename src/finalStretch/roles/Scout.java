@@ -1,18 +1,21 @@
 package finalStretch.roles;
 
-import battlecode.common.GameActionException;
-import battlecode.common.RobotController;
-import battlecode.common.RobotInfo;
-import battlecode.common.RobotType;
+import battlecode.common.*;
 import finalStretch.util.RobotBase;
 import finalStretch.util.Vector;
+import finalStretch.util.InformationStack;
 
 public class Scout extends RobotBase {
 //    private MapLocation previousLocation = null;
 
+    InformationStack stack;
+    MapLocation readEnemy;
+
     public Scout(RobotController robotController) {
         super(robotController);
+        stack = new InformationStack(this.robotController);
     }
+
 
     @Override
     public void run() throws GameActionException {
@@ -23,14 +26,19 @@ public class Scout extends RobotBase {
 //        if (previousLocation == robotController.getLocation()) {
 //            previousLocation = previousLocation.add(randomDirection(), robotController.getType().strideRadius);
 //        }
+
         Vector movement = calculateInfluence();
         robotController.setIndicatorLine(robotController.getLocation(),
                 robotController.getLocation().translate(movement.dx, movement.dy), 255, 255, 255);
         tryMove(movement.getDirection(), movement.getDistance());
 
         //Handle actions
+        RobotInfo[] enemyRobots = this.robotController.senseNearbyRobots(-1,this.robotController.getTeam().opponent());
+        if(enemyRobots.length>0){
+            System.out.println("Found robot at "+ enemyRobots[0].getLocation()+ ".Broadcasting it");
+            stack.writeToStack(new MapLocation[]{enemyRobots[0].getLocation()}, 1f);
+        }
 
-        // attack closest enemy except archons
         for (RobotInfo robot : sensedRobots) {
             if (robotController.getTeam().opponent().equals(robot.getTeam())
                     && robot.getType() != RobotType.ARCHON
@@ -48,6 +56,11 @@ public class Scout extends RobotBase {
     @Override
     protected Vector calculateInfluence() throws GameActionException {
         Vector movement = new Vector();
+        readEnemy = stack.readFromStack();
+        movement.add(new Vector(robotController.getLocation().directionTo(readEnemy),
+                    robotController.getLocation().distanceTo(readEnemy)))
+                    .normalize(robotController.getType().strideRadius * 4f)
+                    .scale(robotController.getType().strideRadius * 4f);
         for (RobotInfo robot : sensedRobots) {
             Vector attraction = new Vector(robotController.getLocation().directionTo(robot.getLocation()),
                     robotController.getLocation().distanceTo(robot.getLocation()))

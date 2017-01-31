@@ -83,8 +83,7 @@ public class Scout extends RobotBase {
 //                    .scale(1f));
 //        }
         movement.add(getInfluenceFromInitialEnemyArchonLocations(true, 0.5f));
-        movement.add(getInfluenceFromTreesWithBullets(sensedTrees));
-//        movement.add(getInfluenceFromTrees(sensedTrees));
+        movement.add(getInfluenceFromTreesWithBullets(sensedTrees, 3f));
         movement.add(dodgeBullets(sensedBullets));
         movement.add(repelFromMapEdges(2f));
         movement.add(repelFromPreviousPoint(3f));

@@ -1,9 +1,11 @@
 package finalEntry.roles;
 
 import battlecode.common.GameActionException;
+import battlecode.common.GameConstants;
 import battlecode.common.RobotController;
 import battlecode.common.RobotInfo;
 import battlecode.common.RobotType;
+import battlecode.common.TreeInfo;
 import finalEntry.util.RobotBase;
 import finalEntry.util.Vector;
 
@@ -22,10 +24,26 @@ public class Soldier extends RobotBase {
 
         //Handle actions
 
-        attackClosestEnemy();
-//        if (!attackClosestEnemy()) {
-//            attackArchons();
-//        }
+        if (!attackClosestEnemy()) {
+            for (TreeInfo tree : sensedTrees) {
+                if (robotController.getTeam().equals(tree.getTeam())) {
+                    continue;
+                }
+                if (robotController.canFirePentadShot() || robotController.canFireTriadShot()) {
+                    float distance = robotController.getLocation().distanceTo(tree.getLocation());
+                    float angle = (float) Math.toDegrees(Math.atan(tree.getRadius() / distance));
+                    if (angle > 2 * GameConstants.PENTAD_SPREAD_DEGREES && robotController.canFirePentadShot()) {
+                        robotController.firePentadShot(robotController.getLocation().directionTo(tree.getLocation()));
+                    } else if (angle > GameConstants.TRIAD_SPREAD_DEGREES && robotController.canFireTriadShot()) {
+                        robotController.fireTriadShot(robotController.getLocation().directionTo(tree.getLocation()));
+                    } else {
+                        robotController.fireSingleShot(robotController.getLocation().directionTo(tree.getLocation()));
+                    }
+                } else if (robotController.canFireSingleShot()) {
+                    robotController.fireSingleShot(robotController.getLocation().directionTo(tree.getLocation()));
+                }
+            }
+        }
     }
 
     @Override
@@ -54,8 +72,8 @@ public class Soldier extends RobotBase {
             outputInfluenceDebugging("Soldier robot influence", robot, movement);
         }
         movement.add(getInfluenceFromInitialEnemyArchonLocations(true, .2f));
-        movement.add(getInfluenceFromTreesWithBullets(sensedTrees));
-        movement.add(getInfluenceFromTrees(sensedTrees));
+        movement.add(getInfluenceFromTreesWithBullets(sensedTrees, 1f));
+        movement.add(getInfluenceAwayFromTrees(sensedTrees, .5f));
         movement.add(dodgeBullets(sensedBullets));
         movement.add(repelFromMapEdges(2f));
         movement.add(repelFromPreviousPoint(2f));
